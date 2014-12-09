@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<info>
+        <id>files_opds</id>
+        <name>OPDS catalog</name>
+        <description>Personal OPDS catalog</description>
+        <licence>AGPL</licence>
+	<version>0.1</version>
+        <author>Frank de Lange</author>
+        <requiremin>7.0</requiremin>
+        <shipped>true</shipped>
+        <default_enable/>
+</info>
+

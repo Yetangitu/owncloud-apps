@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info>
+    <id>files_reader</id>
+    <name>Reader (ebook reader)</name>
+    <description>Online ePub file reader</description>
+    <version>0.4.4</version>
+    <licence>LGPL</licence>
+    <author>Frank de Lange, (taken clues from Thomas Müller/files_pdfviewer, using slightly modified Futurepress/epub.js)</author>
+    <require>7.0</require>
+    <shipped>false</shipped>
+    <default_enable/>
+    <standalone/>
+</info>
