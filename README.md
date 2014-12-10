@@ -18,7 +18,9 @@ files_opds
 
 The OPDS app enables Owncloud users to publish a subtree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, the OPDS entries are rather sparse: only title (as in 'filename'), modification time and content links are provided. It uses Owncloud icons as cover art, this should make it possible to serve thumbnails as well (not tested as Owncloud currently can not create thumbnails for epub files, the which I happen to use for my personal library).
 
-The root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing all downloaded books in order (most recent download first). Once Owncloud starts supporting metadata in a more flexible way, this can be extended to include more faceted feeds (by tag, by author, by whatever...). For now, it works, albeit in a rather spartan fashion.
+The root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing all downloaded books in order (most recent download first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
+
+Once Owncloud starts supporting metadata in a more flexible way, this can be extended to include more faceted feeds (by tag, by author, by whatever...). For now, it works, albeit in a rather spartan fashion.
 
 In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed root directory, enter a list of extensions to which the feed should be limited (by default it publishes all files descending from the feed root) and clear the personal bookshelf.
 
