@@ -3,6 +3,16 @@ owncloud-apps
 
 This repo contains a few apps I made for Owncloud, mostly related to reading/publishing books and other digital publications.
 
+Install
+-------
+
+There are two ways to install apps from this repo:
+
+ * pull the repo and link/copy the desired apps to your Owncloud apps directory
+ * get tarballs (from dist/name_of_app-version.tar.gz) and extract them in your Owncloud apps directory
+
+The first method gives you the latest, greatest and potentially buggiest versions. The second is therefore preferred for those who care about the stability of their Owncloud instance.
+
 files_opds
 ----------
 
