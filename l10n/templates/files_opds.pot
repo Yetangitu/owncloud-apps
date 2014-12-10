@@ -1,0 +1,107 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ownCloud Core 8.0.0\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2014-12-10 09:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ajax/clear_bookshelf.php:21
+msgid "Bookshelf cleared"
+msgstr ""
+
+#: ajax/personal.php:28
+msgid "Directory does not exist!"
+msgstr ""
+
+#: ajax/personal.php:35
+msgid "Settings updated successfully."
+msgstr ""
+
+#: templates/feed.php:20
+#, php-format
+msgid "%s's library"
+msgstr ""
+
+#: templates/feed.php:21
+#, php-format
+msgid "%s OPDS Catalog"
+msgstr ""
+
+#: templates/feed.php:35
+msgid "Browse catalog"
+msgstr ""
+
+#: templates/feed.php:36
+msgid "Browse the catalog in alphabetical order"
+msgstr ""
+
+#: templates/feed.php:42
+#, php-format
+msgid "%s's bookshelf"
+msgstr ""
+
+#: templates/feed.php:43
+#, php-format
+msgid "This bookshelf contains %s books"
+msgstr ""
+
+#: templates/personal.php:16
+msgid "OPDS"
+msgstr ""
+
+#: templates/personal.php:19
+msgid "enable OPDS catalog"
+msgstr ""
+
+#: templates/personal.php:22
+msgid "Root directory:"
+msgstr ""
+
+#: templates/personal.php:23
+msgid "Enter root directory for OPDS catalog."
+msgstr ""
+
+#: templates/personal.php:26
+msgid "Supported extensions:"
+msgstr ""
+
+#: templates/personal.php:27
+msgid ""
+"Enter list of comma-separated extensions (eg. pdf,epub,doc,txt). Leave blank "
+"to publish all file types."
+msgstr ""
+
+#: templates/personal.php:30
+msgid "Clear Bookshelf"
+msgstr ""
+
+#: templates/personal.php:31
+msgid ""
+"Clear list of downloaded books from bookshelf. This only clears the list, it "
+"does not delete any books."
+msgstr ""
+
+#: templates/personal.php:31
+msgid "Yes, I really want to clear my personal bookshelf"
+msgstr ""
+
+#: templates/personal.php:32
+msgid "No, I do not want to clear my bookshelf"
+msgstr ""
+
+#: templates/personal.php:35
+#, php-format
+msgid "There are %s books on your personal bookshelf"
+msgstr ""
