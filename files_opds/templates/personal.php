@@ -32,8 +32,14 @@
                 <input type="button" id="opds-dont-clear-bookshelf" value="<?php p($l -> t('No, I do not want to clear my bookshelf')); ?>" hidden />
 		<span class="clr"></span>
 		<div>
-			<span id="opds-book-count"><?php p($l->t('There are %s books on your personal bookshelf', array($_['bookshelf-count']))) ?></span>&nbsp;
+			<span id="opds-book-count"><?php p($l->t('There are %s books on your personal bookshelf', array($_['bookshelf-count']))); ?></span>&nbsp;
 		</div>
         </div>
+	<br>
+	<div>
+		<span><?php p($l->t("OPDS URL")); ?>:</span>
+		<code><?php p($_['feedUrl']); ?></code>
+		<div><?php p($l->t("Use your Owncloud username and password.")); ?></div>
+	</div>
 </div>
 

@@ -19,6 +19,7 @@ $tmpl->assign('opdsEnable-value', ($opdsEnable === 'true') ? '1' : '0');
 $tmpl->assign('rootPath', Config::get('root_path', '/Library'));
 $tmpl->assign('fileTypes', Config::get('file_types', ''));
 $tmpl->assign('bookshelf-count', Bookshelf::count());
+$tmpl->assign('feedUrl', \OC_Helper::linkToAbsolute('','index.php') . '/apps/files_opds/');
 
 return $tmpl->fetchPage();
 
