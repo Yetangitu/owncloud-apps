@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ownCloud Core 8.0.0\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2014-12-10 12:20+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/reader.php:34
+msgid "Search"
+msgstr ""
+
+#: templates/reader.php:37
+msgid "TOC"
+msgstr ""
+
+#: templates/reader.php:40
+msgid "Bookmarks"
+msgstr ""
+
+#: templates/reader.php:43
+msgid "Notes"
+msgstr ""
+
+#: templates/reader.php:61
+msgid "Anchor"
+msgstr ""
+
+#: templates/reader.php:72
+msgid "Menu"
+msgstr ""
+
+#: templates/reader.php:86
+msgid "Bookmark"
+msgstr ""
+
+#: templates/reader.php:89 templates/reader.php:120
+msgid "Settings"
+msgstr ""
+
+#: templates/reader.php:92
+msgid "Fullscreen"
+msgstr ""
+
+#: templates/reader.php:95
+msgid "Close"
+msgstr ""
+
+#: templates/reader.php:126
+msgid "Always use"
+msgstr ""
+
+#: templates/reader.php:139
+msgid "font scaled to"
+msgstr ""
+
+#: templates/reader.php:144
+msgid "Et nos esse veri viri scire volemus"
+msgstr ""
+
+#: templates/reader.php:149
+msgid "Reflow text when sidebars are open."
+msgstr ""
+
+#: templates/reader.php:153
+msgid "Night mode background"
+msgstr ""
+
+#: templates/reader.php:155
+msgid "and text"
+msgstr ""
+
+#: templates/reader.php:157
+msgid "colour"
+msgstr ""
+
+#: templates/reader.php:167
+msgid "Disable extra-wide page turn areas"
+msgstr ""
+
+#: templates/reader.php:169
+msgid ""
+"The extra-wide page turn areas as used by default on touch-screen devices "
+"interfere with the ability to select links in ebooks. When this option is "
+"enabled, the page-turn area is always outside the ebook margins so links are "
+"reachable."
+msgstr ""

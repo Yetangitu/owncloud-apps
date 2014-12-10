@@ -31,16 +31,16 @@
             <div id="panels">
                <input id="searchBox" placeholder="not implemented yet" type="search" disabled="">
                <a id="show-Search" class="show_view icon-search" data-view="Search">
-                  Search
+                  <?php p($l->t("Search")); ?>
                </a>
                <a id="show-Toc" class="show_view icon-list-1 active" data-view="Toc">
-                  TOC
+                  <?php p($l->t("TOC")); ?>
                </a>
                <a id="show-Bookmarks" class="show_view icon-bookmark" data-view="Bookmarks">
-                  Bookmarks
+                  <?php p($l->t("Bookmarks")); ?>
                </a>
                <a id="show-Notes" class="show_view icon-edit" data-view="Notes">
-                  Notes
+                  <?php p($l->t("Notes")); ?>
                </a>
             </div>
             <div id="tocView" class="view">
@@ -58,7 +58,7 @@
                   <textarea id="note-text">
                   </textarea>
                   <button id="note-anchor">
-                     Anchor
+                     <?php p($l->t("Anchor")); ?>
                   </button>
                </div>
                <ol id="notes">
@@ -69,7 +69,7 @@
             <div id="titlebar">
                <div id="opener">
                   <a id="slider" class="icon-menu">
-                     Menu
+                     <?php p($l->t("Menu")); ?>
                   </a>
                </div>
                <div id="metainfo">
@@ -83,16 +83,16 @@
                </div>
                <div id="title-controls">
                   <a id="bookmark" class="icon-bookmark-empty">
-                     Bookmark
+                     <?php p($l->t("Bookmark")); ?>
                   </a>
                   <a id="setting" class="icon-cog">
-                     Settings
+                     <?php p($l->t("Settings")); ?>
                   </a>
                   <a id="fullscreen" class="icon-resize-full">
-                     Fullscreen
+                     <?php p($l->t("Fullscreen")); ?>
                   </a>
                   <a id="close" class="icon-cancel-circled2">
-                     Close
+                     <?php p($l->t("Close")); ?>
                   </a>
                </div>
             </div>
@@ -117,13 +117,13 @@
          <div class="modal md-effect-1" id="settings-modal">
             <div class="md-content">
                <h3>
-                  Settings
+                  <?php p($l->t("Settings")); ?>
                </h3>
                <div>
                   <p>
                      <input type="checkbox" id="ignore_css" name="ignore_css">
                      <label for="ignore_css">
-                        Always use
+                        <?php p($l->t("Always use")); ?>
                      </label>
                      <select id="fontFamily" disabled="">
                         <option value="verdana, trebuchet, droid sans serif, sans, sans-serif">
@@ -136,25 +136,25 @@
                            Monospace
                         </option>
                      </select>
-                     font scaled to
+                     <?php p($l->t("font scaled to")); ?>
                      <input type="number" id="fontSize" value="100" min="50" max="150" disabled="">
                      %
                   </p>
                   <div id="font_example" class="user">
-                     Et nos esse veri viri scire volemus
+                     <?php p($l->t("Et nos esse veri viri scire volemus")); ?>
                   </div>
                   <p>
                      <input type="checkbox" id="sidebarReflow" name="sidebarReflow">
                      <label for="sidebarReflow">
-                        Reflow text when sidebars are open.
+                        <?php p($l->t("Reflow text when sidebars are open.")); ?>
                      </label>
                   </p>
                   <p>
-                     Night mode background
+                     <?php p($l->t("Night mode background")); ?>
                      <input type="color" id="nightModeBackground" value="#000000">
-                     and text
+                     <?php p($l->t("and text")); ?>
                      <input type="color" id="nightModeColor" value="#3A516B">
-                     colour
+                     <?php p($l->t("colour")); ?>
                   </p>
                   <div id="nightModeExample" class="night">
                      <div>
@@ -164,9 +164,9 @@
                   <p>
                      <input type="checkbox" id="touch_nav" name="touch_nav">
                      <label for="touch_nav" class="tooltip">
-                        Disable extra-wide page turn areas 
+                        <?php p($l->t("Disable extra-wide page turn areas")); ?> 
 								<span>
-									The extra-wide page turn areas as used by default on touch-screen devices interfere with the ability to select links in ebooks. When this option is enabled, the page-turn area is always outside the ebook margins so links are reachable.
+									<?php p($l->t("The extra-wide page turn areas as used by default on touch-screen devices interfere with the ability to select links in ebooks. When this option is enabled, the page-turn area is always outside the ebook margins so links are reachable.")); ?>
 								</span>
                      </label>
                  </p>
