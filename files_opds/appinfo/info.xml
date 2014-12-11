@@ -4,7 +4,7 @@
         <name>OPDS catalog</name>
         <description>Personal OPDS catalog</description>
         <licence>AGPL</licence>
-	<version>0.1.1</version>
+	<version>0.1.2</version>
         <author>Frank de Lange</author>
         <requiremin>7.0</requiremin>
         <shipped>true</shipped>

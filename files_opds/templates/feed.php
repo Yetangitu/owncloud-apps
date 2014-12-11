@@ -33,6 +33,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <?php if ($_['id'] == 'root'): ?>
   <entry>
     <title><?php p($l->t("Browse catalog")); ?></title>
+    <updated><?php p(date("Y-m-d\TH:i:sP", $_['feed_updated'])); ?></updated>
     <content type="text"><?php p($l->t("Browse the catalog in alphabetical order")); ?></content>
     <link type="application/atom+xml;profile=opds-catalog;kind=navigation"
         href="?id=directory"/>
@@ -40,16 +41,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
   </entry>
   <entry>
     <title><?php p($l->t("%s's bookshelf", array($_['user']))); ?></title>
+    <updated><?php p(date("Y-m-d\TH:i:sP", $_['feed_updated'])); ?></updated>
     <content type="text"><?php p($l->t("This bookshelf contains %s books", array($_['bookshelf-count']))); ?></content>
     <link type="application/atom+xml;profile=opds-catalog;kind=navigation"
         href="?id=bookshelf"/>
     <id>id:by_bookshelf</id>
   </entry>
 <?php elseif ($_['id'] == 'bookshelf'): ?>
-  <link rel="http://opds-spec.org/facet" 
-        href="?id=bookshelf" 
-        title="Bookshelf" 
-        opds:activeFacet="true" />
 
 <?php foreach ($_['bookshelf'] as $file): ?>
   <entry>
@@ -66,13 +64,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
     <link href="<?php p($file['icon']); ?>"
-        rel="x-stanza-cover-image"
-        type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
-        rel="http://opds-spec.org/thumbnail"
-        type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
-        rel="x-stanza-cover-image-thumbnail"
+        rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
     <content type="text"></content>
   </entry>
@@ -84,7 +76,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <title><?php p($file['name']); ?></title>
     <updated><?php p(date("Y-m-d\TH:i:sP", $file['mtime'])); ?></updated>
     <id>id:<?php p($file['id']); ?></id>
-    <link type="application/atom+xml"
+    <link type="application/atom+xml;profile=opds-catalog;kind=navigation"
         rel="alternate"
         href="?id=<?php p($file['id']); ?>"/>
     <link type="application/atom+xml;profile=opds-catalog;kind=navigation"
@@ -107,15 +99,9 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
     <link href="<?php p($file['icon']); ?>"
-        rel="x-stanza-cover-image"
+        rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
-        rel="http://opds-spec.org/thumbnail"
-        type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
-        rel="x-stanza-cover-image-thumbnail"
-        type="image/jpeg" />
-    <content type="text/html"></content>
+    <content type="text"></content>
   </entry>
 <?php endif; ?>
 <?php endforeach; ?>
