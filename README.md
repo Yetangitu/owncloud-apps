@@ -16,7 +16,7 @@ The first method gives you the latest, greatest and potentially buggiest version
 files_opds
 ----------
 
-The OPDS app enables Owncloud users to publish a subtree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, the OPDS entries are rather sparse: only title (as in 'filename'), modification time and content links are provided. It uses Owncloud icons as cover art, this should make it possible to serve thumbnails as well (not tested as Owncloud currently can not create thumbnails for epub files, the which I happen to use for my personal library).
+The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, the OPDS entries are rather sparse for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided.
 
 The root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing all downloaded books in order (most recent download first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
 
@@ -24,7 +24,7 @@ Once Owncloud starts supporting metadata in a more flexible way, this can be ext
 
 In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed root directory, enter a list of extensions to which the feed should be limited (by default it publishes all files descending from the feed root) and clear the personal bookshelf.
 
-I tested the OPDS feed using FBReader and CoolReader with positive results. The feed can be accessed through Gecko-based browsers as well.
+The admin settings page contains options to change file preview preferences (which should probably be in core or in a separate app as this changes a system-wide setting ('enabledPreviewProviders')). Also on the admin settings page is an option to change the cover image and thumbnail dimensions.
 
 As it stands now, this is all the app does. It does not offer any specific way to manage publications, other than designating a root directory to serve them from. Once Owncloud starts supporting more extensive metadata I might reconsider the feature set. For now, I'd rather keep it simple as I don't fancy putting a lot of work (or CPU cycles) into managing my rather extensive collection of documents based on an ephemeral data store.
 
@@ -35,6 +35,17 @@ To connect to the OPDS feed, point your OPDS client at the app URL:
      https://example.com/path/to/owncloud/index.php/apps/files_opds/
 
 If all goes well, the client should ask for a username and password - enter your Owncloud credentials here (and make sure you use HTTPS!).
+
+The feed has been tested on these clients:
+
+ - FBReader on Android: OK
+ - Aldiko on Android: OK
+ - CoolReader on Android: buggy (CoolReader browser adds an extraneous '/' to the URL, probably related to this bug: http://sourceforge.net/p/crengine/bugs/267/)
+ - KyBook on iOS: OK
+ - Marvin on iOS: OK
+ - eBook Search on iOS: browsing works, downloading does not (401 error, 'Unauthorised')
+
+
 
 files_reader
 ------------
