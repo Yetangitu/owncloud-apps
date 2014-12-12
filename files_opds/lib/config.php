@@ -38,4 +38,74 @@ class Config
 	public static function set($key, $value) {
 		return \OCP\Config::setUserValue(\OCP\User::getUser(), 'files_opds', $key, $value);
 	}
+
+	/**
+	 * @brief get app config value
+	 *
+	 * @param string $key value to retrieve
+	 * @param string $default default value to use
+	 * @return string retrieved value or default
+	 */
+	public static function getApp($key, $default) {
+		return \OCP\Config::getAppValue('files_opds', $key, $default);
+	}
+
+	/**
+	 * @brief set app config value
+	 *
+	 * @param string $key key for value to change
+	 * @param string $value value to use
+	 * @return bool success
+	 */
+	public static function setApp($key, $value) {
+		return \OCP\Config::setAppValue('files_opds', $key, $value);
+	}
+	
+	/**
+	 * @brief get preview status
+	 * 
+	 * @param string format
+	 * @return bool (true = enabled, false = disabled)
+	 */
+	public static function getPreview($format) {
+		$enablePreviewProviders = \OCP\Config::getSystemValue('enabledPreviewProviders', null);
+		if (!($enablePreviewProviders === null)) {
+			return in_array($format, $enablePreviewProviders);
+		}
+		return false;
+	}
+
+	/**
+	 * @brief enable/disable preview for selected format
+	 *
+	 * @param string format
+	 * @param bool enable (true = enable, false = disable, default = false)
+	 * @return bool
+	 */
+	public static function setPreview($format, $enable = 'false') {
+		$enablePreviewProviders = \OCP\Config::getSystemValue('enabledPreviewProviders', null);
+		if ($enable == 'true') {
+			if ($enablePreviewProviders === null) {
+				// set up default providers
+				$enablePreviewProviders = array();
+				array_push($enablePreviewProviders,
+					'OC\Preview\Image',
+					'OC\Preview\MP3',
+					'OC\Preview\TXT',
+					'OC\Preview\MarkDown');
+			}
+			if (!(in_array($format,$enablePreviewProviders))) {
+				array_push($enablePreviewProviders, $format);
+			}
+		} else {
+			if (!($enablePreviewProviders == null)) {
+				$enablePreviewProviders = array_diff($enablePreviewProviders, array($format));
+			}
+		}
+
+		if (!(\OCP\Config::setSystemValue('enabledPreviewProviders', $enablePreviewProviders))) {
+			logWarn("Failed to enable " . $format . " preview provider (config.php readonly?)");
+			return true;
+		}
+	}
 }

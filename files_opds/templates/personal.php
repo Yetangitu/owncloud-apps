@@ -12,7 +12,7 @@
 
 ?>
 
-<div class="section" id="opds-personal">
+<div class="section" id="opds">
         <h2><?php p($l->t('OPDS')); ?></h2>
         <div>
 		<input id="opds-enable" name="opds-enable" value="<?php p($_['opdsEnable-value']) ?>" <?php p($_['opdsEnable-checked']) ?> type="checkbox">

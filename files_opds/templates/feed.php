@@ -10,11 +10,19 @@
  * later.
  */
 
+
+function formatMetadata($humansize,$mimetype,$name) {
+	return    "Size: " . $humansize . "\n"
+		. "Type: " . $mimetype . "\n"
+		. "Filename: " . $name;
+}
+
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
 
 <feed xmlns="http://www.w3.org/2005/Atom"
       xmlns:dc="http://purl.org/dc/terms/"
+      xmlns:dcterms="http://purl.org/dc/terms/"
       xmlns:opds="http://opds-spec.org/2010/catalog">
   <id>id:<?php p($_['feed_id']); ?></id>
   <title><?php p($l->t("%s's library", array($_['user']))); ?></title>
@@ -54,19 +62,20 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <title><?php p($file['name']); ?></title>
     <updated><?php p(date("Y-m-d\TH:i:sP", $file['mtime'])); ?></updated>
     <id>id:<?php p($file['id']); ?></id>
+    <dcterms:extent><?php p($file['humansize']); ?></dcterms:extent>
     <link type="<?php p($file['mimetype']); ?>"
         rel="alternate"
         href="?id=<?php p($file['id']); ?>"/>
     <link type="<?php p($file['mimetype']); ?>"
         rel="http://opds-spec.org/acquisition/open-access"
         href="?id=<?php p($file['id']); ?>"/>
-    <link href="<?php p($file['icon']); ?>"
+    <link href="<?php p($file['preview']); ?>"
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
+    <link href="<?php p($file['thumbnail']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
-    <content type="text"></content>
+    <content type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></content>
   </entry>
 <?php endforeach; ?>
 <?php else: ?>
@@ -89,19 +98,20 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <title><?php p($file['name']); ?></title>
     <updated><?php p(date("Y-m-d\TH:i:sP", $file['mtime'])); ?></updated>
     <id>id:<?php p($file['id']); ?></id>
+    <dcterms:extent><?php p($file['humansize']); ?></dcterms:extent>
     <link type="<?php p($file['mimetype']); ?>"
         rel="alternate"
         href="?id=<?php p($file['id']); ?>"/>
     <link type="<?php p($file['mimetype']); ?>"
         rel="http://opds-spec.org/acquisition/open-access"
         href="?id=<?php p($file['id']); ?>"/>
-    <link href="<?php p($file['icon']); ?>"
+    <link href="<?php p($file['preview']); ?>"
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
-    <link href="<?php p($file['icon']); ?>"
+    <link href="<?php p($file['thumbnail']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
-    <content type="text"></content>
+    <content type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></content>
   </entry>
 <?php endif; ?>
 <?php endforeach; ?>
