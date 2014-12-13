@@ -78,10 +78,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <link type="<?php p($file['mimetype']); ?>"
         rel="http://opds-spec.org/acquisition/open-access"
         href="?id=<?php p($file['id']); ?>"/>
-    <link href="<?php p($file['preview']); ?>"
+    <link href="?pid=<?php p($file['id']); ?>"
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
-    <link href="<?php p($file['thumbnail']); ?>"
+    <link href="?tid=<?php p($file['id']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
     <summary type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></summary>
@@ -124,10 +124,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <link type="<?php p($file['mimetype']); ?>"
         rel="http://opds-spec.org/acquisition/open-access"
         href="?id=<?php p($file['id']); ?>"/>
-    <link href="<?php p($file['preview']); ?>"
+    <link href="?pid=<?php p($file['id']); ?>"
         rel="http://opds-spec.org/image"
         type="image/jpeg" />
-    <link href="<?php p($file['thumbnail']); ?>"
+    <link href="?tid=<?php p($file['id']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
     <summary type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></summary>

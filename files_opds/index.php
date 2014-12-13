@@ -33,6 +33,18 @@ if (Config::get('enable', 'false') === 'false') {
 
 /* id defaults to 'root' (meaning 'serve root feed') */
 $id = isset($_GET['id']) ? $_GET['id'] : 'root';
+
+/* if either pid or tid is set, serve preview image for id */
+if (isset($_GET['pid'])) {
+	$id = (int) $_GET['pid'];
+	$type = 'cover';
+}
+
+if (isset($_GET['tid'])) {
+	$id = (int) $_GET['tid'];
+	$type = 'thumbnail';
+}
+
 $dir = \OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id));
 $root = Config::get('root_path', '/Library');
 
@@ -46,10 +58,14 @@ $dirInfo = \OC\Files\Filesystem::getFileInfo($dir);
 /* If requested resource is a file, serve it, otherwise produce opds feed */
 switch ($dirInfo->getType()) {
 	case 'file':
-		Util::serveFile($dir,$id);
+		if ($type) {
+			Feed::servePreview($dir,$type);
+		} else {
+			Feed::serveFile($dir,$id);
+		}
 		break;
 	case 'dir':
-		Util::serveFeed($dir, $id);
+		Feed::serveFeed($dir, $id);
 		break;
 	default:
 		Util::logWarn("I don't know how to handle files of type " . $dirInfo->getType());

@@ -32,13 +32,9 @@ class Files extends \OCA\Files\Helper
                 $entry['type'] = $i['type'];
 		if ($i['type'] === 'file') {
                 	$entry['mimetype'] = $i['mimetype'];
-                	$entry['preview'] = self::getPreview($i);
-                	$entry['thumbnail'] = self::getThumbnail($i);
                 	$entry['humansize'] = \OC_Helper::humanFileSize($i['size']);
-			$entry['meta'] = Util::getMeta($i['fileid']);
-		} else {
-                	$entry['icon'] = self::determineIcon($i);
-		}
+			$entry['meta'] = Meta::get($i['fileid']);
+		} 
                 return $entry;
         }
 
@@ -59,33 +55,6 @@ class Files extends \OCA\Files\Helper
 
                 return $files;
         }
-
-	/**
-	 * @brief get preview for file
-	 * @param \OCP\Files\FileInfo $i
-	 * @return string preview URL
-	 */
-	public static function getPreview($i) {
-		if (\OC::$server->getPreviewManager()->isMimeSupported($i['mimetype'])) {
-			return \OC_Helper::linkToRoute( 'core_ajax_preview', array('x' => Config::getApp('cover-x', '200'), 'y' => Config::getApp('cover-y', '200'), 'file' => \OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($i['fileid']))));
-		} else {
-			return self::determineIcon($i);
-		}
-	}
-
-
-	/**
-	 * @brief get thumbnail for file
-	 * @param \OCP\Files\FileInfo $i
-	 * @return string preview URL
-	 */
-	public static function getThumbnail($i) {
-		if (\OC::$server->getPreviewManager()->isMimeSupported($i['mimetype'])) {
-			return \OC_Helper::linkToRoute( 'core_ajax_preview', array('x' => Config::getApp('thumb-x', '36'), 'y' => Config::getApp('thumb-y', '36'), 'file' => \OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($i['fileid']))));
-		} else {
-			return self::determineIcon($i);
-		}
-	}
 
 	/*
 	 * @brief check if $child is a subdirectory of $parent
