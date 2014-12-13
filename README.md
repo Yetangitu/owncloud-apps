@@ -46,6 +46,7 @@ The feed has been tested on these clients:
  - eBook Search on iOS: browsing works, downloading does not (401 error, 'Unauthorised')
  - Gecko-based browsers: OK, feed can be browsed and books can be downloaded without additional software.
 
+OPDS catalog is available att the App repo: https://apps.owncloud.com/content/show.php/OPDS+catalog?content=168132
 
 
 files_reader
@@ -59,4 +60,4 @@ Reader has a night mode (toggled by clicking or pressing the book title/author o
 
 Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
 
-Reader is available at the App repo: https://apps.owncloud.com/content/show.php/Reader+(ebook+reader)
+Reader is available at the App repo: https://apps.owncloud.com/content/show.php/Reader+(ebook+reader)?content=167127
