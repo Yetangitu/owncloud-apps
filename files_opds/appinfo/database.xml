@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<database>
+        <name>*dbname*</name>
+        <create>true</create>
+        <overwrite>false</overwrite>
+        <charset>utf8</charset>
+
+        <table>
+		<name>*dbprefix*opds_metadata</name>
+		<declaration>
+			<field>
+				<!-- file ID, maps to OC file ID -->
+				<name>id</name>
+				<type>integer</type>
+				<default>0</default>
+				<notnull>true</notnull>
+				<length>11</length>
+			</field>
+
+			<field>
+				<!-- updated (time this record was created) -->
+				<name>updated</name>
+				<type>timestamp</type>
+				<default>1970-01-01 00:00:00</default>
+				<notnull>false</notnull>
+			</field>
+
+			<field>
+				<!-- date (corresponds to <dc:date> in epub -->
+				<name>date</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>32</length>
+			</field>
+
+			<field>
+				<!-- author(s) -->
+				<name>author</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>256</length>
+			</field>
+
+			<field>
+				<!-- title -->
+				<name>title</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>256</length>
+			</field>
+
+			<field>
+				<!-- language -->
+				<name>language</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>64</length>
+			</field>
+
+			<field>
+				<!-- publisher -->
+				<name>publisher</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>64</length>
+			</field>
+
+			<field>
+				<!-- ISBN -->
+				<name>isbn</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>16</length>
+			</field>
+
+			<field>
+				<!-- copyright -->
+				<name>copyright</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>128</length>
+			</field>
+
+			<field>
+				<!-- description -->
+				<name>description</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>2048</length>
+			</field>
+
+			<field>
+				<!-- subjects -->
+				<name>subjects</name>
+				<type>text</type>
+				<default></default>
+				<notnull>true</notnull>
+				<length>1024</length>
+			</field>
+		</declaration>
+	</table>
+</database>	

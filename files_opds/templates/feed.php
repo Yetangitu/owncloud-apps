@@ -59,10 +59,19 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 <?php foreach ($_['bookshelf'] as $file): ?>
   <entry>
-    <title><?php p($file['name']); ?></title>
-    <updated><?php p(date("Y-m-d\TH:i:sP", $file['mtime'])); ?></updated>
+    <title><?php p($file['meta']['title']); ?></title>
+    <updated><?php p(date("Y-m-d\TH:i:sP",strtotime($file['meta']['updated']))); ?></updated>
     <id>id:<?php p($file['id']); ?></id>
     <dcterms:extent><?php p($file['humansize']); ?></dcterms:extent>
+    <dc:language><?php p($file['meta']['language']); ?></dc:language>
+    <?php foreach (json_decode($file['meta']['author'],true) as $author): ?>
+    <author>
+      <name><?php p($author); ?></name>
+    </author>
+    <dc:identifier>urn:isbn:<?php p($file['meta']['isbn']); ?></dc:identifier>
+    <dc:publisher><?php p($file['meta']['publisher']); ?></dc:publisher>
+    <dc:issued><?php p($file['meta']['date']); ?></dc:issued>
+    <?php endforeach; ?>
     <link type="<?php p($file['mimetype']); ?>"
         rel="alternate"
         href="?id=<?php p($file['id']); ?>"/>
@@ -75,7 +84,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <link href="<?php p($file['thumbnail']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
-    <content type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></content>
+    <summary type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></summary>
+    <content type="text"><?php p("Size: " . $file['humansize'] . "\n\n"); ?><?php p($file['meta']['description']); ?></content>
   </entry>
 <?php endforeach; ?>
 <?php else: ?>
@@ -95,10 +105,19 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
   </entry>
 <?php else: ?>
   <entry>
-    <title><?php p($file['name']); ?></title>
-    <updated><?php p(date("Y-m-d\TH:i:sP", $file['mtime'])); ?></updated>
+    <title><?php p($file['meta']['title']); ?></title>
+    <updated><?php p(date("Y-m-d\TH:i:sP",strtotime($file['meta']['updated']))); ?></updated>
     <id>id:<?php p($file['id']); ?></id>
     <dcterms:extent><?php p($file['humansize']); ?></dcterms:extent>
+    <dc:language><?php p($file['meta']['language']); ?></dc:language>
+    <?php foreach (json_decode($file['meta']['author'],true) as $author): ?>
+    <author>
+      <name><?php p($author); ?></name>
+    </author>
+    <dc:identifier>urn:isbn:<?php p($file['meta']['isbn']); ?></dc:identifier>
+    <dc:publisher><?php p($file['meta']['publisher']); ?></dc:publisher>
+    <dc:issued><?php p($file['meta']['date']); ?></dc:issued>
+    <?php endforeach; ?>
     <link type="<?php p($file['mimetype']); ?>"
         rel="alternate"
         href="?id=<?php p($file['id']); ?>"/>
@@ -111,7 +130,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <link href="<?php p($file['thumbnail']); ?>"
         rel="http://opds-spec.org/image/thumbnail"
         type="image/jpeg" />
-    <content type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></content>
+    <summary type="text"><?php p(formatMetadata($file['humansize'],$file['mimetype'],$file['name'])); ?></summary>
+    <content type="text"><?php p("Size: " . $file['humansize'] . "\n\n"); ?><?php p($file['meta']['description']); ?></content>
   </entry>
 <?php endif; ?>
 <?php endforeach; ?>

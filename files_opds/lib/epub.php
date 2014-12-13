@@ -21,7 +21,7 @@ use \DOMDocument;
  * based on https://github.com/splitbrain/php-epub-meta
  */
 class Epub {
-	protected $xml;
+	public $xml;
 	protected $xpath;
 	protected $file;
 	protected $meta;
@@ -75,7 +75,7 @@ class Epub {
 	 * @brief file name getter
 	 * @return string filename
 	 */
-	public static function file() {
+	public function file() {
 		return $this->file;
 	}
 
@@ -84,7 +84,7 @@ class Epub {
 	 *
 	 * @return array $authors
 	 */
-	public static function Authors() {
+	public function Authors() {
 		// read current data
 		$rolefix = false;
 		$authors = array();
@@ -125,6 +125,15 @@ class Epub {
 	 */
 	public function Language(){
 		return $this->get('dc:language');
+	}
+
+	/**
+	 * @brief get date
+	 *
+	 * @param string $date
+	 */
+	public function Date(){
+		return $this->get('dc:date');
 	}
 
 	/**

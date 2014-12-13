@@ -35,6 +35,7 @@ class Files extends \OCA\Files\Helper
                 	$entry['preview'] = self::getPreview($i);
                 	$entry['thumbnail'] = self::getThumbnail($i);
                 	$entry['humansize'] = \OC_Helper::humanFileSize($i['size']);
+			$entry['meta'] = Util::getMeta($i['fileid']);
 		} else {
                 	$entry['icon'] = self::determineIcon($i);
 		}

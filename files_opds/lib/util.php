@@ -148,4 +148,76 @@ class Util
 	public static function logWarn($msg) {
 		\OCP\Util::writeLog('files_opds', $msg, \OCP\Util::WARN);
 	}
+
+	/**
+	 * @brief get metadata for fileid
+	 * 
+	 * Long function, to be split later
+	 *
+	 * @param int $id fileid
+	 * @return array of metadata
+	 */
+	public static function getMeta($id) {
+		$sql = 'SELECT * FROM `*PREFIX*opds_metadata` WHERE id = ?';
+		$args = array($id);
+		$query = \OCP\DB::prepare($sql);
+		$result = $query->execute($args);
+		if ($row = $result->fetchRow()) {
+			return $row;
+		} else {
+			/* start with empty values, except for id. This way, files only get
+			 * scanned once, even if they don't contain valid metadate.
+			 */
+			$meta = array();
+			$meta['id'] = $id;
+			$meta['updated'] = date("Y-m-d\TH:i:sP");
+			$meta['date'] = '';
+			$meta['author'] = '';
+			$meta['title'] = '';
+			$meta['language'] = '';
+			$meta['publisher'] = '';
+			$meta['isbn'] = '';
+			$meta['copyright'] = '';
+			$meta['description'] = '';
+			$meta['subjects'] = '';
+			
+			$path = \OC\Files\Filesystem::getLocalFile(\OC\Files\Filesystem::getPath($id));
+			switch (strtolower(substr(strrchr($path, "."), 1))) {
+				case 'epub':
+					$epub = new Epub($path);
+					$meta['author'] = json_encode($epub->Authors());
+					$meta['title'] = $epub->Title();
+					$meta['date'] = $epub->Date();
+					$meta['publisher'] = $epub->Publisher();
+					$meta['copyright'] = $epub->Copyright();
+					$meta['language'] = $epub->Language();
+					$meta['description'] = strip_tags($epub->Description());
+					$meta['isbn'] = $epub->ISBN();
+					$meta['subjects'] = $epub->Subjects();
+					break;
+				default:
+					// set title to filename minus extension
+					$info = pathinfo($path);
+					$meta['title'] = basename($path,'.'.$info['extension']);
+					break;
+			}
+			$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+			$args = array(
+				$meta['id'],
+				$meta['updated'],
+				$meta['date'],
+				$meta['author'],
+				$meta['title'],
+				$meta['language'],
+				$meta['publisher'],
+				$meta['isbn'],
+				$meta['copyright'],
+				$meta['description'],
+				$meta['subjects']
+				);
+			$query = \OCP\DB::prepare($sql);
+			$result = $query->execute($args);
+			return $meta;
+		}
+	}
 }

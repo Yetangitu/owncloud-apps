@@ -16,7 +16,7 @@ The first method gives you the latest, greatest and potentially buggiest version
 files_opds
 ----------
 
-The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, the OPDS entries are rather sparse for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided.
+The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents; other document types will appear with sparse entries for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided.
 
 The root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing all downloaded books in order (most recent download first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
 
@@ -44,6 +44,7 @@ The feed has been tested on these clients:
  - KyBook on iOS: OK
  - Marvin on iOS: OK
  - eBook Search on iOS: browsing works, downloading does not (401 error, 'Unauthorised')
+ - Gecko-based browsers: OK, feed can be browsed and books can be downloaded without additional software.
 
 
 
