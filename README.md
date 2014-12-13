@@ -18,17 +18,17 @@ files_opds
 
 The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents; other document types will appear with sparse entries for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided.
 
-The root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing all downloaded books in order (most recent download first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
+The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents; other document types will appear with sparse entries for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided.
 
-Once Owncloud starts supporting metadata in a more flexible way, this can be extended to include more faceted feeds (by tag, by author, by whatever...). For now, it works, albeit in a rather spartan fashion.
+The OPDS root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing links to all downloaded books (most recent download listed first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
 
-In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed root directory, enter a list of extensions to which the feed should be limited (by default it publishes all files descending from the feed root) and clear the personal bookshelf.
+The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
+
+In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed root directory (the default is /Library), enter a list of extensions to which the feed should be limited (by default this field is empty so it publishes all files descending from the feed root) and clear the personal bookshelf.
 
 The admin settings page contains options to change file preview preferences (which should probably be in core or in a separate app as this changes a system-wide setting ('enabledPreviewProviders')). Also on the admin settings page is an option to change the cover image and thumbnail dimensions.
 
-As it stands now, this is all the app does. It does not offer any specific way to manage publications, other than designating a root directory to serve them from. Once Owncloud starts supporting more extensive metadata I might reconsider the feature set. For now, I'd rather keep it simple as I don't fancy putting a lot of work (or CPU cycles) into managing my rather extensive collection of documents based on an ephemeral data store.
-
-The OPDS feed is disabled when the app is installed, enable it in the personal settings page under the header 'OPDS'.
+The OPDS feed is disabled when the app is installed, enable it in the personal settings page under the header 'OPDS'. Every user has his/her own feed, which feed you get depends on which credentials you enter.
 
 To connect to the OPDS feed, point your OPDS client at the app URL:
 
