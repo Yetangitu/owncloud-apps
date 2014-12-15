@@ -35,13 +35,13 @@ if (isset($_POST['opdsCoverX'])) {
 	// set preview preferences
 	$opdsPreviewEpub = $_POST['opdsPreviewEpub'];
 	$opdsPreviewPdf = $_POST['opdsPreviewPdf'];
-	$opdsPreviewOpenOffice = $_POST['opdsPreviewOpenOffice'];
+	$opdsPreviewOpenDocument = $_POST['opdsPreviewOpenDocument'];
 	$opdsPreviewMsOffice = $_POST['opdsPreviewMsOffice'];
 
 	Config::setPreview('OC\Preview\Epub',$opdsPreviewEpub);
 	Config::setPreview('OC\Preview\PDF',$opdsPreviewPdf);
-	Config::setPreview('OC\Preview\OpenDocument',$opdsPreviewOpenOffice);
-	Config::setPreview('OC\Preview\StarOffice',$opdsPreviewOpenOffice);
+	Config::setPreview('OC\Preview\OpenDocument',$opdsPreviewOpenDocument);
+	Config::setPreview('OC\Preview\StarOffice',$opdsPreviewOpenDocument);
 	Config::setPreview('OC\Preview\MSOfficeDoc',$opdsPreviewMsOffice);
 	Config::setPreview('OC\Preview\MSOffice2003',$opdsPreviewMsOffice);
 	Config::setPreview('OC\Preview\MSOffice2007',$opdsPreviewMsOffice);
