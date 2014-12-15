@@ -20,6 +20,7 @@ $l = new \OC_L10N('files_opds');
 $opdsEnable = isset($_POST['opdsEnable']) ? $_POST['opdsEnable'] : 'false';
 $rootPath = isset($_POST['rootPath']) ? $_POST['rootPath'] : null;
 $fileTypes = isset($_POST['fileTypes']) ? $_POST['fileTypes'] : '';
+$feedTitle = isset($_POST['feedTitle']) ? $_POST['feedTitle'] : $l->t("%s's Library", \OCP\User::getDisplayName());
 
 if (!is_null($rootPath)){
         if (\OC\Files\Filesystem::file_exists($rootPath) === false ){
@@ -38,6 +39,7 @@ if (!is_null($rootPath)){
 	}
         Config::set('enable', $opdsEnable);
         Config::set('file_types', $fileTypes);
+        Config::set('feed_title', $feedTitle);
 	Config::set('id', Util::genUuid());
         exit();
 }

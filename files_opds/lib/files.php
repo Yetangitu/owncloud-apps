@@ -27,7 +27,7 @@ class Files extends \OCA\Files\Helper
                 $entry = array();
 
                 $entry['id'] = $i['fileid'];
-                $entry['mtime'] = $i['mtime'] * 1000;
+                $entry['mtime'] = $i['mtime'];
                 $entry['name'] = $i->getName();
                 $entry['type'] = $i['type'];
 		if ($i['type'] === 'file') {

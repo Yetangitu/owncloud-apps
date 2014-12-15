@@ -24,9 +24,9 @@ The OPDS root feed links to a hierarchical navigation feed mirroring the directo
 
 The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 
-In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed root directory (the default is /Library), enter a list of extensions to which the feed should be limited (by default this field is empty so it publishes all files descending from the feed root) and clear the personal bookshelf.
+In the personal settings page there are options to enable/disable the feed (it is disabled by default), set the feed title, set the feed root directory (the default is /Library), enter a list of extensions to which the feed should be limited (by default this field is empty so it publishes all files descending from the feed root) and clear the personal bookshelf.
 
-The admin settings page contains options to change file preview preferences (which should probably be in core or in a separate app as this changes a system-wide setting ('enabledPreviewProviders')). Also on the admin settings page is an option to change the cover image and thumbnail dimensions.
+The admin settings page contains options to set the feed subtitle, change file preview preferences (which should probably be in core or in a separate app as this changes a system-wide setting ('enabledPreviewProviders')) and change the cover image and thumbnail dimensions.
 
 The OPDS feed is disabled when the app is installed, enable it in the personal settings page under the header 'OPDS'. Every user has his/her own feed, which feed you get depends on which credentials you enter.
 

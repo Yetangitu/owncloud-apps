@@ -14,6 +14,7 @@ namespace OCA\Files_Opds;
 
 \OCP\JSON::callCheck();
 \OCP\JSON::checkLoggedIn();
+$defaults = new \OC_Defaults();
 
 $l = new \OC_L10N('files_opds');
 
@@ -23,11 +24,13 @@ if (isset($_POST['opdsCoverX'])) {
 	$opdsCoverY = isset($_POST['opdsCoverY']) ? (int) $_POST['opdsCoverY'] : 200;
 	$opdsThumbX = isset($_POST['opdsThumbX']) ? (int) $_POST['opdsThumbX'] : 36;
 	$opdsThumbY = isset($_POST['opdsThumbY']) ? (int) $_POST['opdsThumbY'] : 36;
+	$opdsFeedSubtitle = isset($_POST['opdsFeedSubtitle']) ? $_POST['opdsFeedSubtitle'] : $l->t("%s OPDS catalog", $defaults->getName());
 
 	Config::setApp('cover-x', $opdsCoverX);
 	Config::setApp('cover-y', $opdsCoverY);
 	Config::setApp('thumb-x', $opdsThumbX);
 	Config::setApp('thumb-y', $opdsThumbX);
+	Config::setApp('feed_subtitle', $opdsFeedSubtitle);
 } else {
 	// set preview preferences
 	$opdsPreviewEpub = $_POST['opdsPreviewEpub'];

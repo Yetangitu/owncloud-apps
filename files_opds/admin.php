@@ -10,17 +10,21 @@
 
 namespace OCA\Files_Opds;
 
+$l = new \OC_L10N('files_opds');
+
 \OCP\Util::addScript('files_opds', 'admin');
 \OCP\Util::addStyle('files_opds', 'settings');
+$defaults = new \OC_Defaults();
 
 $formats = array(
 	["epub" => Config::getPreview('OC\Preview\Epub') ? 1 : 0 ],
 	["pdf" => Config::getPreview('OC\Preview\PDF') ? 1 : 0],
-	["openoffice" => Config::getPreview('OC\Preview\OpenOffice') ? 1 : 0],
+	["opendocument" => Config::getPreview('OC\Preview\OpenDocument') ? 1 : 0],
 	["msoffice" => Config::getPreview('OC\Preview\MSOfficeDoc') ? 1 : 0]
 	);
 
 $tmpl = new \OCP\Template('files_opds', 'admin');
+$tmpl->assign('feedSubtitle', Config::getApp('feed-subtitle', $l->t("%s OPDS catalog", $defaults->getName())));
 $tmpl->assign('previewFormats', $formats);
 $tmpl->assign('cover-x', Config::getApp('cover-x', '200'));
 $tmpl->assign('cover-y', Config::getApp('cover-y', '200'));

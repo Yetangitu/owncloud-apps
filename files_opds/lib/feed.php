@@ -12,6 +12,7 @@
 
 namespace OCA\Files_Opds;
 
+
 /**
  * Feed class for OPDS
  */
@@ -64,7 +65,9 @@ class Feed
                 $tmpl->assign('id', $id);
                 $tmpl->assign('dir', $dir);
                 $tmpl->assign('user', \OCP\User::getDisplayName());
-                $tmpl->assign('ocname', $defaults->getName());
+                $tmpl->assign('feed_title', Config::get('feed_title',\OCP\User::getDisplayName() . "'s Library"));
+                $tmpl->assign('feed_subtitle', Config::getApp('feed_subtitle', $defaults->getName() . " OPDS catalog"));
+                $tmpl->assign('feed_updated', time());
                 $tmpl->printPage();
         }
 

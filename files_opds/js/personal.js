@@ -24,7 +24,8 @@ $(document).ready(function(){
                         var data = {
                                 opdsEnable : opdsEnable,
                                 rootPath : $('#opds-root-path').val(),
-                                fileTypes : $('#opds-file-types').val()
+                                fileTypes : $('#opds-file-types').val(),
+                                feedTitle : $('#opds-feed-title').val()
                         };
                         OC.msg.startSaving('#opds-personal .msg');
                         $.post(OC.filePath('files_opds', 'ajax', 'personal.php'), data, opdsSettings.afterSave);
@@ -33,8 +34,8 @@ $(document).ready(function(){
                         OC.msg.finishedSaving('#opds-personal .msg', data);
                 }
         };
-        $('#opds-root-path,#opds-file-types').blur(opdsSettings.save);
-        $('#opds-root-path,#opds-file-types').keypress(function( event ) {
+        $('#opds-root-path,#opds-file-types,#opds-feed-title').blur(opdsSettings.save);
+        $('#opds-root-path,#opds-file-types,#opds-feed-title').keypress(function( event ) {
                                                 if (event.which == 13) {
                                                   event.preventDefault();
                                                   opdsSettings.save();
