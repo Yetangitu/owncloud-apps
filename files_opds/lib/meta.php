@@ -93,32 +93,76 @@ class Meta
          * @return array of metadata
          */
         public static function get($id) {
-		if ($meta = self::load($id)) {
-                        return $meta;
-                } else {
-                        $meta = self::create($id);
-                        $path = \OC\Files\Filesystem::getLocalFile(\OC\Files\Filesystem::getPath($id));
-                        switch (strtolower(substr(strrchr($path, "."), 1))) {
-                                case 'epub':
-                                        $epub = new Epub($path);
-                                        $meta['author'] = json_encode($epub->Authors());
-                                        $meta['title'] = $epub->Title();
-                                        $meta['date'] = $epub->Date();
-                                        $meta['publisher'] = $epub->Publisher();
-                                        $meta['copyright'] = $epub->Copyright();
-                                        $meta['language'] = $epub->Language();
-                                        $meta['description'] = strip_tags($epub->Description());
-                                        $meta['isbn'] = $epub->ISBN();
-                                        $meta['subjects'] = $epub->Subjects();
-                                        break;
-                                default:
-                                        // set title to filename minus extension
-                                        $info = pathinfo($path);
-                                        $meta['title'] = basename($path,'.'.$info['extension']);
-                                        break;
-                        }
-			self::save($meta);
-                        return $meta;
+		if (!($meta = self::load($id))) {
+			$meta = self::scan($id);
                 }
+		return $meta;
         }
+
+	/**
+	 * @brief scan files for metadata
+	 * PLAN: use search_lucene to extract metadata? Does not seem to support PDF1.6? 
+	 *       solution: first ask search_lucene, if no data then scan file?
+	 *
+	 * @param int $id fileid
+	 * @return array $meta metadata
+	 */
+	public static function scan($id) {
+		$meta = self::create($id);
+		$path = \OC\Files\Filesystem::getLocalFile(\OC\Files\Filesystem::getPath($id));
+		
+		switch (strtolower(substr(strrchr($path, "."), 1))) {
+			case 'epub':
+				self::epub($path,$meta);
+				break;
+			case 'pdf':
+				self::pdf($path,$meta);
+				break;
+		}
+
+		/* if title is not set, assume metadata was invalid or not present
+		 * use filename as title
+		 */
+		if (!($meta['title'])) {
+			$info = pathinfo($path);
+			$meta['title'] = basename($path,'.'.$info['extension']);
+		}
+		// self::save($meta);
+		return $meta;
+	}
+
+
+	/**
+	 * @brief check epub for metadata
+	 *
+	 * @param string $path path to epub
+	 * @param arrayref $meta reference to array of metadata
+	 * @return bool $success (true if metadata found)
+	 */
+	public static function epub($path,&$meta) {
+		$epub = new Epub($path);
+		$meta['author'] = json_encode($epub->Authors());
+		$meta['title'] = $epub->Title();
+		$meta['date'] = $epub->Date();
+		$meta['publisher'] = $epub->Publisher();
+		$meta['copyright'] = $epub->Copyright();
+		$meta['language'] = $epub->Language();
+		$meta['description'] = strip_tags($epub->Description());
+		$meta['isbn'] = $epub->ISBN();
+		$meta['subjects'] = $epub->Subjects();
+
+		return true;
+	}
+
+	/**
+	 * @brief check pdf for metadata
+	 *
+	 * @param string $path path to pdf
+	 * @param arrayref $meta reference to array of metadata
+	 * @return bool $success (true if metadata found)
+	 */
+	public static function pdf($path,&$meta) {
+
+		return false;
+	}
 }

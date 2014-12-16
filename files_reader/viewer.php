@@ -11,7 +11,8 @@ $mime = "application/zip+epub";
 
 // download link varies by sharing status, compose it here
 $dllink = $share === ''
-	? OC_Helper::linkTo('files', 'ajax/download.php', array('dir' => urldecode($dir), 'files' => urldecode($file), 'share' => $share ))
+	// ? OC_Helper::linkTo('files', 'ajax/download.php', array('dir' => urldecode($dir), 'files' => urldecode($file), 'share' => $share ))
+	? OC_Helper::linkTo('files', 'ajax/download.php', array('dir' => $dir, 'files' => $file, 'share' => $share ))
 	: OC_Helper::linkToPublic('files') . '&t=' . rawurlencode($share) . '&download';
 
 // needed for css/script inclusion
