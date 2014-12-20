@@ -3,15 +3,21 @@
     <updated><?php p(date("Y-m-d\TH:i:sP",strtotime($_['file']['meta']['updated']))); ?></updated>
     <id>id:<?php p($_['file']['id']); ?></id>
     <dcterms:extent><?php p($_['file']['humansize']); ?></dcterms:extent>
-    <dc:language><?php p($_['file']['meta']['language']); ?></dc:language>
     <?php foreach (json_decode($_['file']['meta']['author'],true) as $author): ?>
     <author>
       <name><?php p($author); ?></name>
     </author>
-    <dc:identifier>urn:isbn:<?php p($_['file']['meta']['isbn']); ?></dc:identifier>
-    <dc:publisher><?php p($_['file']['meta']['publisher']); ?></dc:publisher>
-    <dc:issued><?php p($_['file']['meta']['date']); ?></dc:issued>
     <?php endforeach; ?>
+    <?php if($_['file']['meta']['isbn']): ?>
+    <dc:identifier>urn:isbn:<?php p($_['file']['meta']['isbn']); ?></dc:identifier>
+    <?php endif; ?>
+    <?php if($_['file']['meta']['publisher']): ?>
+    <dc:publisher><?php p($_['file']['meta']['publisher']); ?></dc:publisher>
+    <?php endif; ?>
+    <?php if($_['file']['meta']['language']): ?>
+    <dc:language><?php p($_['file']['meta']['language']); ?></dc:language>
+    <?php endif; ?>
+    <dc:issued><?php p(date("Y-m-d\TH:i:sP",strtotime($_['file']['meta']['date']))); ?></dc:issued>
     <link type="<?php p($_['file']['mimetype']); ?>"
         rel="alternate"
         href="?id=<?php p($_['file']['id']); ?>"/>

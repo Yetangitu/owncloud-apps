@@ -12,8 +12,8 @@
 				<!-- file ID, maps to OC file ID -->
 				<name>id</name>
 				<type>integer</type>
-				<default>0</default>
 				<notnull>true</notnull>
+				<primary>true</primary>
 				<length>11</length>
 			</field>
 
@@ -105,6 +105,22 @@
 				<notnull>true</notnull>
 				<length>1024</length>
 			</field>
+
+			<field>
+				<!-- rescan (rescan if passed) -->
+				<name>rescan</name>
+				<type>timestamp</type>
+				<default></default>
+				<notnull>false</notnull>
+			</field>
+
+			<index>
+				<name>opds_metadata_id_index</name>
+				<field>
+					<name>id</name>
+				</field>
+			</index>
+
 		</declaration>
 	</table>
 </database>	

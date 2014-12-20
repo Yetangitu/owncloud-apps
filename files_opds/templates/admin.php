@@ -23,10 +23,16 @@ function checkBox($format) {
 
 <div class="section" id="opds-admin">
         <h2><?php p($l->t('OPDS')); ?><span class="msg"></span></h2>
-        <div>
-                <label for="opds-feed-subtitle"><?php p($l->t('Feed subtitle:')) ?></label>
-                <input type="text" id="opds-feed-subtitle" title="<?php p($l->t("Enter subtitle for OPDS catalog.")); ?>" value="<?php p($_['feedSubtitle']) ?>" />
-        </div>
+	<table>
+        <tr>
+                <td><label for="opds-feed-subtitle"><?php p($l->t('Feed subtitle:')) ?></label></td>
+                <td><input type="text" id="opds-feed-subtitle" title="<?php p($l->t("Enter subtitle for OPDS catalog.")); ?>" value="<?php p($_['feedSubtitle']) ?>" /></td>
+        </tr>
+        <tr>
+                <td><label for="opds-isbndb-key"><?php p($l->t('ISBNdb key:')) ?></label></td>
+                <td><input type="text" id="opds-isbndb-key" title="<?php p($l->t("Enter ISBNdb key to use for metadata lookup. Leave blank to disable ISBNdb lookup.")); ?>" value="<?php p($_['isbndbKey']) ?>" /></td>
+        </tr>
+	</table>
 	<br>
 	<p><?php p($l->t('Enable preview for:')); ?></p>
 	<div class="indent">

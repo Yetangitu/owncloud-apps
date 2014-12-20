@@ -27,7 +27,8 @@ $(document).ready(function(){
                                 opdsCoverY : $('#opds-cover-y').val(),
                                 opdsThumbX : $('#opds-thumb-x').val(),
                                 opdsThumbY : $('#opds-thumb-y').val(),
-				opdsFeedSubtitle : $('#opds-feed-subtitle').val()
+				opdsFeedSubtitle : $('#opds-feed-subtitle').val(),
+				opdsIsbndbKey : $('#opds-isbndb-key').val()
                         };
                         OC.msg.startSaving('#opds-admin .msg');
                         $.post(OC.filePath('files_opds', 'ajax', 'admin.php'), data, opdsAdminCoverSettings.afterSave);
@@ -42,8 +43,8 @@ $(document).ready(function(){
         $('#opds-preview-opendocument').on("change", opdsAdminSettings.save);
         $('#opds-preview-msoffice').on("change", opdsAdminSettings.save);
 
-        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle').blur(opdsAdminCoverSettings.save);
-        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle').keypress(function( event ) {
+        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key').blur(opdsAdminCoverSettings.save);
+        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key').keypress(function( event ) {
                                                 if (event.which == 13) {
                                                   event.preventDefault();
                                                   opdsAdminCoverSettings.save();

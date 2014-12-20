@@ -40,6 +40,7 @@ class Meta
 		$meta['copyright'] = '';
 		$meta['description'] = '';
 		$meta['subjects'] = '';
+		$meta['rescan'] = null;
 
 		return $meta;
 	}
@@ -65,20 +66,45 @@ class Meta
 	 * @return OC_DB_StatementWrapper
 	 */
 	protected static function save($meta) {
-		$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-		$args = array(
-			$meta['id'],
-			$meta['updated'],
-			$meta['date'],
-			$meta['author'],
-			$meta['title'],
-			$meta['language'],
-			$meta['publisher'],
-			$meta['isbn'],
-			$meta['copyright'],
-			$meta['description'],
-			$meta['subjects']
-			);
+		$sql = "SELECT `id` FROM *PREFIX*opds_metadata WHERE `id`=?";
+		$args = array($meta['id']);
+		$query = \OCP\DB::prepare($sql);
+		$result = $query->execute($args);
+		$data = $result->fetchRow();
+		if (isset($data['id'])) {
+			$sql = "UPDATE *PREFIX*opds_metadata SET `updated`=?, `date`=?, `author`=?, `title`=?, `language`=?, `publisher`=?, `isbn`=?, `copyright`=?, `description`=?, `subjects`=?, `rescan`=? WHERE id=?";
+			$args = array(
+				$meta['updated'],
+				$meta['date'],
+				$meta['author'],
+				$meta['title'],
+				$meta['language'],
+				$meta['publisher'],
+				$meta['isbn'],
+				$meta['copyright'],
+				$meta['description'],
+				$meta['subjects'],
+				$meta['rescan'],
+				$meta['id']
+				);
+
+		} else {
+			$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`, `rescan`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+			$args = array(
+				$meta['id'],
+				$meta['updated'],
+				$meta['date'],
+				$meta['author'],
+				$meta['title'],
+				$meta['language'],
+				$meta['publisher'],
+				$meta['isbn'],
+				$meta['copyright'],
+				$meta['description'],
+				$meta['subjects'],
+				$meta['rescan']
+				);
+		}
 		$query = \OCP\DB::prepare($sql);
 
 		return $query->execute($args);
@@ -93,7 +119,10 @@ class Meta
          * @return array of metadata
          */
         public static function get($id) {
-		if (!($meta = self::load($id))) {
+		if (!($meta = self::load($id)) || (isset($meta['rescan']) && time() > $meta['rescan'])) {
+			if(isset($meta['rescan'])) {
+				$meta['rescan'] = null;
+			}
 			$meta = self::scan($id);
                 }
 		return $meta;
@@ -101,8 +130,6 @@ class Meta
 
 	/**
 	 * @brief scan files for metadata
-	 * PLAN: use search_lucene to extract metadata? Does not seem to support PDF1.6? 
-	 *       solution: first ask search_lucene, if no data then scan file?
 	 *
 	 * @param int $id fileid
 	 * @return array $meta metadata
@@ -110,16 +137,19 @@ class Meta
 	public static function scan($id) {
 		$meta = self::create($id);
 		$path = \OC\Files\Filesystem::getLocalFile(\OC\Files\Filesystem::getPath($id));
-		
-		switch (strtolower(substr(strrchr($path, "."), 1))) {
-			case 'epub':
-				self::epub($path,$meta);
-				break;
-			case 'pdf':
-				self::pdf($path,$meta);
-				break;
-		}
 
+		/* try to call function named 'type' with signature type($path,$meta)
+		 * eg, pdf(), epub(), etc
+		 */
+		$type = strtolower(substr(strrchr($path, "."), 1));
+		if(is_callable(array(__CLASS__, $type))) {
+			try {
+				self::$type($path,$meta);
+			} catch (Exception $e) {
+				Util::logWarn("no metadata scanner for format " . $type);
+			}
+		}
+		
 		/* if title is not set, assume metadata was invalid or not present
 		 * use filename as title
 		 */
@@ -127,7 +157,7 @@ class Meta
 			$info = pathinfo($path);
 			$meta['title'] = basename($path,'.'.$info['extension']);
 		}
-		// self::save($meta);
+		self::save($meta);
 		return $meta;
 	}
 
@@ -137,21 +167,23 @@ class Meta
 	 *
 	 * @param string $path path to epub
 	 * @param arrayref $meta reference to array of metadata
-	 * @return bool $success (true if metadata found)
 	 */
 	public static function epub($path,&$meta) {
+		$success = false;
 		$epub = new Epub($path);
-		$meta['author'] = json_encode($epub->Authors());
-		$meta['title'] = $epub->Title();
-		$meta['date'] = $epub->Date();
-		$meta['publisher'] = $epub->Publisher();
-		$meta['copyright'] = $epub->Copyright();
-		$meta['language'] = $epub->Language();
-		$meta['description'] = strip_tags($epub->Description());
-		$meta['isbn'] = $epub->ISBN();
-		$meta['subjects'] = $epub->Subjects();
-
-		return true;
+		/* first try ISBN */
+		if(!(($isbn = $epub->ISBN()) && (Isbn::get($isbn, $meta)))) {
+			/* use EPUB internal metadata instead */
+			$meta['author'] = json_encode($epub->Authors());
+			$meta['title'] = $epub->Title();
+			$meta['date'] = $epub->Date();
+			$meta['publisher'] = $epub->Publisher();
+			$meta['copyright'] = $epub->Copyright();
+			$meta['language'] = $epub->Language();
+			$meta['description'] = strip_tags($epub->Description());
+			$meta['isbn'] = $epub->ISBN();
+			$meta['subjects'] = json_encode($epub->Subjects());
+		}
 	}
 
 	/**
@@ -159,10 +191,45 @@ class Meta
 	 *
 	 * @param string $path path to pdf
 	 * @param arrayref $meta reference to array of metadata
-	 * @return bool $success (true if metadata found)
 	 */
 	public static function pdf($path,&$meta) {
+		if(\OC_Util::runningOnWindows()) {
+			/* not supported when running on Windows due to use of exec() */
+			return;
+		}
 
-		return false;
+		/* first, try to get metadata through ISBN */
+		$command = ['pdftotext -l 10 "','" -'];
+		$output=array();
+		exec($command[0] . $path . $command[1], $output);
+		if (!(($output) && ($isbn = Isbn::scan($output)) && (Isbn::get($isbn,$meta)))) {
+			/* No ISBN, try PDF metadata */
+			$output=array();
+			$command = ["pdfinfo '","'|grep -we '^\(Title\|Author\|Subject\|Keywords\|CreationDate\|ModDate\)'"];
+			exec($command[0] . $path . $command[1], $output);
+			foreach($output as $data) {
+				list($key, $value) = explode(':',$data,2);
+				$value = trim($value);
+			}
+
+			if (!($value == '')) {
+				switch ($key) {
+					case 'Title':
+						$meta['title'] = $value;
+						break;
+					case 'Author':
+						$meta['author'] = $value;
+						break;
+					case 'Subject':
+					case 'Keywords':
+						$meta['subjects'] .= $value;
+						break;
+					case 'CreationDate':
+					case 'ModDate':
+						$meta['date'] = strtotime($value); 
+						break;
+				}
+			}
+		}
 	}
 }
