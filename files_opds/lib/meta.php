@@ -119,7 +119,7 @@ class Meta
          * @return array of metadata
          */
         public static function get($id) {
-		if (!($meta = self::load($id)) || (isset($meta['rescan']) && time() > $meta['rescan'])) {
+		if (!($meta = self::load($id)) || (isset($meta['rescan']) && time() > strtotime($meta['rescan']))) {
 			if(isset($meta['rescan'])) {
 				$meta['rescan'] = null;
 			}
