@@ -32,9 +32,11 @@ class Google
                         return true;
                 } else {
 			$meta['rescan'] = date("Y-m-d\TH:i:sP", time() + Isbn::RESCAN_NOT_FOUND);
+                	return Isbn::NOT_FOUND;
 		}
 
-                return false;
+		/* not reached */
+                return Isbn::ERROR;
         }
 
         /**
