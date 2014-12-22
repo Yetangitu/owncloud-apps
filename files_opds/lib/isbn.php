@@ -36,7 +36,7 @@ class Isbn
 		$match = array();
 		foreach($text as $line) {
 			/* generic ISBN 10/13 pattern. Checks for unicode dashes ('‒–—―‑‐﹣－-') as well as regular hyphens. */
-			if(preg_match_all('/ISBN(?:[‒–—―‑‐﹣－-]?(?:1[03])?)?:?\s*(?=[\dXx‒–—―‑‐﹣－-]{10,17})(((?:97[89])[0-9‒–—―‑‐﹣－-]{9,14})|([\d‒–—―‑‐﹣－-]{9,12}[\dXx]))/u', $line, $match)) {
+			if(preg_match_all('/ISBN(?:[ ‒–—―‑‐﹣－-]?(?:1[03])?)?:?\s*(?=[\d Xx‒–—―‑‐﹣－-]{10,17})(((?:97[89])[\d ‒–—―‑‐﹣－-]{9,14})|([\d ‒–—―‑‐﹣－-]{9,12}[\dXx]))/u', $line, $match)) {
 				foreach($match[1] as $hit) {
 					$hit = preg_replace('/[^0-9X]/i','',$hit);
 					if(self::validate($hit)) {
@@ -54,7 +54,7 @@ class Isbn
 
 		foreach($text as $line) {
 			/* prefix-less ISBN-13 targeted pattern */
-			if(preg_match_all('/(97[89][\d‒–—―‑‐﹣－-]\d{9,13}\d)/u',$line,$match)) {
+			if(preg_match_all('/(97[89][\d ‒–—―‑‐﹣－-]\d{9,13}\d)/u',$line,$match)) {
 				foreach($match[1] as $hit) {
                                 	$hit = preg_replace('/[^0-9]/','',$hit);
                          	        if(self::validate($hit)) {
@@ -64,7 +64,7 @@ class Isbn
                 	}
 
 			/* single ISBN-10 targeted pattern */
-			if(preg_match_all('/(\d[\d‒–—―‑‐﹣－-]{8,11}[\dXx])/u',$line,$match)) {
+			if(preg_match_all('/(\d[\d ‒–—―‑‐﹣－-]{8,11}[\dXx])/u',$line,$match)) {
 				foreach($match[1] as $hit) {
 					$hit = preg_replace('/[^0-9X]/i','',$hit);
 					if(self::validate($hit)) {
