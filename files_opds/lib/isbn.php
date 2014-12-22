@@ -88,8 +88,10 @@ class Isbn
         public static function get($isbn,&$meta) {
 		/* set ISBN in metadata; can be overwritten later with ISBN13 */
 		$meta['isbn'] = $isbn;
+		/* try Google first, then ISBNdb */
+		if (!(Isbn::SUCCESS == Google::get($isbn,$meta)) && (!(Isbn::SUCCESS == Isbndb::get($isbn,$meta)) )) {
 		/* Try ISBNdb, then Google */
-		if (!(Isbn::SUCCESS == Isbndb::get($isbn,$meta)) && (!(Isbn::SUCCESS == Google::get($isbn,$meta)))) {
+		//if (!(Isbn::SUCCESS == Isbndb::get($isbn,$meta)) && (!(Isbn::SUCCESS == Google::get($isbn,$meta)))) {
 			return false;
 		} else {
 			return true;

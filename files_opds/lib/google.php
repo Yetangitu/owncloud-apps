@@ -28,7 +28,7 @@ class Google
                 $command = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn;
                 $data = json_decode(file_get_contents($command),true);
                 if($data['totalItems'] > 0) {
-			self::parse($isbn,$meta);
+			self::parse($data['items'][0]['volumeInfo'],$meta);
                         return true;
                 } else {
 			$meta['rescan'] = date("Y-m-d\TH:i:sP", time() + Isbn::RESCAN_NOT_FOUND);
