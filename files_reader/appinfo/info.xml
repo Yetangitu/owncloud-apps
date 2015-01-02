@@ -3,7 +3,7 @@
     <id>files_reader</id>
     <name>Reader (ebook reader)</name>
     <description>Online ePub file reader</description>
-    <version>0.4.6</version>
+    <version>0.5.0</version>
     <licence>LGPL</licence>
     <author>Frank de Lange, (taken clues from Thomas Müller/files_pdfviewer, using slightly modified Futurepress/epub.js)</author>
     <require>7.0</require>

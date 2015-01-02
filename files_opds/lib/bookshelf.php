@@ -55,11 +55,13 @@ class Bookshelf
 	 */
 	public static function get() {
 		$files = array();
-		$bookshelf = json_decode(Config::get('bookshelf', ''), true);
-		arsort($bookshelf);
-		while (list($id, $time) = each($bookshelf)) {
-			array_push($files, \OC\Files\Filesystem::getFileInfo(\OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id))));
+		if($bookshelf = json_decode(Config::get('bookshelf', ''), true)) {
+			arsort($bookshelf);
+			while (list($id, $time) = each($bookshelf)) {
+				array_push($files, \OC\Files\Filesystem::getFileInfo(\OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id))));
+			}
 		}
+
 		return $files;
 	}
 }

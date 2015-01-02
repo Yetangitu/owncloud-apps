@@ -22,7 +22,7 @@
       <script type="text/javascript" src="js/epub.min.js"> </script>
       <script type="text/javascript" src="js/hooks.min.js"> </script>
       <script type="text/javascript" src="js/hooks/extensions/highlight.js"> </script>
-      <script type="text/javascript" src="js/reader.js"> </script>
+      <script type="text/javascript" src="js/reader.min.js"> </script>
    </head>
    <body>
       <input type="hidden" id="dllink" value="<?php print_unescaped($_['dllink']);?>">

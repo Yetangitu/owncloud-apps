@@ -54,17 +54,6 @@ document.onreadystatechange = function () {
 		EPUBJS.filePath = "js/libs/";
 		EPUBJS.cssPath = "css/";
 
-		// device-specific rules
-		//
-		// webworkers...
-		if(!window.Worker) {
-			// use zip.js without webworkers, include inflate.js
-			zip.useWebWorkers = false;
-			$.getScript('js/libs/inflate.js');
-		} else {
-			zip.workerScriptsPath = document.getElementsByTagName('base')[0].href + 'js/libs/';
-		}
-
 		// touch-enabled devices...
 		$('#touch_nav').prop('checked', !('ontouchstart' in document.documentElement));
 		if (!($('#touch_nav').prop('checked'))) {
