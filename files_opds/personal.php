@@ -10,6 +10,8 @@
 
 namespace OCA\Files_Opds;
 
+$l = new \OC_L10N('files_opds');
+
 \OCP\Util::addScript('files_opds', 'personal');
 
 $tmpl = new \OCP\Template('files_opds', 'personal');
