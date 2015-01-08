@@ -18,15 +18,15 @@ files_opds
 
 The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. Since Owncloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents. v0.5 introduced ISBN-based metadata retrieval, while Calibre-generated metadata.opf files are parsed since v0.6.
 
-### ISBN
+#### ISBN
 If an ISBN is found in either existing metadata or in the first 10 pages of the publication, metadata is retrieved from ISBNdb (key required, http://isbndb.com/account/logincreate, max. 500 queries/day) and Google Books (no key required). 
 
-### Calibre
+#### Calibre
 If the directory in which the file is found contains a valid metadata.opf file, this file is parsed and all relevant Dublin Core metadata is applied to all files in the directory. If a cover is specified in this file, and the relevant file is found in the directory, this cover is used as preview and thumbnail for all files in the directory. If the metadata is invalid (ie. one or more of title, author and language are not defined) the files themselves are parsed for metadata in the 'normal' way.
 
 Documents for which no metadata is found will appear with sparse entries for now: only title (as in 'filename'), file size, cover image (where available), modification time and content links are provided. The first visit to a new (or updated) directory will take a bit longer while OPDS catalog scans for metadata, subsequent visits will be faster due to the use of cached metadata.
 
-### Personal bookshelf
+#### Personal bookshelf
 The OPDS root feed links to a hierarchical navigation feed mirroring the directory structure as well as a 'personal bookshelf' containing links to all downloaded books (most recent download listed first). This 'personal bookshelf' will be empty (0 books) at first. Use the 'Browse catalog' link to download a book and it'll appear on the 'personal bookshelf'. Download another, and it will appear above the one you previously downloaded. This makes it possible to get at books you are in the process of reading from different devices, or to easily re-visit a book you downloaded earlier.
 
 The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
