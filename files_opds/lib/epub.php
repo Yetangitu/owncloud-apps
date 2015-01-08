@@ -37,15 +37,12 @@ class Epub {
 		$this->file = $file;
 		$zip = new \ZipArchive();
 		if(!($zip->open($this->file))){
-			\OC_Log::write('epub', "Failed to read epub file", \OC_Log::ERROR);
-			return false;
+			throw new \Exception("Failed to read epub file");
 		}
 
 		// read container data
-		$data = $zip->getFromName('META-INF/container.xml');
-		if($data == false){
-			\OC_Log::write('epub', "Failed to access epub container data", \OC_Log::ERROR);
-			return false;
+		if(!($data = $zip->getFromName('META-INF/container.xml'))) {
+			throw new \Exception("Failed to access epub container data");
 		}
 
 		$xml = new DOMDocument();
@@ -56,17 +53,17 @@ class Epub {
 		$this->meta = $nodes->item(0)->attr('full-path');
 
 		// load metadata
-		$data = $zip->getFromName($this->meta);
-		if(!$data){
-			\OC_Log::write('epub', 'Failed to access epub metadata', \OC_Log::ERROR);
-			return false;
+		if(!($data = $zip->getFromName($this->meta))) {
+			throw new \Exception("Failed to access epub metadata");
 		}
 
 		$this->xml =  new \DOMDocument();
 		$this->xml->registerNodeClass('DOMElement','\OCA\Files_Opds\EPubDOMElement');
 		$this->xml->loadXML($data);
 		$this->xml->formatOutput = true;
-		$this->xpath = new EPubDOMXPath($this->xml);
+		if(!($this->xpath = new EPubDOMXPath($this->xml))) {
+			throw new \Exception("Failed to instantiate xpath");
+		}
 
 		$zip->close();
 	}

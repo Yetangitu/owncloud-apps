@@ -30,7 +30,7 @@ class Meta
 		 * scanned once, even if they don't contain valid metadate.
 		 */
 		$meta['id'] = $id;
-		$meta['updated'] = date("Y-m-d\TH:i:sP");
+		$meta['updated'] = date("Y-m-d H:i:s");
 		$meta['date'] = '';
 		$meta['author'] = '';
 		$meta['title'] = '';
@@ -189,19 +189,23 @@ class Meta
 	 */
 	public static function epub($path,&$meta) {
 		$success = false;
-		$epub = new Epub($path);
-		/* first try ISBN */
-		if(!(($isbn = $epub->ISBN()) && (Isbn::get($isbn, $meta)))) {
-			/* use EPUB internal metadata instead */
-			$meta['author'] = json_encode($epub->Authors());
-			$meta['title'] = $epub->Title();
-			$meta['date'] = $epub->Date();
-			$meta['publisher'] = $epub->Publisher();
-			$meta['copyright'] = $epub->Copyright();
-			$meta['language'] = $epub->Language();
-			$meta['description'] = strip_tags($epub->Description());
-			$meta['isbn'] = $epub->ISBN();
-			$meta['subjects'] = json_encode($epub->Subjects());
+		try {
+			$epub = new Epub($path);
+			/* first try ISBN */
+			if(!(($isbn = $epub->ISBN()) && (Isbn::get($isbn, $meta)))) {
+				/* use EPUB internal metadata instead */
+				$meta['author'] = json_encode($epub->Authors());
+				$meta['title'] = $epub->Title();
+				$meta['date'] = $epub->Date();
+				$meta['publisher'] = $epub->Publisher();
+				$meta['copyright'] = $epub->Copyright();
+				$meta['language'] = $epub->Language();
+				$meta['description'] = strip_tags($epub->Description());
+				$meta['isbn'] = $epub->ISBN();
+				$meta['subjects'] = json_encode($epub->Subjects());
+			}
+		} catch (\Exception $e) {
+			\OC_Log::write(get_class(), $e->getMessage(), \OC_LOG::ERROR);
 		}
 	}
 
