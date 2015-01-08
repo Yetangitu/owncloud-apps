@@ -40,9 +40,20 @@ class Meta
 		$meta['copyright'] = '';
 		$meta['description'] = '';
 		$meta['subjects'] = '';
+		$meta['cover'] = null;
 		$meta['rescan'] = null;
 
 		return $meta;
+	}
+
+	/** 
+	 * @brief check whether metadata is valid (ie. title, author and language are defined)
+	 *
+	 * @param array $meta metadata
+	 * @return bool true if valid
+	 */
+	public static function isValid($meta) {
+		return (!(empty($meta['title']) || empty($meta['author']) || empty($meta['language'])));
 	}
 
 	/**
@@ -72,7 +83,7 @@ class Meta
 		$result = $query->execute($args);
 		$data = $result->fetchRow();
 		if (isset($data['id'])) {
-			$sql = "UPDATE *PREFIX*opds_metadata SET `updated`=?, `date`=?, `author`=?, `title`=?, `language`=?, `publisher`=?, `isbn`=?, `copyright`=?, `description`=?, `subjects`=?, `rescan`=? WHERE id=?";
+			$sql = "UPDATE *PREFIX*opds_metadata SET `updated`=?, `date`=?, `author`=?, `title`=?, `language`=?, `publisher`=?, `isbn`=?, `copyright`=?, `description`=?, `subjects`=?, `cover`=?, `rescan`=? WHERE id=?";
 			$args = array(
 				$meta['updated'],
 				$meta['date'],
@@ -84,12 +95,13 @@ class Meta
 				$meta['copyright'],
 				$meta['description'],
 				$meta['subjects'],
+				$meta['cover'],
 				$meta['rescan'],
 				$meta['id']
 				);
 
 		} else {
-			$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`, `rescan`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+			$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`, `cover`, `rescan`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$args = array(
 				$meta['id'],
 				$meta['updated'],
@@ -102,6 +114,7 @@ class Meta
 				$meta['copyright'],
 				$meta['description'],
 				$meta['subjects'],
+				$meta['cover'],
 				$meta['rescan']
 				);
 		}
@@ -138,15 +151,20 @@ class Meta
 		$meta = self::create($id);
 		$path = \OC\Files\Filesystem::getLocalFile(\OC\Files\Filesystem::getPath($id));
 
-		/* try to call function named 'type' with signature type($path,$meta)
-		 * eg, pdf(), epub(), etc
+		/* scan for Calibre-generated metadata.opf first. If found, use it as metadata source,
+		 * if not found continue file/isbn/etc scan
 		 */
-		$type = strtolower(substr(strrchr($path, "."), 1));
-		if(is_callable(array(__CLASS__, $type))) {
-			try {
-				self::$type($path,$meta);
-			} catch (Exception $e) {
-				Util::logWarn("no metadata scanner for format " . $type);
+		if(!(Calibre::get($path,$meta))) {
+			/* try to call function named 'type' with signature type($path,$meta)
+			 * eg, pdf(), epub(), etc
+			 */
+			$type = strtolower(substr(strrchr($path, "."), 1));
+			if(is_callable(array(__CLASS__, $type))) {
+				try {
+					self::$type($path,$meta);
+				} catch (Exception $e) {
+					Util::logWarn("no metadata scanner for format " . $type);
+				}
 			}
 		}
 		
@@ -157,6 +175,7 @@ class Meta
 			$info = pathinfo($path);
 			$meta['title'] = basename($path,'.'.$info['extension']);
 		}
+
 		self::save($meta);
 		return $meta;
 	}

@@ -107,6 +107,15 @@
 			</field>
 
 			<field>
+				<!-- cover -->
+				<name>cover</name>
+				<type>text</type>
+				<default></default>
+				<notnull>false</notnull>
+				<length>512</length>
+			</field>
+
+			<field>
 				<!-- rescan (rescan if passed) -->
 				<name>rescan</name>
 				<type>timestamp</type>

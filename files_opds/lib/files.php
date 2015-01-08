@@ -46,10 +46,15 @@ class Files extends \OCA\Files\Helper
                 $files = array();
 		/* if set, add only files with given extensions */
 		$fileTypes = array_filter(explode(',', strtolower(Config::get('file_types', ''))));
+		$skipList = array_filter(explode(',', strtolower(Config::get('skip_list', 'metadata.opf,cover.jpg'))));
                 foreach ($fileInfos as $i) {
 			if((!empty($fileTypes)) && (!in_array(strtolower(substr(strrchr($i->getName(), "."), 1)), $fileTypes))) {
 				continue;
 			}
+			if((!empty($skipList)) && (in_array($i->getName(),$skipList))) {
+				continue;
+			}
+
                         $files[] = self::formatFileInfo($i);
                 }
 

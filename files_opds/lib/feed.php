@@ -83,6 +83,14 @@ class Feed
                 \OCP\User::checkLoggedIn();
                 \OC::$session->close();
 		$i = \OC\Files\Filesystem::getFileInfo($path,false);
+
+		/* check for predefined cover, if found replace $path with that of cover file */
+		$meta = Meta::get($i['fileid']);
+		if($meta['cover']) {
+			$path = pathinfo($path)['dirname'] .'/' . $meta['cover'];
+			$i = \OC\Files\Filesystem::getFileInfo($path,false);
+		}
+
 		if (\OC::$server->getPreviewManager()->isMimeSupported($i['mimetype'])) {
 			$preview = new \OC\Preview(\OC_User::getUser(), 'files');
 			$preview->setFile($path);
