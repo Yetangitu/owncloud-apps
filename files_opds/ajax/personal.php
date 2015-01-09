@@ -18,8 +18,9 @@ namespace OCA\Files_Opds;
 $l = new \OC_L10N('files_opds');
 
 $opdsEnable = isset($_POST['opdsEnable']) ? $_POST['opdsEnable'] : 'false';
-$rootPath = isset($_POST['rootPath']) ? $_POST['rootPath'] : null;
+$rootPath = isset($_POST['rootPath']) ? $_POST['rootPath'] : '/Library';
 $fileTypes = isset($_POST['fileTypes']) ? $_POST['fileTypes'] : '';
+$skipList = isset($_POST['skipList']) ? $_POST['skipList'] : 'metadata.opf,cover.jpg';
 $feedTitle = isset($_POST['feedTitle']) ? $_POST['feedTitle'] : $l->t("%s's Library", \OCP\User::getDisplayName());
 
 if (!is_null($rootPath)){
@@ -39,6 +40,7 @@ if (!is_null($rootPath)){
 	}
         Config::set('enable', $opdsEnable);
         Config::set('file_types', $fileTypes);
+        Config::set('skip_list', $skipList);
         Config::set('feed_title', $feedTitle);
 	Config::set('id', Util::genUuid());
         exit();

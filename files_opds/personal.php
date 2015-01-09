@@ -20,6 +20,7 @@ $tmpl->assign('opdsEnable-checked', ($opdsEnable === 'true') ? 'checked="checked
 $tmpl->assign('opdsEnable-value', ($opdsEnable === 'true') ? '1' : '0');
 $tmpl->assign('rootPath', Config::get('root_path', '/Library'));
 $tmpl->assign('fileTypes', Config::get('file_types', ''));
+$tmpl->assign('skipList', Config::get('skip_list', 'metadata.opf,cover.jpg'));
 $tmpl->assign('feedTitle', Config::get('feed_title', $l->t("%s's Library", \OCP\User::getDisplayName())));
 $tmpl->assign('bookshelf-count', Bookshelf::count());
 $tmpl->assign('feedUrl', \OC_Helper::linkToAbsolute('','index.php') . '/apps/files_opds/');

@@ -25,6 +25,7 @@ $(document).ready(function(){
                                 opdsEnable : opdsEnable,
                                 rootPath : $('#opds-root-path').val(),
                                 fileTypes : $('#opds-file-types').val(),
+                                skipList : $('#opds-skip-list').val(),
                                 feedTitle : $('#opds-feed-title').val()
                         };
                         OC.msg.startSaving('#opds-personal .msg');
@@ -34,8 +35,8 @@ $(document).ready(function(){
                         OC.msg.finishedSaving('#opds-personal .msg', data);
                 }
         };
-        $('#opds-root-path,#opds-file-types,#opds-feed-title').blur(opdsSettings.save);
-        $('#opds-root-path,#opds-file-types,#opds-feed-title').keypress(function( event ) {
+        $('#opds-root-path,#opds-file-types,#opds-feed-title,#opds-skip-list').blur(opdsSettings.save);
+        $('#opds-root-path,#opds-file-types,#opds-feed-title,#opds-skip-list').keypress(function( event ) {
                                                 if (event.which == 13) {
                                                   event.preventDefault();
                                                   opdsSettings.save();

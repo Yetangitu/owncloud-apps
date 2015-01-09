@@ -32,6 +32,10 @@
                 <td><label for="opds-file-types"><?php p($l->t('Supported extensions:')) ?></label></td>
                 <td><input type="text" id="opds-file-types" title="<?php p($l->t("Enter list of comma-separated extensions (eg. pdf,epub,doc,txt). Leave blank to publish all file types.")); ?>" value="<?php p($_['fileTypes']) ?>" /></td>
         </tr>
+	<tr>
+                <td><label for="opds-skip-list"><?php p($l->t('Skip these filenames:')) ?></label></td>
+                <td><input type="text" id="opds-skip-list" title="<?php p($l->t("Enter list of comma-separated file names which should be skipped. Leave blank to use the default skip list.")); ?>" value="<?php p($_['skipList']) ?>" /></td>
+        </tr>
 	</table>
 	<br>
 	<div>
