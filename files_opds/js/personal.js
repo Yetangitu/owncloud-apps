@@ -17,6 +17,24 @@ $(document).ready(function(){
 		$('#opds-really-clear-bookshelf,#opds-dont-clear-bookshelf').hide();
         });
 
+	// schedule rescan
+	$('#opds-rescan').on("click", function() {
+		$('#opds-really-rescan,#opds-dont-rescan').show();
+	});
+	$('#opds-dont-rescan').on("click", function() {
+		$('#opds-really-rescan,#opds-dont-rescan').hide();
+	});
+	$('#opds-really-rescan').on("click", function() {
+                $.post(OC.filePath('files_opds','ajax','schedule_rescan.php'), {},
+                        function(result){
+                                if(result) {
+                                        OC.msg.finishedSaving('#opds-personal .scn', result);
+                                }
+                        });
+		$('#opds-really-rescan,#opds-dont-rescan').hide();
+        });
+
+
 	// save settings
         var opdsSettings = {
                 save : function() {

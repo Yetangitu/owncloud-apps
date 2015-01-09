@@ -142,6 +142,17 @@ class Meta
         }
 
 	/**
+	 * @brief schedule rescan of metadata
+	 * 
+	 */
+	public static function rescan() {
+                $sql = "UPDATE *PREFIX*opds_metadata SET `rescan`=?";
+                $args = array(date("Y-m-d H:i:s"));
+                $query = \OCP\DB::prepare($sql);
+                $result = $query->execute($args);
+	}
+
+	/**
 	 * @brief scan files for metadata
 	 *
 	 * @param int $id fileid

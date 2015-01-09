@@ -39,6 +39,13 @@
 	</table>
 	<br>
 	<div>
+                <input type="button" id="opds-rescan" value="<?php p($l -> t('Schedule rescan')); ?>" />
+                <input type="button" id="opds-really-rescan" title="<?php p($l->t("Schedule a rescan of all metadata.")); ?>" value="<?php p($l -> t('Yes, I really want to schedule a rescan of all metadata')); ?>" hidden />
+                <input type="button" id="opds-dont-rescan" value="<?php p($l -> t('No, I do not want to schedule a rescan of all metadata')); ?>" hidden />
+		<span class="scn"></span>
+        </div>
+	<br>
+	<div>
                 <input type="button" id="opds-clear-bookshelf" value="<?php p($l -> t('Clear Bookshelf')); ?>" />
                 <input type="button" id="opds-really-clear-bookshelf" title="<?php p($l->t("Clear list of downloaded books from bookshelf. This only clears the list, it does not delete any books.")); ?>" value="<?php p($l -> t('Yes, I really want to clear my personal bookshelf')); ?>" hidden />
                 <input type="button" id="opds-dont-clear-bookshelf" value="<?php p($l -> t('No, I do not want to clear my bookshelf')); ?>" hidden />
