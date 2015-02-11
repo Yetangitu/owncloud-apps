@@ -13,7 +13,11 @@
 ?>
 
 <div class="section" id="opds-personal">
-        <h2><?php p($l->t('OPDS')); ?><span class="msg"></span></h2>
+        <table>
+        <tr>
+                <td><h2><?php p($l->t('OPDS')); ?></h2></td><td>&nbsp;<span class="msg"></span></td>
+        </tr>
+        </table>
         <div>
 		<input id="opds-enable" name="opds-enable" value="<?php p($_['opdsEnable-value']) ?>" <?php p($_['opdsEnable-checked']) ?> type="checkbox">
                 <label for="opds-enable"><?php p($l->t('enable OPDS catalog')) ?></label>

@@ -23,7 +23,7 @@ class Files extends \OCA\Files\Helper
          * @param \OCP\Files\FileInfo $i
          * @return array formatted file info
          */
-        public static function formatFileInfo($i) {
+        public static function formatFileInfo(\OCP\Files\FileInfo $i) {
                 $entry = array();
 
                 $entry['id'] = $i['fileid'];

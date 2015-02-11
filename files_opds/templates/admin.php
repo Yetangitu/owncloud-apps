@@ -22,7 +22,11 @@ function checkBox($format) {
 ?>
 
 <div class="section" id="opds-admin">
-        <h2><?php p($l->t('OPDS')); ?><span class="msg"></span></h2>
+	<table>
+	<tr>
+                <td><h2><?php p($l->t('OPDS')); ?></h2></td><td>&nbsp;<span class="msg"></span></td>
+	</tr>
+	</table>
 	<table>
         <tr>
                 <td><label for="opds-feed-subtitle"><?php p($l->t('Feed subtitle:')) ?></label></td>

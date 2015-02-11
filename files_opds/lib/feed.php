@@ -35,7 +35,7 @@ class Feed
          */
         public static function serveFile($path, $id) {
                 \OCP\User::checkLoggedIn();
-                \OC::$session->close();
+                \OC::$server->getSession()->close();
                 Bookshelf::add($id);
                 $dirName = dirname($path);
                 $fileName = basename($path);
@@ -81,7 +81,7 @@ class Feed
          */
         public static function servePreview($path, $type) {
                 \OCP\User::checkLoggedIn();
-                \OC::$session->close();
+                \OC::$server->getSession()->close();
 		$i = \OC\Files\Filesystem::getFileInfo($path,false);
 
 		/* check for predefined cover, if found replace $path with that of cover file */
