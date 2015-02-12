@@ -16,7 +16,7 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.6.2</version>
+	<version>0.6.3</version>
         <author>Frank de Lange</author>
         <requiremin>7.0</requiremin>
         <shipped>true</shipped>
@@ -27,7 +27,7 @@
         <dependencies>
             <php min-version="5.4" />
             <database>pgsql</database>
-            <database>sqlite3</database>
+            <database>sqlite</database>
             <database>mysql</database>
         </dependencies>
 	<ocsid>168132</ocsid>
