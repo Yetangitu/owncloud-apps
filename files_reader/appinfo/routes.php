@@ -10,6 +10,9 @@
  * later.
  */
 
-$this->create('files_reader', '/')
-        ->actionInclude('files_reader/viewer.php');
+namespace OCA\Files_Reader\AppInfo;
+
+return ['routes' => [
+        ['name' => 'display#showReader', 'url' => '/', 'verb' => 'GET'],
+]];
 

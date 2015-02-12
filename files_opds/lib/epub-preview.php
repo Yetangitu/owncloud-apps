@@ -35,7 +35,6 @@ class Epub extends Provider {
 		$cover = $epub->Cover();
 
 		if ($cover) {
-
 			$image = new \OC_Image();
 
 			$image->loadFromData($cover['data']);

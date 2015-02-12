@@ -58,7 +58,7 @@ $dirInfo = \OC\Files\Filesystem::getFileInfo($dir);
 /* If requested resource is a file, serve it, otherwise produce opds feed */
 switch ($dirInfo->getType()) {
 	case 'file':
-		if (isset($type)) {
+		if ($type) {
 			Feed::servePreview($dir,$type);
 		} else {
 			Feed::serveFile($dir,$id);

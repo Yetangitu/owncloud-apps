@@ -10,7 +10,6 @@
  * later.
  */
 
-
 $this->create('opds_catalog', '/')
         ->actionInclude('files_opds/index.php');
 $this->create('opds_catalog_admin_settings', 'ajax/admin.php')

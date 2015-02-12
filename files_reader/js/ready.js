@@ -42,12 +42,10 @@ function delCSSRule(sheet, selector) {
 
 document.onreadystatechange = function () {  
 	if (document.readyState == "complete") {
-		// enable (large-screen) or hide (mobile/small-screen) close button
-		if (parent.READER == undefined) {
-			$('#close').hide();
-		} else {
-			$('#close').on('click', function() { reader.book.destroy(); parent.READER.hideReader(); });
-			parent.READER.hideControls();
+		// only enable close button when launched in an iframe
+		if (parent !== window) {
+			$('#close').show();
+			$('#close').on('click', function() { reader.book.destroy(); parent.OCA.FilesReader.Plugin.hide(); });
 		}
 
 		// some parameters... 

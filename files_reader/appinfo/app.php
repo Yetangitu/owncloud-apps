@@ -1,5 +1,17 @@
 <?php
-//load the required files
 
-$l = OC_L10N::get('files_reader');
-OCP\Util::addscript( 'files_reader', 'loader');
+/**
+ * ownCloud - Files_Reader App
+ *
+ * @author Frank de Lange
+ * @copyright 2015 Frank de Lange
+ *
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ */
+
+namespace OCA\Files_Reader\AppInfo;
+
+use OCP\Util;
+
+Util::addscript( 'files_reader', 'plugin');

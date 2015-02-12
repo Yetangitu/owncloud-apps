@@ -1,9 +1,17 @@
+<?php
+  /** @var array $_ */
+  /** @var OCP\IURLGenerator $urlGenerator */
+  $urlGenerator = $_['urlGenerator'];
+  $version = \OCP\App::getAppVersion('files_reader');
+  $dllink = isset($_GET['file']) ? $_GET['file'] : '';
+?>
+
 <html dir="ltr">
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
       <meta name="apple-mobile-web-app-capable" content="yes">
-      <base href="<?php print_unescaped($_['base']);?>">
+      <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
       <title>
          <?php p($_['title']);?>
       </title>
@@ -12,20 +20,33 @@
       <link rel="stylesheet" href="css/main.css">
       <link rel="stylesheet" href="css/popup.css">
       <link rel="stylesheet" href="css/tooltip.css">
+      <!--
       <script type="text/javascript" src="js/libs/jquery-2.1.0.min.js"> </script>
       <script type="text/javascript" src="js/libs/jquery.highlight.js"> </script>
       <script type="text/javascript" src="js/libs/screenfull.min.js"> </script>
       <script type="text/javascript" src="js/libs/typedarray.min.js"> </script>
       <script type="text/javascript" src="js/libs/blob.js"> </script>
       <script type="text/javascript" src="js/libs/zip.min.js"> </script>
-      <script type="text/javascript" src="js/ready.js"> </script>
       <script type="text/javascript" src="js/epub.min.js"> </script>
       <script type="text/javascript" src="js/hooks.min.js"> </script>
       <script type="text/javascript" src="js/hooks/extensions/highlight.js"> </script>
       <script type="text/javascript" src="js/reader.min.js"> </script>
+      -->
+      <script type="text/javascript" src="js/lib/typedarray.min.js"> </script>
+      <script type="text/javascript" src="js/lib/Blob.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/libs/jquery-2.1.0.min.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/libs/jquery.highlight.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/libs/screenfull.min.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/libs/zip.min.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/epub.min.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/hooks.min.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/hooks/extensions/highlight.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/reader.min.js"> </script>
+     
+      <script type="text/javascript" src="js/ready.js"> </script>
    </head>
    <body>
-      <input type="hidden" id="dllink" value="<?php print_unescaped($_['dllink']);?>">
+      <input type="hidden" id="dllink" value="<?php print_unescaped($dllink);?>">
       <div id="outerContainer">
          <div id="sidebar">
             <div id="panels">
@@ -91,7 +112,7 @@
                   <a id="fullscreen" class="icon-resize-full">
                      <?php p($l->t("Fullscreen")); ?>
                   </a>
-                  <a id="close" class="icon-cancel-circled2">
+                  <a id="close" class="icon-cancel-circled2" style="display:none">
                      <?php p($l->t("Close")); ?>
                   </a>
                </div>
