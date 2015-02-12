@@ -25,7 +25,12 @@ class Google
          * @return int $status (0 on success, ERRORCODE otherwise)
          */
         public static function get($isbn,&$meta) {
-                $command = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn;
+               	$command = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $isbn;
+		if ($keyString = Config::getApp('google-key','')) {
+			$keys = explode(',', $keyString);
+			$key = $keys[rand(0,count($keys) - 1)];
+			$command .= '&key=' . $key;
+		}
                 $data = json_decode(file_get_contents($command),true);
                 if($data['totalItems'] > 0) {
 			self::parse($data['items'][0]['volumeInfo'],$meta);

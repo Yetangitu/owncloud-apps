@@ -28,7 +28,8 @@ $(document).ready(function(){
                                 opdsThumbX : $('#opds-thumb-x').val(),
                                 opdsThumbY : $('#opds-thumb-y').val(),
 				opdsFeedSubtitle : $('#opds-feed-subtitle').val(),
-				opdsIsbndbKey : $('#opds-isbndb-key').val()
+				opdsIsbndbKey : $('#opds-isbndb-key').val(),
+				opdsGoogleKey : $('#opds-google-key').val()
                         };
                         OC.msg.startSaving('#opds-admin .msg');
                         $.post(OC.filePath('files_opds', 'ajax', 'admin.php'), data, opdsAdminCoverSettings.afterSave);
@@ -43,8 +44,8 @@ $(document).ready(function(){
         $('#opds-preview-opendocument').on("change", opdsAdminSettings.save);
         $('#opds-preview-msoffice').on("change", opdsAdminSettings.save);
 
-        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key').blur(opdsAdminCoverSettings.save);
-        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key').keypress(function( event ) {
+        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key,#opds-google-key').blur(opdsAdminCoverSettings.save);
+        $('#opds-cover-x,#opds-cover-y,#opds-thumb-x,#opds-thumb-y,#opds-feed-subtitle,#opds-isbndb-key,#opds-google-key').keypress(function( event ) {
                                                 if (event.which == 13) {
                                                   event.preventDefault();
                                                   opdsAdminCoverSettings.save();

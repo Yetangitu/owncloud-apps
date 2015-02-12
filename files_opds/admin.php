@@ -26,6 +26,7 @@ $formats = array(
 $tmpl = new \OCP\Template('files_opds', 'admin');
 $tmpl->assign('feedSubtitle', Config::getApp('feed-subtitle', $l->t("%s OPDS catalog", $defaults->getName())));
 $tmpl->assign('isbndbKey', Config::getApp('isbndb-key', ''));
+$tmpl->assign('googleKey', Config::getApp('google-key', ''));
 $tmpl->assign('previewFormats', $formats);
 $tmpl->assign('cover-x', Config::getApp('cover-x', '200'));
 $tmpl->assign('cover-y', Config::getApp('cover-y', '200'));

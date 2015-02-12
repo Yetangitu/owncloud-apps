@@ -26,6 +26,7 @@ if (isset($_POST['opdsCoverX'])) {
 	$opdsThumbY = isset($_POST['opdsThumbY']) ? (int) $_POST['opdsThumbY'] : 36;
 	$opdsFeedSubtitle = isset($_POST['opdsFeedSubtitle']) ? $_POST['opdsFeedSubtitle'] : $l->t("%s OPDS catalog", $defaults->getName());
 	$opdsIsbndbKey = isset($_POST['opdsIsbndbKey']) ? $_POST['opdsIsbndbKey'] : '';
+	$opdsGoogleKey = isset($_POST['opdsGoogleKey']) ? $_POST['opdsGoogleKey'] : '';
 
 	Config::setApp('cover-x', $opdsCoverX);
 	Config::setApp('cover-y', $opdsCoverY);
@@ -33,6 +34,7 @@ if (isset($_POST['opdsCoverX'])) {
 	Config::setApp('thumb-y', $opdsThumbX);
 	Config::setApp('feed_subtitle', $opdsFeedSubtitle);
 	Config::setApp('isbndb-key', $opdsIsbndbKey);
+	Config::setApp('google-key', $opdsGoogleKey);
 } else {
 	// set preview preferences
 	$opdsPreviewEpub = $_POST['opdsPreviewEpub'];

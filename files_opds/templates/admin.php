@@ -36,6 +36,10 @@ function checkBox($format) {
                 <td><label for="opds-isbndb-key"><?php p($l->t('ISBNdb key:')) ?></label></td>
                 <td><input type="text" id="opds-isbndb-key" title="<?php p($l->t("Enter ISBNdb key to use for metadata lookup. Leave blank to disable ISBNdb lookup.")); ?>" value="<?php p($_['isbndbKey']) ?>" /></td>
         </tr>
+        <tr>
+                <td><label for="opds-google-key"><?php p($l->t('Google Books API key:')) ?></label></td>
+                <td><input type="text" id="opds-google-key" title="<?php p($l->t("Enter Google Books API key to use for metadata lookup. Even though metadata lookup will work without an API key, the rate limit is higher when a key is used.")); ?>" value="<?php p($_['googleKey']) ?>" /></td>
+        </tr>
 	</table>
 	<br>
 	<p><?php p($l->t('Enable preview for:')); ?></p>
