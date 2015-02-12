@@ -93,7 +93,7 @@ class Meta
 				$meta['publisher'],
 				$meta['isbn'],
 				$meta['copyright'],
-				$meta['description'],
+				mb_strimwidth($meta['description'],0,2044,'...'),
 				$meta['subjects'],
 				$meta['cover'],
 				$meta['rescan'],
@@ -112,7 +112,7 @@ class Meta
 				$meta['publisher'],
 				$meta['isbn'],
 				$meta['copyright'],
-				$meta['description'],
+				mb_strimwidth($meta['description'],0,2044,'...'),
 				$meta['subjects'],
 				$meta['cover'],
 				$meta['rescan']
@@ -246,7 +246,7 @@ class Meta
 				$value = trim($value);
 			}
 
-			if (!($value == '')) {
+			if (isset($value) && !($value == '')) {
 				switch ($key) {
 					case 'Title':
 						$meta['title'] = $value;
