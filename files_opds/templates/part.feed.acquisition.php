@@ -3,11 +3,11 @@
     <updated><?php p(date("Y-m-d\TH:i:sP",strtotime($_['file']['meta']['updated']))); ?></updated>
     <id>id:<?php p($_['file']['id']); ?></id>
     <dcterms:extent><?php p($_['file']['humansize']); ?></dcterms:extent>
-    <?php foreach (json_decode($_['file']['meta']['author'],true) as $author): ?>
+    <?php $authors = json_decode($_['file']['meta']['author'],true); if(is_array($authors)): foreach ($authors as $author): ?>
     <author>
       <name><?php p($author); ?></name>
     </author>
-    <?php endforeach; ?>
+    <?php endforeach; endif; ?>
     <?php if($_['file']['meta']['isbn']): ?>
     <dc:identifier>urn:isbn:<?php p($_['file']['meta']['isbn']); ?></dc:identifier>
     <?php endif; ?>
