@@ -8,4 +8,4 @@ require 'files_opds/lib/epub-preview.php';
 \OCP\App::registerAdmin('files_opds', 'admin');
 
 /* register preview provider */
-\OC\Preview::registerProvider('OC\Preview\Epub');
+\OC::$server->getPreviewManager()->registerProvider('OC\Preview\Epub');
