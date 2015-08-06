@@ -10,12 +10,14 @@
  * later.
  */
 
-namespace OC\Preview;
+namespace OCA\Files_Opds;
+
+use OCP\Preview\IProvider;
 
 /**
  * Epub preview - returns cover or null
  */
-class Epub extends Provider {
+class EpubPreview implements IProvider {
 
         public function getMimeType() {
                 return '/application\/epub\+zip/';
@@ -43,5 +45,8 @@ class Epub extends Provider {
 		return (($cover !== null) && $image->valid()) ? $image : false;
         }
 
+	public function isAvailable(\OCP\Files\FileInfo $file) {
+		return $file->getSize() > 0;
+	}
 }
 

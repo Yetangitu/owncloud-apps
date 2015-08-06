@@ -10,9 +10,9 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.6.7</version>
+	<version>0.6.8</version>
         <author>Frank de Lange</author>
-        <requiremin>7.0</requiremin>
+        <requiremin>8.1</requiremin>
         <shipped>true</shipped>
         <default_enable/>
         <repository type="git">https://github.com/Yetangitu/owncloud-apps</repository>
