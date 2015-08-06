@@ -88,6 +88,7 @@ document.onreadystatechange = function () {
 			nightModeConfig();
 		});
 
+		console.log(document.getElementById("dllink").value);
 		var reader = ePubReader(document.getElementById("dllink").value,  { contained: true });
 
 		// enable night/day mode switch by clicking on the book title/author

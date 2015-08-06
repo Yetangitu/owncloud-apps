@@ -54,7 +54,7 @@
 		show: function(downloadUrl, isFileList) {
 			var self = this;
 			var $iframe;
-            		var viewer = OC.generateUrl('/apps/files_reader/?file={file}', {file: encodeURIComponent(downloadUrl)});
+            		var viewer = OC.generateUrl('/apps/files_reader/?file={file}', {file: downloadUrl});
 			// launch in new window on mobile and touch devices...
 			if (isMobile || hasTouch) {
 				window.open(viewer, downloadUrl);
@@ -95,9 +95,9 @@
 					if($('#isPublic').val()) {
 						var sharingToken = $('#sharingToken').val();
 						downloadUrl = OC.generateUrl('/s/{token}/download?files={files}&path={path}', {
-							token: encodeURIComponent(sharingToken),
-							files: encodeURIComponent(fileName),
-							path:  encodeURIComponent(context.dir)
+							token: sharingToken,
+							files: fileName,
+							path:  context.dir
 						});
 					} else {
 						downloadUrl = Files.getDownloadUrl(fileName, context.dir);
@@ -117,7 +117,7 @@ OC.Plugins.register('OCA.Files.FileList', OCA.FilesReader.Plugin);
 $(document).ready(function(){
 	if ($('#isPublic').val() && $('#mimetype').val() === 'application/epub+zip') {
 		var sharingToken = $('#sharingToken').val();
-		var downloadUrl = OC.generateUrl('/s/{token}/download', {token: encodeURIComponent(sharingToken)});
+		var downloadUrl = OC.generateUrl('/s/{token}/download', {token: sharingToken});
 		var viewer = OCA.FilesReader.Plugin;
 		viewer.show(downloadUrl, false);
 	}
