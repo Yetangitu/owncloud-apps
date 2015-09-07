@@ -12,6 +12,7 @@ namespace OCA\Files_Reader\Controller;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 
@@ -41,7 +42,14 @@ class DisplayController extends Controller {
 			'urlGenerator' => $this->urlGenerator
 		];
 
-		return new TemplateResponse($this->appName, 'reader', $params, 'blank');
+		$response = new TemplateResponse($this->appName, 'reader', $params, 'blank');
+
+		$csp = new ContentSecurityPolicy();
+		$csp->addAllowedChildSrcDomain('\'self\'');
+		$csp->addAllowedStyleDomain('blob:');
+		$response->setContentSecurityPolicy($csp);
+
+		return $response;
 	}
 
 }
