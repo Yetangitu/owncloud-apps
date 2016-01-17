@@ -10,7 +10,7 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.6.10</version>
+	<version>0.6.11</version>
         <author>Frank de Lange</author>
         <requiremin>8.1</requiremin>
         <shipped>false</shipped>
