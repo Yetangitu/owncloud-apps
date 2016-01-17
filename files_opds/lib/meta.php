@@ -216,7 +216,7 @@ class Meta
 				$meta['subjects'] = json_encode($epub->Subjects());
 			}
 		} catch (\Exception $e) {
-			\OC_Log::write(get_class(), $e->getMessage(), \OC_LOG::ERROR);
+			\OCP\Util::writeLog(get_class(), $e->getMessage(), \OCP\Util::ERROR);
 		}
 	}
 
