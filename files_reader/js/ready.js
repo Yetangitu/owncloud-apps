@@ -64,6 +64,16 @@ document.onreadystatechange = function () {
 			$('head').append($('<link rel="stylesheet" type="text/css" />').attr('href', document.getElementsByTagName("base").item(0).href + 'css/idevice.css'));
 		}
 
+		// IE < 11
+		if (navigator.userAgent.indexOf("MSIE") != -1) {
+			EPUBJS.Hooks.register("beforeChapterDisplay").wgxpath = function(callback, renderer){
+				wgxpath.install(renderer.render.window);
+				if(callback)
+					callback();
+			};
+			wgxpath.install(window);
+		}
+
 		function nightModeConfig() {
 			delCSSRule(EPUBJS.nightSheet, EPUBJS.nightSelector);
 			addCSSRule(EPUBJS.nightSheet, EPUBJS.nightSelector, 'color: ' + EPUBJS.nightModeColor +  ' !important; background: ' + EPUBJS.nightModeBackground + ' !important;');

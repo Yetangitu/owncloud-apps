@@ -34,8 +34,8 @@
       -->
       <script type="text/javascript" src="js/lib/typedarray.min.js"> </script>
       <script type="text/javascript" src="js/lib/Blob.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/libs/jquery-2.1.0.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/libs/jquery.highlight.js"> </script>
+      <script type="text/javascript" src="js/lib/wgxpath.install.js"> </script>
+      <script type="text/javascript" src="vendor/epubjs/libs/jquery.min.js"> </script>
       <script type="text/javascript" src="vendor/epubjs/libs/screenfull.min.js"> </script>
       <script type="text/javascript" src="vendor/epubjs/libs/zip.min.js"> </script>
       <script type="text/javascript" src="vendor/epubjs/epub.min.js"> </script>

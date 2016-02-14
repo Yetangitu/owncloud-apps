@@ -11,7 +11,7 @@
 
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
-    <version>0.6.1</version>
+    <version>0.7.0</version>
     <licence>LGPL</licence>
     <author>Frank de Lange</author>
     <require>8.1</require>
