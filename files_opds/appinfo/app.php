@@ -1,7 +1,5 @@
 <?php
 
-$l = OC_L10N::get('files_opds');
-
 \OCP\App::registerPersonal('files_opds', 'personal');
 \OCP\App::registerAdmin('files_opds', 'admin');
 
