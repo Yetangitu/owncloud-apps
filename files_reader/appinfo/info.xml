@@ -11,12 +11,14 @@
 
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <licence>LGPL</licence>
     <author>Frank de Lange</author>
-    <require>8.1</require>
     <shipped>false</shipped>
     <default_enable/>
     <standalone/>
+    <dependencies>
+        <owncloud min-version="8.1" max-version="9.0" />
+    </dependencies>
     <ocsid>167127</ocsid>
 </info>
