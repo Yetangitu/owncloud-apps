@@ -10,6 +10,8 @@
 
 namespace OCA\Files_Opds;
 
+use OCP\Util;
+
 $l = new \OC_L10N('files_opds');
 
 \OCP\Util::addScript('files_opds', 'personal');
@@ -23,7 +25,7 @@ $tmpl->assign('fileTypes', Config::get('file_types', ''));
 $tmpl->assign('skipList', Config::get('skip_list', 'metadata.opf,cover.jpg'));
 $tmpl->assign('feedTitle', Config::get('feed_title', $l->t("%s's Library", \OCP\User::getDisplayName())));
 $tmpl->assign('bookshelf-count', Bookshelf::count());
-$tmpl->assign('feedUrl', \OC_Helper::linkToAbsolute('','index.php') . '/apps/files_opds/');
+$tmpl->assign('feedUrl', Util::linkToAbsolute('','index.php') . '/apps/files_opds/');
 
 return $tmpl->fetchPage();
 
