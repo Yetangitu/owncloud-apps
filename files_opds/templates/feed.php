@@ -41,20 +41,28 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 
 <?php
-if ($_['id'] == 'root') {
-	print_unescaped($this->inc('part.feed.root'));
-} elseif (($_['id'] == 'bookshelf')) {
-	foreach ($_['bookshelf'] as $file) {
-		print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
-	}
-} else {
-	foreach ($_['files'] as $file) {
-		if ($file['type'] == 'dir') {
-			print_unescaped($this->inc('part.feed.navigation', [ 'file' => $file ]));
-		} else {
+switch ($_['type']) {
+	case 'root':
+		print_unescaped($this->inc('part.feed.root'));
+		break;
+
+	case 'bookshelf':
+		foreach ($_['bookshelf'] as $file) {
 			print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
 		}
-	}
+		break;
+
+	/* intentional fall-through for 'directory' */
+	case 'directory':
+	default:
+		foreach ($_['files'] as $file) {
+			if ($file['type'] == 'dir') {
+				print_unescaped($this->inc('part.feed.navigation', [ 'file' => $file ]));
+			} else {
+				print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
+			}
+		}
+		break;
 }
 ?>
 </feed>

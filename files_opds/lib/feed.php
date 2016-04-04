@@ -47,8 +47,9 @@ class Feed
          *
          * @param string $dir full path to directory
          * @param int $id requested id
+	 * @param string $type request type (root, bookshelf, directory)
          */
-        public static function serveFeed($dir, $id) {
+        public static function serveFeed($dir, $id, $type) {
                 if (isset($_SERVER['HTTP_ACCEPT']) && stristr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
                         header('Content-Type: application/atom+xml');
                 } else {
@@ -63,6 +64,7 @@ class Feed
                 $tmpl->assign('bookshelf-count', Bookshelf::count());
                 $tmpl->assign('feed_id', self::getFeedId());
                 $tmpl->assign('id', $id);
+                $tmpl->assign('type', $type);
                 $tmpl->assign('dir', $dir);
                 $tmpl->assign('user', \OCP\User::getDisplayName());
                 $tmpl->assign('feed_title', Config::get('feed_title',\OCP\User::getDisplayName() . "'s Library"));

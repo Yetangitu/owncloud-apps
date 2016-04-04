@@ -31,6 +31,7 @@ if (Config::get('enable', 'false') === 'false') {
 	exit;
 }
 
+
 /* id defaults to 'root' (meaning 'serve root feed') */
 $id = isset($_GET['id']) ? $_GET['id'] : 'root';
 
@@ -43,6 +44,14 @@ if (isset($_GET['pid'])) {
 if (isset($_GET['tid'])) {
 	$id = (int) $_GET['tid'];
 	$type = 'thumbnail';
+}
+
+# this is a bit ugly: $id either contains a numerical ID or a command string. If it contains the latter,
+# move the content to $type for the Feed to interpret and switch in the library root numerical ID
+if (ctype_alpha($id)) {
+	$type = $id;
+	$rootFolder = \OC::$server->getUserFolder(\OC::$server->getUserSession()->getUser()->getUID());
+	$id = $rootFolder->getId();
 }
 
 $dir = \OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id));
@@ -65,7 +74,7 @@ switch ($dirInfo->getType()) {
 		}
 		break;
 	case 'dir':
-		Feed::serveFeed($dir, $id);
+		Feed::serveFeed($dir, $id, $type);
 		break;
 	default:
 		Util::logWarn("I don't know how to handle files of type " . $dirInfo->getType());
