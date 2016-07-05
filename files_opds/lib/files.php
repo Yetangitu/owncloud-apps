@@ -32,7 +32,7 @@ class Files extends \OCA\Files\Helper
                 $entry['type'] = $i['type'];
 		if ($i['type'] === 'file') {
                 	$entry['mimetype'] = $i['mimetype'];
-                	$entry['humansize'] = \OC_Helper::humanFileSize($i['size']);
+			$entry['humansize'] = \OCP\Util::humanFileSize($i['size']);
 			$entry['meta'] = Meta::get($i['fileid']);
 		} 
                 return $entry;
