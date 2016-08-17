@@ -69,6 +69,14 @@ class Files extends \OCA\Files\Helper
 	 * @return bool true if $child is a subdirectory of $parent
 	 */
 	public static function isChild($parent, $child) {
-		return strpos($child, $parent . '/') === 0;
+
+		if ($parent[0] !== '/') {
+			$parent = '/' . $parent;
+		}
+		if (strlen($parent) > 1 && substr($parent, -1) !== '/') {
+			$parent .= '/';
+		}
+
+		return (strpos($child, $parent) === 0 && strcmp($child, $parent) !== 0);
 	}
 }
