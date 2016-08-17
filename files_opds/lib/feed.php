@@ -115,12 +115,12 @@ class Feed
 				. $scheme
 				. "://"
 				. $_SERVER['HTTP_HOST']
-				. \OC_Helper::mimetypeIcon($i->getMimeType())
+				. \OC::$server->getMimeTypeDetector()->mimeTypeIcon($i->getMimeType())
 				);
 			/* Note: relative URL should be enough (RFC7231) but some OPDS clients
 			 * (especially those in dedicated book readers) might not support them
 			 * 
-			 * header("Location: " . \OC_Helper::mimetypeIcon($i->getMimeType()));
+			 * header("Location: " . \OC::$server->getMimeTypeDetector()->mimeTypeIcon($i->getMimeType()));
 			 */
 		}
         }
