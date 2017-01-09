@@ -2,6 +2,7 @@
 <info>
     <id>files_reader</id>
     <name>Reader (ebook reader)</name>
+    <summary>An epub-compatible ebook reader based on a pure javascript epub renderer</summary>
     <description>
 	Reader is an ebook reader based on a pure javascript epub renderer. It only works for books formatted according to the epub standard.
 
@@ -14,8 +15,14 @@
     <version>0.8</version>
     <licence>LGPL</licence>
     <author>Frank de Lange</author>
-    <shipped>false</shipped>
-    <default_enable/>
+    <documentation>
+        <user>https://github.com/Yetangitu/owncloud-apps/blob/master/files_reader/README.md</user>
+    </documentation>
+    <bugs>https://github.com/Yetangitu/owncloud-apps/issues</bugs>
+    <website>https://github.com/Yetangitu/owncloud-apps/files_reader</website>
+    <category>files</category>
+    <category>multimedia</category>
+    <category>office</category>
     <standalone/>
     <dependencies>
         <owncloud min-version="8.1" max-version="9.2" />
