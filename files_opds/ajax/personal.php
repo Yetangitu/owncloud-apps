@@ -15,7 +15,7 @@ namespace OCA\Files_Opds;
 \OCP\JSON::callCheck();
 \OCP\JSON::checkLoggedIn();
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 $opdsEnable = isset($_POST['opdsEnable']) ? $_POST['opdsEnable'] : 'false';
 $rootPath = isset($_POST['rootPath']) ? $_POST['rootPath'] : '/Library';

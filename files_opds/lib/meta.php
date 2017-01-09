@@ -227,11 +227,6 @@ class Meta
 	 * @param arrayref $meta reference to array of metadata
 	 */
 	public static function pdf($path,&$meta) {
-		if(\OC_Util::runningOnWindows()) {
-			/* not supported when running on Windows due to use of exec() */
-			return;
-		}
-
 		/* first, try to get metadata through ISBN */
 		$command = ['pdftotext -l 10 "','" -'];
 		$output=array();

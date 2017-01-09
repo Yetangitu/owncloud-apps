@@ -16,7 +16,7 @@ namespace OCA\Files_Opds;
 \OCP\JSON::checkLoggedIn();
 $defaults = new \OC_Defaults();
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 if (isset($_POST['opdsCoverX'])) {
 	// set dimensions, using sane defaults just in case

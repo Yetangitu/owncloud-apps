@@ -10,7 +10,7 @@
 
 namespace OCA\Files_Opds;
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 \OCP\Util::addScript('files_opds', 'admin');
 \OCP\Util::addStyle('files_opds', 'settings');

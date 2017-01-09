@@ -10,7 +10,7 @@
  * later.
  */
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 function checkBox($format) {
 	foreach($format as $name => $enabled) {

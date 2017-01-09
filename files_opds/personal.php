@@ -12,7 +12,7 @@ namespace OCA\Files_Opds;
 
 use OCP\Util;
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 \OCP\Util::addScript('files_opds', 'personal');
 

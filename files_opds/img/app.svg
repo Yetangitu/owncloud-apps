@@ -7,25 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   height="16"
-   width="16"
    version="1.1"
-   id="svg2"
-   inkscape:version="0.48.5 r10040"
+   id="svg4096"
+   viewBox="0 0 32 32"
+   height="32"
+   width="32"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="app.svg">
-  <metadata
-     id="metadata12">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs10" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -37,19 +25,114 @@
      inkscape:pageshadow="2"
      inkscape:window-width="798"
      inkscape:window-height="1186"
-     id="namedview8"
+     id="namedview7"
      showgrid="false"
-     inkscape:zoom="9.7984553"
-     inkscape:cx="2.0136059"
-     inkscape:cy="8.6779652"
-     inkscape:window-x="800"
+     inkscape:zoom="20.5625"
+     inkscape:cx="16"
+     inkscape:cy="16"
+     inkscape:window-x="0"
      inkscape:window-y="12"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
-  <path
-     inkscape:connector-curvature="0"
-     d="M 6.3605388,1.1781792 C 5.3432889,0.71018919 3.3384715,1.6144462 2.7626049,2.4105432 2.50603,2.7667642 2.5241688,3.0234762 2.5241688,3.1691342 l 0,7.7918788 7.5182352,4.088872 1.413809,-0.674729 0,-7.5883898 -7.7192505,-3.87362 c 0.4142344,-0.455662 1.3458772,-1.011314 2.0444073,-0.788162 l 6.8757582,3.214357 0,8.4535718 1.417397,-0.675926 0,-8.4532028 z"
-     id="path2989"
-     sodipodi:nodetypes="cccccccccccccc"
-     style="fill:#ffffff" />
+     inkscape:current-layer="svg4096" />
+  <defs
+     id="defs4098" />
+  <metadata
+     id="metadata4101">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1020.3622)"
+     id="layer1"
+     style="fill:#ffffff">
+    <path
+       style="fill:#ffffff"
+       id="path2989"
+       d="m 11.168042,1021.5246 c -2.2036689,-1.0138 -6.5467059,0.9451 -7.7942059,2.6697 -0.555819,0.7717 -0.516525,1.3278 -0.516525,1.6433 l 0,16.8796 16.2867569,8.8577 3.062736,-1.4617 0,-16.4387 -16.7222168,-8.3914 c 0.897356,-0.9871 2.9155749,-2.1908 4.4288007,-1.7074 l 14.8949581,6.9633 0,18.3129 3.070508,-1.4642 0,-18.3122 z" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="4.7659574"
+     y="11.6231"
+     id="text3335"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3337"
+       x="4.7659574"
+       y="11.6231"></tspan></text>
+  <g
+     transform="matrix(0.01369405,0.00618385,0,0.01584184,3.8326644,6.6347791)"
+     id="g3673"
+     style="fill:#000000">
+    <g
+       id="g3675"
+       style="fill:#000000">
+      <g
+         id="g3677"
+         style="fill:#000000">
+        <g
+           id="g3679"
+           style="fill:#000000">
+          <path
+             inkscape:connector-curvature="0"
+             d="m 829.2,664.9 c -36.4,0 -69.8,12.2 -96.8,32.6 l -401.2,-193.9 0.4,-7.3 400.8,-193.7 c 26.9,20.4 60.3,32.6 96.8,32.6 88.9,0 160.9,-72 160.9,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 -88.9,0 -160.9,72 -160.9,160.9 l 0,0.1 -397.4,192 C 243.5,344.5 208.7,331.2 170.9,331.2 82,331.3 10,403.3 10,492.2 10,581 82,653 170.9,653 c 32.1,0 62,-9.5 87.1,-25.7 l 410.3,198.3 0,0.2 c 0,88.8 72,160.9 160.9,160.9 88.9,0 160.8,-72 160.8,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 z"
+             id="path3681"
+             style="fill:#000000" />
+        </g>
+      </g>
+    </g>
+    <g
+       id="g3683"
+       style="fill:#000000" />
+    <g
+       id="g3685"
+       style="fill:#000000" />
+    <g
+       id="g3687"
+       style="fill:#000000" />
+    <g
+       id="g3689"
+       style="fill:#000000" />
+    <g
+       id="g3691"
+       style="fill:#000000" />
+    <g
+       id="g3693"
+       style="fill:#000000" />
+    <g
+       id="g3695"
+       style="fill:#000000" />
+    <g
+       id="g3697"
+       style="fill:#000000" />
+    <g
+       id="g3699"
+       style="fill:#000000" />
+    <g
+       id="g3701"
+       style="fill:#000000" />
+    <g
+       id="g3703"
+       style="fill:#000000" />
+    <g
+       id="g3705"
+       style="fill:#000000" />
+    <g
+       id="g3707"
+       style="fill:#000000" />
+    <g
+       id="g3709"
+       style="fill:#000000" />
+    <g
+       id="g3711"
+       style="fill:#000000" />
+  </g>
 </svg>

@@ -12,7 +12,7 @@
 
 namespace OCA\Files_Opds;
 
-$l = new \OC_L10N('files_opds');
+$l = \OC::$server->getL10N('files_opds');
 
 \OCP\JSON::checkLoggedIn();
 \OCP\JSON::callCheck();

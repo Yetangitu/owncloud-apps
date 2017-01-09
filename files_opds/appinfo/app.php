@@ -1,4 +1,5 @@
 <?php
+$l = \OC::$server->getL10N('files_opds');
 
 \OCP\App::registerPersonal('files_opds', 'personal');
 \OCP\App::registerAdmin('files_opds', 'admin');
