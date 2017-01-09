@@ -142,6 +142,20 @@ class Meta
         }
 
 	/**
+	 * @brief remove metadata for fileid
+	 *
+	 * @param int $id fileif
+	 * @return OC_DB_StatementWrapper
+	 */
+	public static function remove($id) {
+		$sql = "DELETE FROM *PREFIX*opds_metadata WHERE `id`=?";
+		$args = array($id);
+		$query = \OCP\DB::prepare($sql);
+
+		return $query->execute($args);
+	}
+
+	/**
 	 * @brief schedule rescan of metadata
 	 * 
 	 */

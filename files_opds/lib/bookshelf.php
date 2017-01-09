@@ -34,6 +34,19 @@ class Bookshelf
 	}
 
 	/**
+	 * @brief remove book from personal bookshelf
+	 *
+	 * @param int $id book to remove from bookshelf
+	 */
+	public static function remove($id) {
+		$bookshelf = json_decode(Config::get('bookshelf', ''), true);
+		if(isset($bookshelf[$id])) {
+			unset($bookshelf[$id]);
+			Config::set('bookshelf', json_encode($bookshelf));
+		}
+	}
+
+	/**
 	 * @brief clear personal bookshelf
 	 */
 	public static function clear() {
@@ -58,7 +71,12 @@ class Bookshelf
 		if($bookshelf = json_decode(Config::get('bookshelf', ''), true)) {
 			arsort($bookshelf);
 			while (list($id, $time) = each($bookshelf)) {
-				array_push($files, \OC\Files\Filesystem::getFileInfo(\OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id))));
+				try {
+					array_push($files, \OC\Files\Filesystem::getFileInfo(\OC\Files\Filesystem::normalizePath(\OC\Files\Filesystem::getPath($id))));
+				} catch(\OCP\Files\NotFoundException $e) {
+					self::remove($id);
+					Meta::remove($id);
+				}
 			}
 		}
 
