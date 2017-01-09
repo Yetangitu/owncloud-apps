@@ -13,7 +13,7 @@
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
     <version>0.8.0</version>
-    <licence>LGPL</licence>
+    <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
         <user>https://github.com/Yetangitu/owncloud-apps/blob/master/files_reader/README.md</user>
