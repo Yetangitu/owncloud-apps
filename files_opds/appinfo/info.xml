@@ -2,6 +2,7 @@
 <info>
         <id>files_opds</id>
         <name>OPDS catalog</name>
+	<summary>An OPDS catalog generator, enabling users to publish a sub-tree of their personal filesystem as an OPDS feed</summary>
         <description>
 		OPDS is a syndication format for electronic publications based on Atom and HTTP which makes it possible to access those publications (which are not limited to electronic books) on any OPDS client device. Examples of the latter are phones and tablets running OPDS-compatible book readers, eg FBReader/CoolReader/Aldiko on Android or Marvin/KyBook/Stanza on iOS.
 
@@ -10,15 +11,17 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.7</version>
+	<version>0.7.0</version>
         <author>Frank de Lange</author>
-        <shipped>false</shipped>
-        <default_enable/>
 	<category>tools</category>
 	<category>files</category>
+	<category>organization</category>
         <repository type="git">https://github.com/Yetangitu/owncloud-apps</repository>
         <bugs>https://github.com/Yetangitu/owncloud-apps/issues</bugs>
-        <homepage>https://github.com/Yetangitu/owncloud-apps</homepage>
+        <homepage>https://github.com/Yetangitu/owncloud-apps/files_opds</homepage>
+	<documentation>
+		<user>https://github.com/Yetangitu/owncloud-apps/blob/master/files_opds/README.md</user>
+	</documentation>
         <dependencies>
             <php min-version="5.4" />
             <database>pgsql</database>
