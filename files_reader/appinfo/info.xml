@@ -12,7 +12,7 @@
 
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
-    <version>0.8.0</version>
+    <version>0.8.1</version>
     <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
@@ -20,6 +20,9 @@
     </documentation>
     <bugs>https://github.com/Yetangitu/owncloud-apps/issues</bugs>
     <website>https://github.com/Yetangitu/owncloud-apps/files_reader</website>
+    <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-1.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-2.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-3.png</screenshot>
     <category>files</category>
     <category>multimedia</category>
     <category>office</category>

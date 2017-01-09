@@ -11,7 +11,7 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.7.0</version>
+	<version>0.7.1</version>
         <author>Frank de Lange</author>
 	<category>tools</category>
 	<category>files</category>
@@ -22,6 +22,7 @@
 	<documentation>
 		<user>https://github.com/Yetangitu/owncloud-apps/blob/master/files_opds/README.md</user>
 	</documentation>
+	<screenshot>https://github.com/Yetangitu/owncloud-apps/blob/master/screenshots/files_opds-1.png</screenshot>
         <dependencies>
             <php min-version="5.4" />
             <database>pgsql</database>
