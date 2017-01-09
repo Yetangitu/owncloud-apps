@@ -23,7 +23,6 @@
     <category>files</category>
     <category>multimedia</category>
     <category>office</category>
-    <standalone/>
     <dependencies>
         <owncloud min-version="8.1" max-version="9.2" />
 	<nextcloud min-version="8.1" max-version="12"/>
