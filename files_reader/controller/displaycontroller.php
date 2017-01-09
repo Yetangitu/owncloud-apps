@@ -46,6 +46,7 @@ class DisplayController extends Controller {
 
 		$csp = new ContentSecurityPolicy();
 		$csp->addAllowedChildSrcDomain('\'self\'');
+		$csp->addAllowedScriptDomain('\'self\'');
 		$csp->addAllowedFrameDomain('\'self\'');
 		$csp->addAllowedStyleDomain('blob:');
 		$csp->addAllowedImageDomain('blob:');

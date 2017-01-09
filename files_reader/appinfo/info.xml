@@ -11,7 +11,7 @@
 
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
-    <version>0.7.2</version>
+    <version>0.8</version>
     <licence>LGPL</licence>
     <author>Frank de Lange</author>
     <shipped>false</shipped>
@@ -19,6 +19,7 @@
     <standalone/>
     <dependencies>
         <owncloud min-version="8.1" max-version="9.2" />
+	<nextcloud min-version="8.1" max-version="12"/>
     </dependencies>
     <ocsid>167127</ocsid>
 </info>

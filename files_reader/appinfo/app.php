@@ -15,3 +15,16 @@ namespace OCA\Files_Reader\AppInfo;
 use OCP\Util;
 
 Util::addscript( 'files_reader', 'plugin');
+
+if(class_exists('\\OCP\\AppFramework\\Http\\EmptyContentSecurityPolicy')) {
+	$manager = \OC::$server->getContentSecurityPolicyManager();
+	$csp = new \OCP\AppFramework\Http\EmptyContentSecurityPolicy();
+	$csp->addAllowedStyleDomain('\'self\'');
+	$csp->addAllowedStyleDomain('blob:');	
+	$csp->addAllowedScriptDomain('\'self\'');
+	$csp->addAllowedFrameDomain('\'self\'');
+	$csp->addAllowedChildSrcDomain('\'self\'');
+	$csp->addAllowedImageDomain('blob:');
+	$manager->addDefaultPolicy($csp);
+}
+	

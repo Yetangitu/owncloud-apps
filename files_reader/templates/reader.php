@@ -20,30 +20,18 @@
       <link rel="stylesheet" href="css/main.css">
       <link rel="stylesheet" href="css/popup.css">
       <link rel="stylesheet" href="css/tooltip.css">
-      <!--
-      <script type="text/javascript" src="js/libs/jquery-2.1.0.min.js"> </script>
-      <script type="text/javascript" src="js/libs/jquery.highlight.js"> </script>
-      <script type="text/javascript" src="js/libs/screenfull.min.js"> </script>
-      <script type="text/javascript" src="js/libs/typedarray.min.js"> </script>
-      <script type="text/javascript" src="js/libs/blob.js"> </script>
-      <script type="text/javascript" src="js/libs/zip.min.js"> </script>
-      <script type="text/javascript" src="js/epub.min.js"> </script>
-      <script type="text/javascript" src="js/hooks.min.js"> </script>
-      <script type="text/javascript" src="js/hooks/extensions/highlight.js"> </script>
-      <script type="text/javascript" src="js/reader.min.js"> </script>
-      -->
-      <script type="text/javascript" src="js/lib/typedarray.min.js"> </script>
-      <script type="text/javascript" src="js/lib/Blob.js"> </script>
-      <script type="text/javascript" src="js/lib/wgxpath.install.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/libs/jquery.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/libs/screenfull.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/libs/zip.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/epub.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/hooks.min.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/hooks/extensions/highlight.js"> </script>
-      <script type="text/javascript" src="vendor/epubjs/reader.min.js"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/typedarray.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/Blob.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/wgxpath.install.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/jquery.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/screenfull.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/zip.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/epub.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks/extensions/highlight.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/reader.min.js')) ?>?v=<?php p($version) ?>"> </script>
      
-      <script type="text/javascript" src="js/ready.js"> </script>
+      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/ready.js')) ?>?v=<?php p($version) ?>"> </script>
    </head>
    <body>
       <input type="hidden" id="dllink" value="<?php print_unescaped($dllink);?>">
