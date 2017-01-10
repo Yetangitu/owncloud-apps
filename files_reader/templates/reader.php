@@ -4,6 +4,11 @@
   $urlGenerator = $_['urlGenerator'];
   $version = \OCP\App::getAppVersion('files_reader');
   $dllink = isset($_GET['file']) ? $_GET['file'] : '';
+
+  /* Owncloud currently does not implement CSPv3, remove this test when it does */
+  $nonce = class_exists('\OC\Security\CSP\ContentSecurityPolicyNonceManager')
+    ? \OC::$server->getContentSecurityPolicyNonceManager()->getNonce()
+    : 'nonce_not_implemented';
 ?>
 
 <html dir="ltr">
@@ -20,18 +25,18 @@
       <link rel="stylesheet" href="css/main.css">
       <link rel="stylesheet" href="css/popup.css">
       <link rel="stylesheet" href="css/tooltip.css">
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/typedarray.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/Blob.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/wgxpath.install.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/jquery.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/screenfull.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/zip.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/epub.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks.min.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks/extensions/highlight.js')) ?>?v=<?php p($version) ?>"> </script>
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/reader.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/typedarray.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/Blob.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/wgxpath.install.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/jquery.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/screenfull.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/zip.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/epub.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks.min.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/hooks/extensions/highlight.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/reader.min.js')) ?>?v=<?php p($version) ?>"> </script>
      
-      <script type="text/javascript" nonce="<?php p(\OC::$server->getContentSecurityPolicyNonceManager()->getNonce()) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/ready.js')) ?>?v=<?php p($version) ?>"> </script>
+      <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/ready.js')) ?>?v=<?php p($version) ?>"> </script>
    </head>
    <body>
       <input type="hidden" id="dllink" value="<?php print_unescaped($dllink);?>">
