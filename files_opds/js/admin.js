@@ -3,11 +3,13 @@ $(document).ready(function(){
         var opdsAdminSettings = {
                 save : function() {
 			var epub = document.getElementById('opds-preview-epub').checked ? 'true' : 'false';
+			var fb2 = document.getElementById('opds-preview-fb2').checked ? 'true' : 'false';
 			var pdf = document.getElementById('opds-preview-pdf').checked ? 'true' : 'false';
 			var opendocument = document.getElementById('opds-preview-opendocument').checked ? 'true' : 'false';
 			var msoffice = document.getElementById('opds-preview-msoffice').checked ? 'true' : 'false';
                         var data = {
                                 opdsPreviewEpub : epub,
+                                opdsPreviewFb2 : fb2,
                                 opdsPreviewPdf : pdf,
                                 opdsPreviewOpenDocument : opendocument,
                                 opdsPreviewMsOffice : msoffice
@@ -40,6 +42,7 @@ $(document).ready(function(){
         };
 
         $('#opds-preview-epub').on("change", opdsAdminSettings.save);
+        $('#opds-preview-fb2').on("change", opdsAdminSettings.save);
         $('#opds-preview-pdf').on("change", opdsAdminSettings.save);
         $('#opds-preview-opendocument').on("change", opdsAdminSettings.save);
         $('#opds-preview-msoffice').on("change", opdsAdminSettings.save);

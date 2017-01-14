@@ -18,6 +18,7 @@ $defaults = new \OC_Defaults();
 
 $formats = array(
 	["epub" => Config::getPreview('OC\Preview\Epub') ? 1 : 0 ],
+	["fb2" => Config::getPreview('OC\Preview\FB2') ? 1 : 0 ],
 	["pdf" => Config::getPreview('OC\Preview\PDF') ? 1 : 0],
 	["opendocument" => Config::getPreview('OC\Preview\OpenDocument') ? 1 : 0],
 	["msoffice" => Config::getPreview('OC\Preview\MSOfficeDoc') ? 1 : 0]
