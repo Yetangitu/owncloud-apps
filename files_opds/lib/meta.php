@@ -205,7 +205,6 @@ class Meta
 		return $meta;
 	}
 
-
 	/**
 	 * @brief check epub for metadata
 	 *
@@ -228,6 +227,34 @@ class Meta
 				$meta['description'] = strip_tags($epub->Description());
 				$meta['isbn'] = $epub->ISBN();
 				$meta['subjects'] = json_encode($epub->Subjects());
+			}
+		} catch (\Exception $e) {
+			\OCP\Util::writeLog(get_class(), $e->getMessage(), \OCP\Util::ERROR);
+		}
+	}
+
+	/**
+	 * @brief check fb2 for metadata
+	 *
+	 * @param string $path path to fb2
+	 * @param arrayref $meta reference to array of metadata
+	 */
+	public static function fb2($path,&$meta) {
+		$success = false;
+		try {
+			$fb2 = new FB2($path);
+			/* first try ISBN */
+			if(!(($isbn = $fb2->ISBN()) && (Isbn::get($isbn, $meta)))) {
+				/* use FB2 internal metadata instead */
+				$meta['author'] = json_encode($fb2->Authors());
+				$meta['title'] = $fb2->Title();
+				$meta['date'] = $fb2->Date();
+				$meta['publisher'] = $fb2->Publisher();
+				$meta['copyright'] = $fb2->Copyright();
+				$meta['language'] = $fb2->Language();
+				$meta['description'] = strip_tags($fb2->Description());
+				$meta['isbn'] = $fb2->ISBN();
+				$meta['subjects'] = json_encode($fb2->Subjects());
 			}
 		} catch (\Exception $e) {
 			\OCP\Util::writeLog(get_class(), $e->getMessage(), \OCP\Util::ERROR);
