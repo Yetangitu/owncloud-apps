@@ -106,22 +106,38 @@ class Feed
 					$preview->setMaxY(Config::getApp('thumb-y', '36'));
 					break;
 			}
-			$preview->showPreview();
+
+			// showPreview has been known to throw exceptions so wrap this call
+			try {
+				$preview->showPreview();
+			} catch (\OC\PreviewNotAvailableException $e) {
+				self::serveIcon($i['mimetype']);
+			}
 		} else {
-			// no preview, serve icon instead
-			$scheme = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-				|| $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-			header("Location: "
-				. $scheme
-				. "://"
-				. $_SERVER['HTTP_HOST']
-				. \OC::$server->getMimeTypeDetector()->mimeTypeIcon($i->getMimeType())
-				);
-			/* Note: relative URL should be enough (RFC7231) but some OPDS clients
-			 * (especially those in dedicated book readers) might not support them
-			 * 
-			 * header("Location: " . \OC::$server->getMimeTypeDetector()->mimeTypeIcon($i->getMimeType()));
-			 */
+			self::serveIcon($i['mimetype']);
 		}
+	}
+
+	/**
+	 * @brief offer icon for download
+	 * 
+	 * send icon for $mimetype
+	 * 
+	 * @param string $mimetype
+	 */
+	private static function serveIcon($mimetype) {
+		$scheme = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+			|| $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+		header("Location: "
+			. $scheme
+			. "://"
+			. $_SERVER['HTTP_HOST']
+			. \OC::$server->getMimeTypeDetector()->mimeTypeIcon($mimetype)
+			);
+		/* Note: relative URL should be enough (RFC7231) but some OPDS clients
+		 * (especially those in dedicated book readers) might not support them
+		 * 
+		 * header("Location: " . \OC::$server->getMimeTypeDetector()->mimeTypeIcon($mimetype));
+		 */
         }
 }
