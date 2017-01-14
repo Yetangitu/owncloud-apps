@@ -109,7 +109,7 @@ class Epub {
 	/**
 	 * @brief get book title
 	 *
-	 * @param string $title
+	 * @return string $title
 	 */
 	public function Title(){
 		return $this->get('dc:title');
@@ -118,7 +118,7 @@ class Epub {
 	/**
 	 * @brief get language
 	 *
-	 * @param string $lang
+	 * @return string $lang
 	 */
 	public function Language(){
 		return $this->get('dc:language');
@@ -127,7 +127,7 @@ class Epub {
 	/**
 	 * @brief get date
 	 *
-	 * @param string $date
+	 * @return string $date
 	 */
 	public function Date(){
 		return $this->get('dc:date');
