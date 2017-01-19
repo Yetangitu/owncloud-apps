@@ -1,7 +1,7 @@
 files_opds
 ----------
 
-The OPDS catalog app enables Nextcloud/Owncloud (*-cloud for the rest of this text) users to publish a sub-tree of their personal filesystem as an OPDS feed. Since *-cloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents. v0.5 introduced ISBN-based metadata retrieval, while Calibre-generated metadata.opf files are parsed since v0.6.
+The OPDS catalog app enables Nextcloud/Owncloud (*-cloud for the rest of this text) users to publish a sub-tree of their personal filesystem as an OPDS feed. Since *-cloud currently has limited to no support for metadata, these are for now stored in a separate table. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB and PDF documents. v0.5 introduced ISBN-based metadata retrieval, while Calibre-generated metadata.opf files are parsed since v0.6. FictionBook 2 (.fb2) metadata is supported from v0.8.0.
 
 #### ISBN
 If an ISBN is found in either existing metadata or in the first 10 pages of the publication, metadata is retrieved from ISBNdb (key required, http://isbndb.com/account/logincreate, max. 500 queries/day) and Google Books (no key required). 

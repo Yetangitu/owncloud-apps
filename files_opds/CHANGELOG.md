@@ -1,4 +1,12 @@
-## UNRELEASED
+## 0.8.2 - 2017-01-19
+### Fixed
+ - Support login tokens ('app passwords', NC/OC) and 2FA (NC)
+
+## 0.8.1 - 2017-01-14
+### Changed
+ - more robust preview generator, fallback to mimetype icon when showPreview throws exception
+
+## 0.8.0 - 2017-01-14
 ### New
  - FictionBook 2 (.fb2) metadata parser
  - FB2 preview provider

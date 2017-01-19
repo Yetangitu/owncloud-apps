@@ -14,23 +14,13 @@ namespace OCA\Files_Opds;
 
 \OCP\App::checkAppEnabled('files_opds');
 
-/* Enable login through basic auth, using normal OC username/password
- * This is required because opds clients do not support the normal
- * OC login process
- */
-if (Util::authenticateUser() === false) {
-	Util::changeHttpStatus(401);
-	exit;
-}
-
-\OCP\User::checkLoggedIn();
+Util::authenticateUser();
 
 /* Refuse access if user disabled opds support */
 if (Config::get('enable', 'false') === 'false') {
 	Util::changeHttpStatus(403);
-	exit;
+	exit();
 }
-
 
 /* id defaults to 'root' (meaning 'serve root feed') */
 $id = isset($_GET['id']) ? $_GET['id'] : 'root';

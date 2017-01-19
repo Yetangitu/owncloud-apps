@@ -12,17 +12,28 @@
 
 namespace OCA\Files_Opds;
 
+use OC\Authentication\Exceptions\PasswordLoginForbiddenException;
+use OC\User\LoginException;
+
 /**
  * Utility class for OPDS
  */
 class Util
 {
 	/**
-	 * @brief Authenticate user by HTTP Basic Authentication
-	 * with user name and password
+	 * @brief Authenticate user by HTTP Basic Authentication with username and password or token
+	 * 
+	 * Supports login as well as app passwords (tokens).
+	 * NC: only app passwords are accepted when 2FA is enforced for $user
+	 *
+	 * @throws OC\Authentication\Exceptions\PasswordLoginForbiddenException;
+	 * @throws OC\User\LoginException;
 	 */
 	public static function authenticateUser() {
-		if (!isset($_SERVER['PHP_AUTH_USER'])) {
+		$request = \OC::$server->getRequest();
+
+		// force basic auth, enables access through browser
+		if (!isset($request->server['PHP_AUTH_USER'])) {
 			$defaults = new \OC_Defaults();
 			$realm = $defaults->getName();
 			header ("HTTP/1.0 401 Unauthorized");
@@ -30,28 +41,49 @@ class Util
                         exit();
                 }
 
-		$userName = $_SERVER['PHP_AUTH_USER'];
+		$user = $request->server['PHP_AUTH_USER'];
+		$pass = $request->server['PHP_AUTH_PW'];
 
-		// Check the password in the ownCloud database
-                return self::checkPassword($userName, $_SERVER['PHP_AUTH_PW']);
+		try {
+			//if (!\OC::$server->getUserSession()->logClientIn($user, $pass, $request, $throttler)) {
+			if (!self::logClientIn($user, $pass, $request)) {
+				// unknown user and/or password
+				self::changeHttpStatus(401);
+				exit();
+			}
+		} catch (PasswordLoginForbiddenException $ex) {
+			// 2FA active and enforced for user so only app passwords are allowed
+			self::changeHttpStatus(401);
+			exit();
+		} catch (LoginException $ex) {
+			// login cancelled or user forbidden
+			self::changeHttpStatus(403);
+			exit();
+		}
         }
 
-        /**
-        * @brief Checks the password of a user. 
-        * @param string $userName ownCloud user name whose password will be checked.
-        * @param string $password ownCloud password.
-        * @return bool True if the password is correct, false otherwise.
-        *
-        */
-        private static function checkPassword($userName, $password) {
-
-                // Check password normally
-                if (\OCP\User::checkPassword($userName, $password) != false) {
-                        return true;
-                }
-
-                return false;
-        }
+	/**
+	 * @brief attempt to login using $user and $pass (password or token)
+	 * 
+	 * Login using username and password, supports both traditional passwords as well as
+	 * token-based login ('app passwords').
+	 *
+	 * @param string $user
+	 * @param string $pass
+	 * @param IRequest $request
+	 * @throws PasswordLoginForbiddenException
+	 * @throws LoginException
+	 * @return boolean
+	 *
+	 */
+	public static function logClientIn($user, $pass, $request) {
+		if (class_exists('OC\Security\Bruteforce\Throttler')) {
+			$throttler = \OC::$server->getBruteForceThrottler();
+			return \OC::$server->getUserSession()->logClientIn($user, $pass, $request, $throttler);
+		} else {
+			return \OC::$server->getUserSession()->logClientIn($user, $pass, $request);
+		}
+	}
 
         /**
         * @brief Change HTTP response code.
