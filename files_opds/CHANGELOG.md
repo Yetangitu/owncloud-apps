@@ -11,7 +11,7 @@
  - FictionBook 2 (.fb2) metadata parser
  - FB2 preview provider
 
-## 0.7.2 - 2017-01-09
+## 0.7.3 - 2017-01-09
 ### Fixed
  - XML error after deleting an epub file from Library
  - [#23](https://github.com/Yetangitu/owncloud-apps/issues/23)
