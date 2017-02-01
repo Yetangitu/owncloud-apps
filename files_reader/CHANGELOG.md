@@ -1,3 +1,13 @@
+## Unreleased
+### Added
+ - Reader now supports CBR/CBZ ('comics') files
+ - Book position is saved on server and restored on next invocation
+ - Framework to support more file format renderers
+
+## 0.8.3 - 2017-02-01
+### Fixed
+ - missing $title parameter in template/reader.php caused warnings in log, fixed
+
 ## 0.8.2 - 2017-01-10
 ### Fixed
  - Nextcloud-port broke compatibility with Owncloud due to OC not supporting CSPv3, workaround implemented

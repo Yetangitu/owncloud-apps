@@ -4,6 +4,7 @@
   $urlGenerator = $_['urlGenerator'];
   $version = \OCP\App::getAppVersion('files_reader');
   $dllink = isset($_GET['file']) ? $_GET['file'] : '';
+  $title = htmlentities(basename($dllink));
 
   /* Owncloud currently does not implement CSPv3, remove this test when it does */
   $nonce = class_exists('\OC\Security\CSP\ContentSecurityPolicyNonceManager')
@@ -18,7 +19,7 @@
       <meta name="apple-mobile-web-app-capable" content="yes">
       <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
       <title>
-         <?php p($_['title']);?>
+         <?php p($title);?>
       </title>
       <link rel="shortcut icon" href="img/book.png">
       <link rel="stylesheet" href="css/normalize.css">
