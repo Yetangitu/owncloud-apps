@@ -12,7 +12,7 @@
 
 	Also in Settings you'll find the option to use ignore any internal formatting in the book by forcing a given font style and size.
     </description>
-    <version>0.8.3</version>
+    <version>0.8.4</version>
     <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
