@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * ownCloud - Files_Reader App
+ *
+ * @author Frank de Lange
+ * @copyright 2015 Frank de Lange
+ *
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ */
+
+namespace OCA\Files_Reader\AppInfo;
+
+use OCP\AppFramework\App;
+use OCP\IContainer;
+use OCP\IUser;
+use OCP\IURLGenerator;
+
+use OCA\Files_Reader\Utility\Time;
+use OCA\Files_Reader\Db\BookmarkMapper;
+use OCA\Files_Reader\Db\PreferenceMapper;
+use OCA\Files_Reader\Service\BookmarkService;
+use OCA\Files_Reader\Service\MetadataService;
+use OCA\Files_Reader\Service\PreferenceService;
+use OCA\Files_Reader\Controller\BookmarkController;
+use OCA\Files_Reader\Controller\MetadataController;
+use OCA\Files_Reader\Controller\PreferenceController;
+
+class Application extends App {
+    public function __construct(array $urlParams = array()) {
+        parent::__construct('files_reader', $urlParams);
+
+        $container = $this->getContainer();
+
+        $container->registerService('PageController', function($c){
+            return new PageController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('OCP\IURLGenerator')
+            );
+        });
+
+        $container->registerService('BookmarkController', function($c){
+            return new BookmarkController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('BookmarkService')
+            );
+        });
+
+        $container->registerService('MetadataController', function($c){
+            return new MetadataController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('MetadataService')
+            );
+        });
+
+        $container->registerService('PreferenceController', function($c){
+            $UserId = ($user = $c->query('ServerContainer')->getUserSession()->getUser())
+                ? $user->getUID() : null;
+
+            return new PreferenceController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('OCP\IURLGenerator'),
+                $c->query('PreferenceService')
+            );
+        });
+
+        $container->registerService('BookmarkService', function($c){
+            $UserId = ($user = $c->query('ServerContainer')->getUserSession()->getUser())
+                ? $user->getUID()
+                : null;
+
+            return new BookmarkService(
+                $c->query('BookmarkMapper'),
+                $UserId
+            );
+        });
+
+        $container->registerService('MetadataService', function($c){
+            return new MetadataService();
+        });
+
+        $container->registerService('PreferenceService', function($c){
+            return new PreferenceService(
+                $c->query('PreferenceMapper')
+            );
+        });
+
+        $container->registerService('BookmarkMapper', function($c){
+            $UserId = ($user = $c->query('ServerContainer')->getUserSession()->getUser())
+                ? $user->getUID()
+                : null;
+
+            return new BookmarkMapper(
+                $c->query('ServerContainer')->getDb(),
+                $UserId,
+                $c->query('Time')
+            );
+        });
+
+        $container->registerService('PreferenceMapper', function($c){
+            $UserId = ($user = $c->query('ServerContainer')->getUserSession()->getUser())
+                ? $user->getUID()
+                : null;
+
+            return new PreferenceMapper(
+                $c->query('ServerContainer')->getDb(),
+                $UserId,
+                $c->query('Time')
+            );
+        });
+    }
+}
+

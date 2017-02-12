@@ -1,0 +1,669 @@
+/* reader */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+	background: transparent;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+
+/* remember to define focus styles! */
+:focus {
+	outline: 0;
+}
+
+/* remember to highlight inserts somehow! */
+ins {
+	text-decoration: none;
+}
+del {
+	text-decoration: line-through;
+}
+
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.cb-control {
+	font-family: helvetica, arial, sans-serif;
+	font-size: 12px;
+}
+
+.cb-control {
+	color: #fff;
+	background-color: #111;
+	padding: 10px;
+	position: fixed !important;
+	box-shadow: 0 0 4px #000;
+}
+
+.navigate {
+	top: 0;
+	margin: 0;
+	cursor: pointer;
+	width: 20%;
+	opacity: 0;
+	background: center no-repeat;
+	box-shadow: none;
+	padding: 0 3em;
+}
+
+.navigate > span {
+	color: #000;
+	font-size: 10em;
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 1em;
+	top: 45%;
+	position: relative;
+}
+
+body:not(.mobile) .navigate:hover {
+	opacity: 1;
+}
+
+.navigate-left {
+	left: 0;
+}
+
+.navigate-left > span {
+    float: left;
+}
+
+.navigate-right {
+	right: 0;
+}
+
+.navigate-right > span {
+    float: right;
+}
+
+.toggle-controls {
+    cursor: pointer;
+    width: 20%;
+    height: 20%;
+    left: 40%;
+    top: 40%;
+    border: none;
+    position: fixed;
+}
+
+#cb-loading-overlay {
+	z-index: 100;
+	opacity: 0.8;
+	background: #000 url("img/loading.gif") no-repeat center;
+	box-shadow: none;
+}
+
+#cb-status {
+	z-index: 101;
+	font-size: 12px;
+	right: 0;
+	bottom: 0;
+	margin: 8px;
+	border-radius: 4px;
+}
+
+#cb-progress-bar {
+	width: 200px;
+}
+
+#cb-progress-bar,
+#cb-progress-bar .progressbar-value {
+	height: 3px;
+}
+
+#cb-progress-bar .progressbar-value {
+	width: 0;
+	background: #86C441;
+	border-color: #3E7600;
+}
+
+* {
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 20px;
+	color: #333;
+}
+
+button,
+input,
+label {
+	cursor: pointer;
+}
+
+.pull-left {
+	float: left;
+}
+
+.pull-right {
+	float: right;
+}
+
+.toolbar,
+.panels {
+	color: white;
+	overflow: visible;
+	/* padding: 0.75em 0; */
+    background: #4e4e4e;
+	left: 0;
+	right: 0;
+    width: 100%;
+}
+
+.toolbar {
+	position: fixed;
+	z-index: 99;
+	margin-bottom: 0;
+	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+	opacity: 0;
+	transition: opacity 0.1s ease-in-out;
+	text-align: center;
+}
+
+.toolbar .metainfo {
+	font-size: 1.2em;
+    top: 0.5em;
+}
+
+.mobile .metainfo .book-title,
+.mobile .metainfo .title-separator {
+    display: none;
+}
+
+body:not(.mobile) .toolbar:hover,
+.mobile .toolbar,
+.toolbar.open {
+	opacity: 1;
+}
+
+.toolbar div,
+.sidebar div {
+    display: inline-block;
+    position: relative;
+}
+
+.toolbar .separator {
+	/* border: solid 1px; */
+	height: 1em;
+	opacity: 0.5;
+}
+
+.toolbar button, .sidebar button {
+	color: white;
+	border: none;
+	background-color: transparent;
+	padding: 0;
+}
+
+.toolbar div > button,
+.sidebar div > button {
+	font-size: 1.5em;
+	padding: 0.5em;
+    margin: 0;
+}
+
+.mobile .toolbar div > button,
+.mobile .sidebar div > button {
+	padding: 0.5em;
+    margin: 0;
+}
+
+body:not(.mobile) .toolbar div > button:hover,
+body:not(.mobile) .sidebar div > button:hover {
+	color: #8CC746;
+}
+
+body:not(.mobile) .toolbar button[data-action=close]:hover {
+	color: #FF6464;
+}
+
+.hide {
+	display: none !important;
+}
+
+/* sidebar */
+.sidebar.open {
+  box-shadow: 3px 0px 3px 0px rgba(0, 0, 0, 0.4);
+  /* transitions and animations cause problems on older devices...
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
+  transition: all 0.3s ease-out;
+  -webkit-transition: all 0.3s ease-out;
+  ... so use display instead ...*/
+  display: block;
+}
+
+.sidebar {
+  background: #6b6b6b;
+  position: fixed;
+  top: 0;
+  width: 20%;
+  min-width: 25em;
+  height: 100%;
+  overflow: hidden;
+  /* transitions and animations cause problems on older devices...
+  transform: translate3d(-20vw,0,0);
+  -webkit-transform: translate3d(-20vw,0,0);
+  transition: all 0.3s ease-out;
+  -webkit-transition: all 0.3s ease-out;
+  ... so use display instead ...*/
+  display: none;
+  z-index: 100;
+}
+
+.panels {
+  position: fixed;
+  overflow: hidden;
+  box-shadow: 0px 1px 3px rgba(0,0,0,.6);
+  z-index: 101;
+}
+
+.panels .open {
+    background-color: #6B6B6B;
+}
+
+.view.open {
+    display: block !important;
+}
+
+.view {
+  overflow-x: hidden;
+  display: none !important;
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
+}
+
+.toc-view li {
+  margin: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.toc-view img {
+  width: 100%;
+  position: relative;
+}
+
+.toc-view img + span {
+    position: absolute;
+    font-size: 5em;
+    font-weight: bold;
+    color: #F8F8F8;
+    left: 60%;
+    margin-top: 75%;
+    text-shadow: 0.05em 0.05em 0.02em rgba(70, 70, 70, 0.8);
+    -webkit-text-stroke: 2px black;
+}
+
+.settings-container {
+	font-size: 1em;
+	background: #F8F8F8;
+	color: #111;
+    padding: 1em;
+    margin: 1em;
+	border-radius: 4px;
+	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+.view .control-group input[type=range] {
+	width: 90%;
+	float: right;
+	margin: 0;
+}
+
+.view .control-group {
+	padding: 0.5em;
+    width: 95%;
+}
+
+.view .sliders {
+	font-size: 1.5em;
+}
+
+.view .control-group span {
+	float: left;
+	margin: 0 2px;
+	clear: both;
+}
+
+.view .control-group input[type=reset] {
+    float: right;
+}
+
+.metadata {
+    padding: 1em;
+    margin: 1em;
+}
+
+.metadata table {
+    font-size: 1.2em;
+	color: #F8F8F8;
+}
+
+.metadata td:nth-child(1) {
+    font-weight: bold;
+    padding-right: 1em;
+}
+
+/* END sidebar */
+
+/* progressbar (loading/unarchiving) */
+
+.progress, .bar {
+	width: 100%;
+	height: 0.3em;
+	margin: 0;
+	padding: 0;
+	display: inline-block;
+}
+.progress {
+	border: none;
+}
+.bar {
+	width: 0;
+	background-color: red;
+    box-shadow: 0px 1px 3px rgba(0,0,0,.6);
+}
+
+.message {
+	margin: 3em;
+}
+
+.message-icons {
+    font-size: 3em;
+    color: lightgrey;
+    vertical-align: middle;
+}
+
+.message-text {
+	font-size: 1.5em;
+    color: black;
+}
+
+.active {
+    color:black;
+}
+
+.ok {
+    color:green;
+}
+
+.error {
+    color:red;
+}
+
+/* END progressbar */
+
+/* icon font */
+
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?g4qvho');
+  src:  url('fonts/icomoon.eot?g4qvho#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?g4qvho') format('truetype'),
+    url('fonts/icomoon.woff?g4qvho') format('woff'),
+    url('fonts/icomoon.svg?g4qvho#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-double_page_mode:before {
+  content: "\e86d";
+}
+.icon-single_page_mode:before {
+  content: "\e86e";
+}
+.icon-local_library:before {
+  content: "\e54b";
+}
+.icon-rate_review:before {
+  content: "\e560";
+}
+.icon-arrow_back:before {
+  content: "\e5c4";
+}
+.icon-arrow_forward:before {
+  content: "\e5c8";
+}
+.icon-icon-fit-window:before {
+  content: "\e85b";
+}
+.icon-icon-fit-width:before {
+  content: "\e85c";
+}
+.icon-turned_in:before {
+  content: "\e8e6";
+}
+.icon-turned_in_not:before {
+  content: "\e8e7";
+}
+.icon-brightness_low:before {
+  content: "\e1ad";
+}
+.icon-build:before {
+  content: "\e869";
+}
+.icon-cancel:before {
+  content: "\e5c9";
+}
+.icon-navigate_before:before {
+  content: "\e408";
+}
+.icon-navigate_next:before {
+  content: "\e409";
+}
+.icon-close:before {
+  content: "\e5cd";
+}
+.icon-cloud_download:before {
+  content: "\e2c0";
+}
+.icon-content_copy:before {
+  content: "\e14d";
+}
+.icon-mode_edit:before {
+  content: "\e254";
+}
+.icon-crop_free:before {
+  content: "\e3c2";
+}
+.icon-crop_portrait:before {
+  content: "\e3c5";
+}
+.icon-dehaze:before {
+  content: "\e3c7";
+}
+.icon-dns:before {
+  content: "\e875";
+}
+.icon-exit_to_app:before {
+  content: "\e879";
+}
+.icon-featured_play_list:before {
+  content: "\e06d";
+}
+.icon-format_list_bulleted:before {
+  content: "\e241";
+}
+.icon-format_list_numbered:before {
+  content: "\e242";
+}
+.icon-format_textdirection_l_to_r:before {
+  content: "\e247";
+}
+.icon-format_textdirection_r_to_l:before {
+  content: "\e248";
+}
+.icon-fullscreen:before {
+  content: "\e5d0";
+}
+.icon-fullscreen_exit:before {
+  content: "\e5d1";
+}
+.icon-keyboard_arrow_left:before {
+  content: "\e314";
+}
+.icon-keyboard_arrow_right:before {
+  content: "\e315";
+}
+.icon-list:before {
+  content: "\e896";
+}
+.icon-sync:before {
+  content: "\e627";
+}
+.icon-menu:before {
+  content: "\e5d2";
+}
+.icon-open_with:before {
+  content: "\e89f";
+}
+.icon-pages:before {
+  content: "\e7f9";
+}
+.icon-search:before {
+  content: "\e8b6";
+}
+.icon-settings:before {
+  content: "\e8b8";
+}
+.icon-settings_overscan:before {
+  content: "\e8c4";
+}
+.icon-tune:before {
+  content: "\e429";
+}
+.icon-unarchive:before {
+  content: "\e169";
+}
+.icon-wb_sunny:before {
+  content: "\e430";
+}
+.icon-zoom_in:before {
+  content: "\e8ff";
+}
+.icon-zoom_out:before {
+  content: "\e900";
+}
+.icon-zoom_out_map:before {
+  content: "\e56b";
+}
+.icon-droplet:before {
+  content: "\e90b";
+}
+.icon-box-remove:before {
+  content: "\e95f";
+}
+.icon-download:before {
+  content: "\e960";
+}
+.icon-spinner:before {
+  content: "\e97a";
+}
+.icon-spinner3:before {
+  content: "\e97c";
+}
+.icon-spinner6:before {
+  content: "\e97f";
+}
+.icon-spinner9:before {
+  content: "\e982";
+}
+.icon-spinner11:before {
+  content: "\e984";
+}
+.icon-search2:before {
+  content: "\e986";
+}
+.icon-enlarge:before {
+  content: "\e989";
+}
+.icon-enlarge2:before {
+  content: "\e98b";
+}
+.icon-equalizer:before {
+  content: "\e992";
+}
+.icon-cog:before {
+  content: "\e994";
+}
+.icon-menu2:before {
+  content: "\e9bd";
+}
+.icon-contrast:before {
+  content: "\e9d5";
+}
+.icon-cancel-circle:before {
+  content: "\ea0d";
+}
+.icon-exit:before {
+  content: "\ea14";
+}
+.icon-arrow-right:before {
+  content: "\ea34";
+}
+.icon-arrow-left:before {
+  content: "\ea38";
+}
+.icon-arrow-right2:before {
+  content: "\ea3c";
+}
+.icon-arrow-left2:before {
+  content: "\ea40";
+}
+.icon-circle-right:before {
+  content: "\ea42";
+}
+.icon-circle-left:before {
+  content: "\ea44";
+}
+
+/* END icon font */
