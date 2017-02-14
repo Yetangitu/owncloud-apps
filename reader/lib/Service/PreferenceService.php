@@ -44,11 +44,7 @@ class PreferenceService extends Service {
         $result = $this->preferenceMapper->get($scope, $fileId, $name);
         return array_map(
             function($entity) {
-                return [
-                    'name' => $entity->getName(),
-                    'value' => $entity->getValue(),
-                    'lastModified' => $entity->getLastModified()
-                ];
+                return $entity->toService();
             }, $result);
     }
 

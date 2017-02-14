@@ -15,8 +15,8 @@ use OCA\Files_Reader\Db\BookmarkMapper;
 
 class BookmarkService extends Service {
 
-    // use 'CURSOR_$UserId' to identify cursor (current position in book)
-    const CURSOR = 'CURSOR';
+    // "bookmark" name to use for the cursor (current reading position)
+    const CURSOR = '__CURSOR__';
 
     private $bookmarkMapper;
     private $userId;
@@ -41,11 +41,7 @@ class BookmarkService extends Service {
         $result = $this->bookmarkMapper->get($fileId, $name);
         return array_map(
             function($entity) {
-                return [
-                    'name' => $entity->getName(),
-                    'value' => $entity->getValue(),
-                    'lastModified' => $entity->getLastModified()
-                ];
+                return $entity->toService();
             }, $result);
     }
 
@@ -72,10 +68,7 @@ class BookmarkService extends Service {
      * @return array
      */
     public function getCursor($fileId) {
-        $cursor = self::CURSOR . '_' . $this->userId;
-        if (!empty($value = $this->get($fileId, $cursor))) {
-            return $value[0];
-        }
+        return $this->get($fileId, static::CURSOR);
     }
 
     /**
@@ -87,8 +80,7 @@ class BookmarkService extends Service {
      * @return array
      */
     public function setCursor($fileId, $value) {
-        $cursor = self::CURSOR . '_' . $this->userId;
-        return $this->bookmarkMapper->set($fileId, $cursor, $value);
+        return $this->bookmarkMapper->set($fileId, static::CURSOR, $value);
     }
 }
  

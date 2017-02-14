@@ -15,10 +15,10 @@ return ['routes' => [
     ['name' => 'page#showReader', 'url' => '/', 'verb' => 'GET'],
 
     // Bookmarks
-    ['name' => 'bookmark#get_cursor', 'url' => '/position/cursor/{fileId}', 'verb' => 'GET'],
-    ['name' => 'bookmark#set_cursor', 'url' => '/position/cursor/{fileId}/{value}', 'verb' => 'POST'],
-    ['name' => 'bookmark#get', 'url' => '/position/{fileId}/{name}', 'verb' => 'GET', 'defaults' => ['name' => '']],
-    ['name' => 'bookmark#set', 'url' => '/position/{fileId}/{name}/{value}', 'verb' => 'POST'],
+    ['name' => 'bookmark#get_cursor', 'url' => '/bookmark/cursor/{fileId}', 'verb' => 'GET'],
+    ['name' => 'bookmark#set_cursor', 'url' => '/bookmark/cursor/{fileId}/{value}', 'verb' => 'POST'],
+    ['name' => 'bookmark#get', 'url' => '/bookmark/{fileId}/{name}', 'verb' => 'GET', 'defaults' => ['name' => '']],
+    ['name' => 'bookmark#set', 'url' => '/bookmark/{fileId}/{name}/{value}', 'verb' => 'POST'],
 
     // Metadata
     ['name' => 'metadata#get', 'url' => '/metadata/{fileId}/{name}', 'verb' => 'GET', 'defaults' => ['name' => '']],

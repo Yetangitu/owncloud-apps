@@ -103,22 +103,26 @@
     <!-- /toolbar -->
 
     <!-- loading overlay -->
-    <div id="cb-loading-overlay" class="cb-control control" name="loadingOverlay" style="display:none"></div>
+    <div id="cbr-loading-overlay" class="cbr-control control overlay" name="loadingOverlay" style="display:none"></div>
     <!-- /loading overlay -->
 
+    <!-- busy overlay -->
+    <div id="cbr-busy-overlay" class="cbr-control control overlay" name="busyOverlay" style="display:none"></div>
+    <!-- /busy overlay -->
+
     <!-- navigation -->
-    <div data-trigger="click" data-action="navigation" data-navigate-side="left" class="cb-control navigate navigate-left control" name="navigateLeft">
+    <div data-trigger="click" data-action="navigation" data-navigate-side="left" class="cbr-control navigate navigate-left control" name="navigateLeft">
         <span class="icon-navigate_before"></span>
     </div>
     <div data-trigger="click" data-action="toggleToolbar" class="toggle-controls control" name="toggleToolbar"></div>
-    <div data-trigger="click" data-action="navigation" data-navigate-side="right" class="cb-control navigate navigate-right control" name="navigateRight">
+    <div data-trigger="click" data-action="navigation" data-navigate-side="right" class="cbr-control navigate navigate-right control" name="navigateRight">
         <span class="icon-navigate_next"></span>
     </div>
     <!-- /navigation -->
 
     <!-- inline progressbar -->
-    <div id="cb-status" class="cb-control control" name="progressbar" style="display:none">
-        <div id="cb-progress-bar">
+    <div id="cbr-status" class="cbr-control control" name="progressbar" style="display:none">
+        <div id="cbr-progress-bar">
             <div class="progressbar-value"></div>
         </div>
     </div>
@@ -133,6 +137,7 @@
                 <button data-trigger="click" data-action="showSettings" title="show settings" class="icon-settings settings-view"></button>
             </div>
             <div class="pull-right">
+                <button id="toc-populate" data-trigger="click" data-action="tocPopulate" title="generate thumbnails" class="icon-sync" style="display:none"></button>
                 <button data-trigger="click" data-action="closeSidebar" title="close sidebar" class="icon-menu"></button>
             </div>
         </div>
@@ -157,20 +162,21 @@
                     </tr>
                 </table>
             </div>
-            <div class="settings-container" name="enhancements">
+            <div class="settings-container" name="enhancements" id="enhancements">
+                <label for="enhancements">Image enhancements</label>
                 <form name="image-enhancements" data-trigger="reset" data-action="resetEnhancements">
                     <div class="sliders">
                         <div class="control-group">
                             <label title="adjust brightness" class="icon-brightness_low"></label>
-                            <input data-trigger="change" data-action="brightness" type="range" min="-100" max="100" step="1" value="0">
+                            <input id="brightness" data-trigger="change" data-action="brightness" type="range" min="-100" max="100" step="1" value="0">
                         </div>
                         <div class="control-group">
                             <label title="adjust contrast" class="icon-contrast"></label>
-                            <input data-trigger="change" data-action="contrast" type="range" min="-1" max="1" step="0.1" value="0">
+                            <input id="contrast" data-trigger="change" data-action="brightness" type="range" min="-1" max="1" step="0.1" value="0">
                         </div>
                         <div class="control-group">
                             <label title="sharpen" class="icon-droplet"></label>
-                            <input data-trigger="change" data-action="sharpen" type="range" min="0" max="1" step="0.1" value="0">
+                            <input id="sharpen" data-trigger="change" data-action="sharpen" type="range" min="0" max="1" step="0.1" value="0">
                         </div>
                     </div>
                     <div class="control-group pull-left">
@@ -186,17 +192,14 @@
             </div>
         </div>
         <div class="settings-view view">
-            <div class="settings-container" name="settings">
+            <div class="settings-container" name="settings" id="thumbnail-settings">
+                <label for="thumbnail-settings">Thumbnails</label>
                 <form name="settings" data-trigger="reset" data-action="resetSettings">
                     <div class="control-group pull-left">
-                        <input id="thumbnail-width" type="number" min="50" max="500" step="10" value="200" >
+                        <input id="thumbnail-generate" data-trigger="change" data-action="thumbnails" type="checkbox">
+                        <label for="thumbnail-generate">Use thumbnails in index </label>
+                        <input id="thumbnail-width" data-trigger="change" data-action="thumbnailWidth" type="number" min="50" max="500" step="10" value="200" >
                         <label for="thumbnail-width">Thumbnail width</label>
-                        <input id="thumbnail-generate" type="checkbox" checked>
-                        <label for="thumbnail-generate">Thumbnails in index (disable to save memory)</label>
-                    </div>
-                    <div class="control-group pull-right">
-                        <input type="submit" value="save">
-                        <input type="reset" value="reset">
                     </div>
                 </form>
             </div>

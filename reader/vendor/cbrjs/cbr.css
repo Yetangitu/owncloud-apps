@@ -51,12 +51,12 @@ table {
 	border-spacing: 0;
 }
 
-.cb-control {
+.cbr-control {
 	font-family: helvetica, arial, sans-serif;
 	font-size: 12px;
 }
 
-.cb-control {
+.cbr-control {
 	color: #fff;
 	background-color: #111;
 	padding: 10px;
@@ -114,14 +114,17 @@ body:not(.mobile) .navigate:hover {
     position: fixed;
 }
 
-#cb-loading-overlay {
+#cbr-loading-overlay {
 	z-index: 100;
-	opacity: 0.8;
 	background: #000 url("img/loading.gif") no-repeat center;
+}
+
+.overlay {
+    opacity: 0.7;
 	box-shadow: none;
 }
 
-#cb-status {
+#cbr-status {
 	z-index: 101;
 	font-size: 12px;
 	right: 0;
@@ -130,16 +133,16 @@ body:not(.mobile) .navigate:hover {
 	border-radius: 4px;
 }
 
-#cb-progress-bar {
+#cbr-progress-bar {
 	width: 200px;
 }
 
-#cb-progress-bar,
-#cb-progress-bar .progressbar-value {
+#cbr-progress-bar,
+#cbr-progress-bar .progressbar-value {
 	height: 3px;
 }
 
-#cb-progress-bar .progressbar-value {
+#cbr-progress-bar .progressbar-value {
 	width: 0;
 	background: #86C441;
 	border-color: #3E7600;
@@ -209,8 +212,7 @@ body:not(.mobile) .toolbar:hover,
 	opacity: 1;
 }
 
-.toolbar div,
-.sidebar div {
+.toolbar div {
     display: inline-block;
     position: relative;
 }
@@ -257,12 +259,6 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
 /* sidebar */
 .sidebar.open {
   box-shadow: 3px 0px 3px 0px rgba(0, 0, 0, 0.4);
-  /* transitions and animations cause problems on older devices...
-  transform: translate3d(0,0,0);
-  -webkit-transform: translate3d(0,0,0);
-  transition: all 0.3s ease-out;
-  -webkit-transition: all 0.3s ease-out;
-  ... so use display instead ...*/
   display: block;
 }
 
@@ -274,21 +270,12 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
   min-width: 25em;
   height: 100%;
   overflow: hidden;
-  /* transitions and animations cause problems on older devices...
-  transform: translate3d(-20vw,0,0);
-  -webkit-transform: translate3d(-20vw,0,0);
-  transition: all 0.3s ease-out;
-  -webkit-transition: all 0.3s ease-out;
-  ... so use display instead ...*/
   display: none;
   z-index: 100;
 }
 
 .panels {
-  position: fixed;
   overflow: hidden;
-  box-shadow: 0px 1px 3px rgba(0,0,0,.6);
-  z-index: 101;
 }
 
 .panels .open {
@@ -297,6 +284,11 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
 
 .view.open {
     display: block !important;
+}
+
+#toc-populate.open {
+    display: inline-block !important;
+    background-color: #4e4e4e;
 }
 
 .view {
@@ -312,30 +304,47 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
   font-family: Georgia, "Times New Roman", Times, serif;
 }
 
-.toc-view img {
+.toc-view img, .placeholder {
   width: 100%;
   position: relative;
+  background-color: #999;
 }
 
-.toc-view img + span {
-    position: absolute;
+.toc-view span {
+    position: relative;
     font-size: 5em;
     font-weight: bold;
     color: #F8F8F8;
-    left: 60%;
-    margin-top: 75%;
+    float: right;
+    top: -2em;
+    left: -2em;
     text-shadow: 0.05em 0.05em 0.02em rgba(70, 70, 70, 0.8);
     -webkit-text-stroke: 2px black;
 }
 
 .settings-container {
+    position: absolute;
 	font-size: 1em;
 	background: #F8F8F8;
 	color: #111;
     padding: 1em;
-    margin: 1em;
+    margin-top: 1em;
+    left: 1em;
+    right: 1em;
 	border-radius: 4px;
 	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+.settings-container label {
+    margin-right: 1em;
+}
+
+.settings-container > label {
+    font-weight: bold;
+    width: 100%;
+    display: inline-block;
+    margin-bottom: 1em;
+    text-align: center;
 }
 
 .view .control-group input[type=range] {
@@ -345,8 +354,7 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
 }
 
 .view .control-group {
-	padding: 0.5em;
-    width: 95%;
+	padding: 1em;
 }
 
 .view .sliders {

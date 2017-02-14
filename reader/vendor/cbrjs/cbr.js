@@ -20,6 +20,7 @@ CBRJS.Reader = function(bookPath, _options) {
     CBRJS.session.cursor = $('.session').data('cursor') || {};
     CBRJS.session.defaults = $('.session').data('defaults') || {};
     CBRJS.session.preferences = $('.session').data('preferences') || {};
+    CBRJS.session.defaults = $('.session').data('defaults') || {};
     CBRJS.basePath = $('.session').data('basepath');
     CBRJS.downloadLink = $('.session').data('downloadlink');
 
@@ -127,7 +128,7 @@ CBRJS.Reader = function(bookPath, _options) {
 
 		var title, page = 0;
 
-        var options = $.extend({
+        var options = $.extend(true, {
             getPreference: function(name) {},
             setPreference: function(name, value) {},
             getDefault: function(name) {},
@@ -139,8 +140,10 @@ CBRJS.Reader = function(bookPath, _options) {
             vendorPath: 'vendor/'
         }, opts);
 
-                console.log("options:");
-                console.log(options);
+        console.log("opts before extractImages:");
+        console.log(opts);
+        console.log("options before extractImages:");
+        console.log(options);
 
 		extractImages(url, {
 			start: function (filename) {
@@ -182,12 +185,22 @@ CBRJS.Reader = function(bookPath, _options) {
 					book.destroy();
 				});
 
-                console.log("options:");
+                console.log("options after extractImages:");
                 console.log(options);
             }
 		});
 
 	}
+
+
+    function getPref (arr, name) {
+        if (found = arr.find(function(e) { return e.name === name; })) {
+            if (found.hasOwnProperty("value")) {
+                console.log("property " + name + " has value " + found.value);
+                return found.value;
+            }
+        }
+    };
 
     console.log("CBRJS:");console.log(CBRJS);
 
@@ -206,79 +219,28 @@ CBRJS.Reader = function(bookPath, _options) {
             return $.post(CBRJS.basePath + "preference/default/" + CBRJS.session.scope + "/" + name + "/" + JSON.stringify(value));
         },
         getBookmark: function(name) {
-            return $.get(CBRJS.basePath + "position/" + CBRJS.session.fileId + "/" + name);
+            return $.get(CBRJS.basePath + "bookmark/" + CBRJS.session.fileId + "/" + name);
         },
         setBookmark: function(name, value) {
             return $.post(CBRJS.basePath + "bookmark/" + CBRJS.session.fileId + "/" + name + "/" + JSON.stringify(value));
         },
         getCursor: function() {
-            return $.get(CBRJS.basePath + "position/cursor/" + CBRJS.session.fileId);
+            return $.get(CBRJS.basePath + "bookmark/cursor/" + CBRJS.session.fileId);
         },
         setCursor: function(value) {
-            return $.post(CBRJS.basePath + "position/cursor/" + CBRJS.session.fileId + "/" + JSON.stringify(value));
+            return $.post(CBRJS.basePath + "bookmark/cursor/" + CBRJS.session.fileId + "/" + JSON.stringify(value));
         },
-        currentPage: (CBRJS.session.cursor.hasOwnProperty('value')) ? parseInt(CBRJS.session.cursor.value) : 0,
-        filters: (CBRJS.session.preferences.hasOwnProperty('filters')) ? CBRJS.session.preferences.filters : {},
-        manga: (CBRJS.session.preferences.hasOwnProperty('manga')) ? CBRJS.session.preferences.manga : false
+        currentPage: parseInt(getPref(CBRJS.session.cursor, "__CURSOR__")) || 0,
+        enhance: getPref(CBRJS.session.preferences, "enhance") || {},
+        manga: getPref(CBRJS.session.preferences, "manga") || false,
+        thumbnails: getPref(CBRJS.session.defaults, "thumbnails"),
+        thumbnailWidth: parseInt(getPref(CBRJS.session.defaults, "thumbnailWidth")) || 200
     });
 
     return this;
 };
 
-/*
- * object.watch polyfill
- *
- * 2012-04-03
- *
- * By Eli Grey, http://eligrey.com
- * Public Domain.
- * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
- */
-
-// object.watch
-if (!Object.prototype.watch) {
-  Object.defineProperty(Object.prototype, "watch", {
-    enumerable: false
-    , configurable: true
-    , writable: false
-    , value: function (prop, handler) {
-      var
-      oldval = this[prop]
-      , newval = oldval
-      , getter = function () {
-        return newval;
-      }
-      , setter = function (val) {
-        oldval = newval;
-        return newval = handler.call(this, prop, oldval, val);
-      }
-      ;
-
-      if (delete this[prop]) { // can't watch constants
-        Object.defineProperty(this, prop, {
-          get: getter
-          , set: setter
-          , enumerable: true
-          , configurable: true
-        });
-      }
-    }
-  });
-}
-
-// object.unwatch
-if (!Object.prototype.unwatch) {
-  Object.defineProperty(Object.prototype, "unwatch", {
-    enumerable: false
-    , configurable: true
-    , writable: false
-    , value: function (prop) {
-      var val = this[prop];
-      delete this[prop]; // remove accessors
-      this[prop] = val;
-    }
-  });
-}
+/* pixastic */
 
 /*!
  * Pixastic - JavaScript Image Processing
@@ -1948,8 +1910,9 @@ ComicBook = (function ($) {
             zoomMode: 'fitWindow', // manual / fitWidth / fitWindow
             manga: false, // true / false
             fullscreen: false, // true / false
-            enhance: {},
-            thumbWidth: 200, // width of thumbnail
+            enhance: {}, // image filters to use
+            thumbnails: true, // true / false (use thumbnails in index)
+            thumbnailWidth: 200, // width of thumbnail
             currentPage: 0, // current page 
             keyboard: {
                 32: 'next', // space
@@ -2028,7 +1991,7 @@ ComicBook = (function ($) {
 
             if (shiv === false) {
                 shiv = $(document.createElement('div'))
-                    .attr('id', 'cb-width-shiv')
+                    .attr('id', 'cbr-width-shiv')
                     .css({
                         width: '100%',
                         position: 'absolute',
@@ -2116,9 +2079,41 @@ ComicBook = (function ($) {
          */
         ComicBook.prototype.renderControls = function () {
 
-            var controls = {},
-                $toolbar;
+            var controls = {}, $toolbar;
 
+            // set values from preferences or defaults
+            // do this before connecting listeners to avoid triggering callbacks
+            for (var prop in options.enhance) {
+                if(options.enhance.hasOwnProperty(prop)) {
+                    switch (prop) {
+                        case 'brightness':
+                            document.getElementById('brightness').value = options.enhance.brightness['brightness'];
+                            document.getElementById('contrast').value = options.enhance.brightness['contrast'];
+                            break;
+                        case 'sharpen':
+                            document.getElementById('sharpen').value = options.enhance.sharpen['strength'];
+                            break;
+                        case 'desaturate':
+                            $('#image-desaturate').prop('checked', true);
+                            break;
+                        case 'removenoise':
+                            $('#image-removenoise').prop('checked', true);
+                            break;
+                        default:
+                            console.log("unknown enhancement: " + JSON.stringify(prop));
+                    } 
+                }
+            };
+
+            // thumbnail controls
+            $('#thumbnail-generate').prop('checked', options.thumbnails);
+            $('#thumbnail-width').val(options.thumbnailWidth);
+            if (!options.thumbnails) {
+                $('#toc-populate').addClass('open');
+                $('#thumbnail-width').prop('disabled', true);
+            }
+
+            // connect callbacks
             $('.control').each(function () {
 
                 controls[$(this).attr('name')] = $(this);
@@ -2191,41 +2186,37 @@ ComicBook = (function ($) {
          *
          * @return Image
          */
-        ComicBook.prototype.getThumb = function (image, page) {
+        ComicBook.prototype.getThumb = function (image) {
             var thumb = new Image();
-            var scale = image.width / options.thumbWidth;
-
-            tcv.width = options.thumbWidth;
+            var scale = image.width / options.thumbnailWidth;
+            tcv.width = options.thumbnailWidth;
             tcv.height = Math.floor(image.height / scale);
-
             tctx.drawImage(image, 0, 0, tcv.width, tcv.height);
-
             thumb.src = tcv.toDataURL();
-            thumb.addEventListener('click', function (e) {
-                self.drawPage(page + 1, true);
-            });
             tctx.clearRect(0, 0, tcv.width, tcv.height);
 
             return thumb;
         };
 
         /**
-         * Create empty TOC
+         * Create empty TOC with placeholder images
          */
         ComicBook.prototype.tocCreate = function (no_pages) {
-            var width = options.thumbWidth;
-            var height = options.thumbWidth * 1.414;
+            // use small image with reasonable aspect ratio
+            tcv.width = 5;
+            tcv.height = 7;
+            // transparent, style with .placeholder in CSS
+            tctx.fillStyle = "rgba(200, 200, 200, 0)";
+            tctx.fillRect(0, 0, tcv.width, tcv.height);
+            var imgsrc = tcv.toDataURL();
 
             for(var i = 0; i < no_pages; i++) {
                 var item = document.createElement('li');
-                var placeholder = document.createElement('div');
-                placeholder.setAttribute("style","display:block;width:" + width + "px;height:" + height + "px;background:#AAA");
-                placeholder.className = "placeholder";
+                item.setAttribute("id", "page-" + parseInt(i + 1));
+                var placeholder = new Image();
+                placeholder.src = imgsrc;
                 var label = document.createElement('span');
                 label.innerHTML = i + 1;
-                item.addEventListener('click', function (e) {
-                    self.drawPage(i + 1, true);
-                });
                 item.appendChild(placeholder);
                 item.appendChild(label);
                 toc.appendChild(item);
@@ -2233,11 +2224,35 @@ ComicBook = (function ($) {
         };
 
         /**
-         * Insert thumbnail into TOC
+         * Insert thumbnail into TOC 
          */
-        ComicBook.prototype.tocInsert = function (thumb, page) {
+        ComicBook.prototype.tocInsert = function (image, page, replace) {
             var placeholder = toc.children[page].firstChild;
-            placeholder.parentNode.replaceChild(thumb,placeholder); 
+            if (replace === true) {
+                placeholder.parentNode.replaceChild(
+                    self.getThumb(image),
+                    placeholder
+                ); 
+            }
+
+            toc.children[page].addEventListener('click', function (e) {
+                self.drawPage(page + 1, true);
+            });
+        };
+
+        /**
+         * Populate TOC on demand
+         */
+        ComicBook.prototype.tocPopulate = function () {
+            var i = 0;
+            while (i < srcs.length) {
+                self.tocInsert(pages[i], i, true);
+                i++;
+            }
+
+            // set, but don't save
+            options.thumbnails = true;
+            $('#toc-populate').removeClass('open');
         };
 
         /**
@@ -2268,7 +2283,7 @@ ComicBook = (function ($) {
 
             // resize navigation controls
             $('.navigate').outerHeight(window.innerHeight);
-            $('#cb-loading-overlay').outerWidth(windowWidth()).height(window.innerHeight);
+            $('.overlay').outerWidth(windowWidth()).height(window.innerHeight);
 
             // preload images if needed
             if (pages.length !== no_pages) {
@@ -2331,12 +2346,12 @@ ComicBook = (function ($) {
                 page.onload = function () {
 
                     pages[i] = this;
-                    thumbs[i] = self.getThumb(this, i);
-                    self.tocInsert(thumbs[i], i);
+
+                    self.tocInsert(this, i, options.thumbnails);
 
                     loaded.push(i);
 
-                    $('#cb-progress-bar .progressbar-value').css('width', Math.floor((loaded.length / no_pages) * 100) + '%');
+                    $('#cbr-progress-bar .progressbar-value').css('width', Math.floor((loaded.length / no_pages) * 100) + '%');
 
                     // double page mode needs an extra page added
                     var buffer = (options.displayMode === 'double' && options.currentPage < srcs.length - 1) ? 1 : 0;
@@ -2359,7 +2374,7 @@ ComicBook = (function ($) {
                         loadImage(queue[0]);
                         queue.splice(0, 1);
                     } else {
-                        $('#cb-status').delay(500).fadeOut();
+                        $('#cbr-status').delay(500).fadeOut();
                     }
                 };
             }
@@ -2574,8 +2589,8 @@ ComicBook = (function ($) {
             }
 
             // disable the fit width button if needed
-            $('button.cb-fit-width').attr('disabled', (options.zoomMode === 'fitWidth'));
-            $('button.cb-fit-window').attr('disabled', (options.zoomMode === 'fitWindow'));
+            $('button.cbr-fit-width').attr('disabled', (options.zoomMode === 'fitWidth'));
+            $('button.cbr-fit-window').attr('disabled', (options.zoomMode === 'fitWindow'));
 
             // disable prev/next buttons if not needed
             $('.navigate').show();
@@ -2670,22 +2685,37 @@ ComicBook = (function ($) {
             window.scroll(0, 0);
         };
 
-        ComicBook.prototype.brightness = function () {
-            options.enhance.brightness = $(this).val();
-            self.enhance.brightness({
-                brightness: options.enhance.brightness
-            });
+        /* default settings */
 
-            options.setPreference("filters",options.enhance);
+        ComicBook.prototype.thumbnails = function() {
+            if ($(this).is(':checked')) {
+                options.thumbnails = true;
+                document.getElementById('thumbnail-width').disabled = false;
+            } else {
+                options.thumbnails = false;
+                document.getElementById('thumbnail-width').disabled = true;
+            }
+
+            options.setDefault("thumbnails", options.thumbnails);
         };
 
-        ComicBook.prototype.contrast = function () {
-            options.enhance.contrast = $(this).val();
-            self.enhance.brightness({
-                contrast: options.enhance.contrast
-            });
+        ComicBook.prototype.thumbnailWidth = function() {
+            options.thumbnailWidth = $(this).val();
+            options.setDefault("thumbnailWidth", options.thumbnailWidth);
+        };
 
-            options.setPreference("filters",options.enhance);
+        /* book-specific settings */
+
+        ComicBook.prototype.brightness = function () {
+            var $brightness = {
+                brightness: $('#brightness').val(),
+                contrast: $('#contrast').val()
+            };
+
+            self.enhance.brightness($brightness);
+            options.enhance.brightness = $brightness;
+            options.setPreference("enhance",options.enhance);
+            console.log(options.enhance);
         };
 
         ComicBook.prototype.sharpen = function () {
@@ -2694,7 +2724,8 @@ ComicBook = (function ($) {
                 strength: options.enhance.sharpen
             });
 
-            options.setPreference("filters",options.enhance);
+            options.setPreference("enhance",options.enhance);
+            console.log(options.enhance);
         };
 
         ComicBook.prototype.desaturate = function () {
@@ -2706,7 +2737,8 @@ ComicBook = (function ($) {
                 self.enhance.resaturate();
             }
 
-            options.setPreference("filters",options.enhance);
+            options.setPreference("enhance",options.enhance);
+            console.log(options.enhance);
         };
 
         ComicBook.prototype.removenoise = function () {
@@ -2718,11 +2750,14 @@ ComicBook = (function ($) {
                 self.enhance.unremovenoise();
             }
 
-            options.setPreference("filters",options.enhance);
+            options.setPreference("enhance",options.enhance);
+            console.log(options.enhance);
         };
 
         ComicBook.prototype.resetEnhancements = function () {
             self.enhance.reset();
+            options.setPreference("enhance",options.enhance);
+            console.log(options.enhance);
         };
 
         /**
@@ -2749,8 +2784,6 @@ ComicBook = (function ($) {
                     delete options.enhance[method];
                 }
                 self.drawPage(null, false);
-
-                options.setPreference("filters",options.enhance);
             },
 
             /**
@@ -2791,7 +2824,6 @@ ComicBook = (function ($) {
                     contrast: 0
                 }, params);
 
-                // remember options for later
                 options.enhance.brightness = opts;
 
                 // run the enhancement
@@ -2862,7 +2894,7 @@ ComicBook = (function ($) {
         ComicBook.prototype.navigation = function (e) {
 
             // disable navigation when the overlay is showing
-            if ($('#cb-loading-overlay').is(':visible')) {
+            if ($('#cbr-loading-overlay').is(':visible')) {
                 return false;
             }
 
@@ -2964,15 +2996,19 @@ ComicBook = (function ($) {
         ComicBook.prototype.openSidebar = function () {
             $('.sidebar').addClass('open');
             $('.toolbar').addClass('open');
+            self.showControl('busyOverlay');
+            self.scrollToc();
         };
 
         ComicBook.prototype.closeSidebar = function () {
             $('.sidebar').removeClass('open');
             $('.toolbar').removeClass('open');
+            self.hideControl('busyOverlay');
         };
 
         ComicBook.prototype.toggleSidebar = function () {
             $('.sidebar').toggleClass('open');
+            self.scrollToc();
         };
 
         ComicBook.prototype.toggleFullscreen = function () {
@@ -2987,13 +3023,26 @@ ComicBook = (function ($) {
             }
         };
 
+        /*
+         * Scroll TOC to page (default: current page)
+         */
+        ComicBook.prototype.scrollToc = function (page) {
+            if (page === undefined) {
+                page = options.currentPage;
+            }
+
+            document.getElementById('toc').parentNode.scrollTop = 
+                document.getElementById('page-' + page + 1).offsetTop
+                - Math.floor($('.panels').height() * 1.5);
+        };
+
         ComicBook.prototype.showToc = function () {
-            /* self.getControl('sidebar')
-             .find('.view').hide().end()
-             .find('#tocView').show(); */
             self.getControl('sidebar')
                 .find('.open').removeClass('open').end()
                 .find('.toc-view').addClass('open');
+            if (!options.thumbnails) {
+                $('#toc-populate').addClass('open');
+            }
         };
 
         ComicBook.prototype.showBookSettings = function () {
@@ -3021,23 +3070,6 @@ ComicBook = (function ($) {
             window.removeEventListener('hashchange', checkHash, false);
 
             setHash('');
-
-            /* ugly, but for now... */
-            options.currentPage = undefined;
-            no_pages = undefined;
-            pages = undefined;
-            thumbs = undefined;
-            canvas = undefined;
-            context = undefined;
-            tcv = undefined;
-            tctx = undefined;
-            toc = undefined;
-            loaded = undefined;
-            scale = undefined;
-            is_double_page_spread = undefined;
-            controlsRendered = undefined;
-            page_requested = undefined;
-            shiv = undefined;
 
             // $(this).trigger('destroy');
         };

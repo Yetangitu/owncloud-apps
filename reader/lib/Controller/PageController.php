@@ -79,6 +79,7 @@ class PageController extends Controller {
             'cursor' => $this->toJson($this->bookmarkService->getCursor($fileId)),
             'defaults' => $this->toJson($this->preferenceService->getDefault($scope)),
             'preferences' => $this->toJson($this->preferenceService->get($scope, $fileId)),
+            'defaults' => $this->toJson($this->preferenceService->getDefault($scope)),
             'metadata' => $this->toJson($this->metadataService->get($fileId))
 		];
 
