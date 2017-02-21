@@ -7,7 +7,7 @@ CBRJS.session = CBRJS.session || {};
 
 CBRJS.Reader = function(bookPath, _options) {
 
-	var $progressbar = $('.bar');
+    var $progressbar = $('.bar');
     var filename = decodeURIComponent(bookPath.split('/').pop());
     var re_file_ext = new RegExp(/\.([a-z]+)$/);
 
@@ -140,11 +140,6 @@ CBRJS.Reader = function(bookPath, _options) {
             vendorPath: 'vendor/'
         }, opts);
 
-        console.log("opts before extractImages:");
-        console.log(opts);
-        console.log("options before extractImages:");
-        console.log(options);
-
 		extractImages(url, {
 			start: function (filename) {
 				this.filename = filename;
@@ -184,9 +179,6 @@ CBRJS.Reader = function(bookPath, _options) {
 				$(window).on('beforeunload', function(e) {
 					book.destroy();
 				});
-
-                console.log("options after extractImages:");
-                console.log(options);
             }
 		});
 
@@ -196,13 +188,10 @@ CBRJS.Reader = function(bookPath, _options) {
     function getPref (arr, name) {
         if (found = arr.find(function(e) { return e.name === name; })) {
             if (found.hasOwnProperty("value")) {
-                console.log("property " + name + " has value " + found.value);
                 return found.value;
             }
         }
     };
-
-    console.log("CBRJS:");console.log(CBRJS);
 
 	openComicArchive(bookPath, {
         /* functions return jquery promises */
@@ -1961,15 +1950,10 @@ ComicBook = (function ($) {
             self.setLayout((window.innerWidth > window.innerHeight) ? 'double' : 'single');
         });
 
-        console.log("defaults:");console.log(defaults);
-        console.log("opts:");console.log(opts);
-        // options = merge(defaults, opts); // options array for internal use
         $.extend(true, options, defaults, opts); // options array for internal use
-        console.log("options:");console.log(options);
 
         var no_pages = srcs.length;
         var pages = []; // array of preloaded Image objects
-        var thumbs = []; // array of preloaded thumbnail Image objects
         var canvas; // the HTML5 canvas object
         var context; // the 2d drawing context
         var tcv = document.createElement("canvas"); // canvas used for thumbnailer
@@ -2250,7 +2234,7 @@ ComicBook = (function ($) {
                 i++;
             }
 
-            // set, but don't save
+            // set, but don't save for future sessions
             options.thumbnails = true;
             $('#toc-populate').removeClass('open');
         };
@@ -2334,7 +2318,6 @@ ComicBook = (function ($) {
             var i = options.currentPage; // the current page counter for this method
             var rendered = false;
             var queue = [];
-            console.log("i: " + i);
 
             this.showControl('loadingOverlay');
 
@@ -2704,6 +2687,44 @@ ComicBook = (function ($) {
             options.setDefault("thumbnailWidth", options.thumbnailWidth);
         };
 
+        ComicBook.prototype.sidebarWide = function (wide) {
+            if (typeof(wide) !== "boolean") {
+                wide = ($(this).is(':checked') === true);
+            }
+
+            if (wide) {
+                options.sidebarWide = true;
+                document.getElementById('sidebar').classList.add('wide');
+            } else {
+                options.sidebarWide = false;
+                document.getElementById('sidebar').classList.remove('wide');
+                self.sidebarWidth(0);
+            }
+
+            options.setDefault("sidebarWide", options.sidebarWide);
+        };
+
+        ComicBook.prototype.sidebarWidth = function(width) {
+            if (typeof(width) !== "number") {
+                width = $(this).val();
+            }
+            options.sidebarWidth = width;
+
+            // width === 0 is interpreted as 'use value from CSS'
+            if (options.sidebarWidth > 0) {
+                document.getElementById('sidebar').style.width = options.sidebarWidth + "%";
+            } else {
+                document.getElementById('sidebar').style.width = "";
+            }
+
+            options.setDefault("sidebarWidth", options.sidebarWidth);
+        };
+
+        ComicBook.prototype.resetSidebar = function () {
+            self.sidebarWide(false);
+            self.sidebarWidth(0);
+        };
+
         /* book-specific settings */
 
         ComicBook.prototype.brightness = function () {
@@ -2715,7 +2736,6 @@ ComicBook = (function ($) {
             self.enhance.brightness($brightness);
             options.enhance.brightness = $brightness;
             options.setPreference("enhance",options.enhance);
-            console.log(options.enhance);
         };
 
         ComicBook.prototype.sharpen = function () {
@@ -2725,7 +2745,6 @@ ComicBook = (function ($) {
             });
 
             options.setPreference("enhance",options.enhance);
-            console.log(options.enhance);
         };
 
         ComicBook.prototype.desaturate = function () {
@@ -2738,7 +2757,6 @@ ComicBook = (function ($) {
             }
 
             options.setPreference("enhance",options.enhance);
-            console.log(options.enhance);
         };
 
         ComicBook.prototype.removenoise = function () {
@@ -2751,22 +2769,15 @@ ComicBook = (function ($) {
             }
 
             options.setPreference("enhance",options.enhance);
-            console.log(options.enhance);
         };
 
         ComicBook.prototype.resetEnhancements = function () {
             self.enhance.reset();
             options.setPreference("enhance",options.enhance);
-            console.log(options.enhance);
         };
 
         /**
          * Apply image enhancements to the canvas.
-         *
-         * Powered by the awesome Pixastic: http://www.pixastic.com/
-         *
-         * TODO: reset & apply all image enhancements each time before applying new one
-         * TODO: abstract this into an 'Enhance' object, separate from ComicBook?
          */
         ComicBook.prototype.enhance = {
 
@@ -3023,6 +3034,7 @@ ComicBook = (function ($) {
             }
         };
 
+
         /*
          * Scroll TOC to page (default: current page)
          */
@@ -3032,7 +3044,7 @@ ComicBook = (function ($) {
             }
 
             document.getElementById('toc').parentNode.scrollTop = 
-                document.getElementById('page-' + page + 1).offsetTop
+                document.getElementById('page-' + String(page + 1)).offsetTop
                 - Math.floor($('.panels').height() * 1.5);
         };
 

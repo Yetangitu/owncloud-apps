@@ -177,19 +177,19 @@ label {
 
 .toolbar,
 .panels {
+    position: absolute;
 	color: white;
-	overflow: visible;
-	/* padding: 0.75em 0; */
+	/* overflow: visible; */
     background: #4e4e4e;
-	left: 0;
-	right: 0;
+	/* left: 0; */
+	/* right: 0; */
     width: 100%;
 }
 
 .toolbar {
-	position: fixed;
+	/* position: fixed; */
 	z-index: 99;
-	margin-bottom: 0;
+	/*  margin-bottom: 0; */
 	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
 	opacity: 0;
 	transition: opacity 0.1s ease-in-out;
@@ -266,12 +266,16 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
   background: #6b6b6b;
   position: fixed;
   top: 0;
-  width: 20%;
+  /* width: 20%; */
   min-width: 25em;
   height: 100%;
   overflow: hidden;
   display: none;
   z-index: 100;
+}
+
+.sidebar.wide {
+    width: 20%;
 }
 
 .panels {
@@ -295,8 +299,12 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
   overflow-x: hidden;
   display: none !important;
   width: 100%;
-  height: 100%;
-  margin-top: 0;
+  /* height: 100%; */
+  /* margin-top: 0; */
+  position: absolute;
+  top: 3em;
+  bottom: 0;
+  text-align: center;
 }
 
 .toc-view li {
@@ -323,14 +331,15 @@ body:not(.mobile) .toolbar button[data-action=close]:hover {
 }
 
 .settings-container {
-    position: absolute;
+    text-align: left;
+    display: inline-block;
+    width: 95%;
 	font-size: 1em;
 	background: #F8F8F8;
 	color: #111;
-    padding: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
     margin-top: 1em;
-    left: 1em;
-    right: 1em;
 	border-radius: 4px;
 	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
 }

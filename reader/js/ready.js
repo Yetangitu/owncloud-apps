@@ -14,7 +14,7 @@ function addStyleSheet() {
 
 function getCSSRule(sheet, selector, del) {
         lcSelector = selector.toLowerCase();
-        for  ( var i=0; i<sheet.cssRules.length; i++) {
+        for  (var i=0; i<sheet.cssRules.length; i++) {
 		if (sheet.cssRules.item(i).selectorText.toLowerCase() == lcSelector) {
 			if (del) {
 				sheet.deleteRule(i);
@@ -28,6 +28,10 @@ function getCSSRule(sheet, selector, del) {
 }
 
 function addCSSRule(sheet, selector, rules, index) {
+    if (index === undefined) {
+        index = 0;
+    }
+
 	if("insertRule" in sheet) {
 		sheet.insertRule(selector + "{" + rules + "}", index);
 	}
@@ -40,13 +44,6 @@ function delCSSRule(sheet, selector) {
 	getCSSRule(sheet, selector, true);
 }
 
-/*function getUrlParameter(name) {
-	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-	var results = regex.exec(location.search);
-	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}*/
-
 function getUrlParameter(param){
 	var pattern = new RegExp('[?&]'+param+'((=([^&]*))|(?=(&|$)))','i');
 	var m = window.location.search.match(pattern);
@@ -54,15 +51,38 @@ function getUrlParameter(param){
 }
 
 function renderEpub(file) {
-	// only enable close button when launched in an iframe
-	if (parent !== window) {
-		$('#close').show();
-		$('#close').on('click', function() { reader.book.destroy(); parent.OCA.Files_Reader.Plugin.hide(); });
-	}
+
+
+    // some defaults
+    EPUBJS.session = {};
+    EPUBJS.session.version = $('.session').data('version');
+    /*
+    EPUBJS.session.filename = filename;
+    EPUBJS.session.title = filename.replace(/\.[^/.]+$/, '');
+    EPUBJS.session.format = filename.toLowerCase().match(re_file_ext)[1];
+    */
+    EPUBJS.session.metadata = $('.session').data('metadata') || {};
+    EPUBJS.session.fileId = $('.session').data('fileid') || "";
+    EPUBJS.session.scope = $('.session').data('scope') || "";
+    EPUBJS.session.cursor = $('.session').data('cursor') || {};
+    EPUBJS.session.defaults = $('.session').data('defaults') || {};
+    EPUBJS.session.preferences = $('.session').data('preferences') || {};
+    EPUBJS.session.defaults = $('.session').data('defaults') || {};
+    EPUBJS.basePath = $('.session').data('basepath');
+    EPUBJS.downloadLink = $('.session').data('downloadlink');
+
 
 	// some parameters... 
 	EPUBJS.filePath = "vendor/epubjs/";
 	EPUBJS.cssPath = "css/";
+
+    // user-configurable options
+    EPUBJS.options = {};
+
+    // user-configurable styles
+    EPUBJS.styles = {};
+
+	var reader = ePubReader(file, { contained: true });
 
 	// touch-enabled devices...
 	$('#touch_nav').prop('checked', !('ontouchstart' in document.documentElement));
@@ -73,7 +93,11 @@ function renderEpub(file) {
 
 	// idevices...
 	if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
-		$('head').append($('<link rel="stylesheet" type="text/css" />').attr('href', document.getElementsByTagName("base").item(0).href + 'css/idevice.css'));
+		$('head').append($('<script type="text/javascript" />')
+            .attr('src', document.getElementsByTagName("base").item(0).href + 'vendor/bgrins/spectrum.js' + "?v=" + $('.session').data('version'))
+            .attr('nonce', $('.session').data('nonce')));
+		$('head').append($('<link rel="stylesheet" type="text/css" />')
+            .attr('href', document.getElementsByTagName("base").item(0).href + 'vendor/bgrins/spectrum.css' + "?v=" + $('.session').data('version')));
 	}
 
 	// IE < 11
@@ -86,52 +110,163 @@ function renderEpub(file) {
 		wgxpath.install(window);
 	}
 
-	function nightModeConfig() {
-		delCSSRule(EPUBJS.nightSheet, EPUBJS.nightSelector);
-		addCSSRule(EPUBJS.nightSheet, EPUBJS.nightSelector, 'color: ' + EPUBJS.nightModeColor +  ' !important; background: ' + EPUBJS.nightModeBackground + ' !important;');
-	}
+
+    /* user style settings */
+
+	EPUBJS.userSheet = addStyleSheet();
+
+    // construct a custom mode
+
+	function modeConfig(mode) {
+
+
+        var rule = "",
+            undo_rule = "",
+            selector = "." + mode.classname + " *",
+            annulator = ".no" + mode.classname + " *";
+
+		delCSSRule(EPUBJS.userSheet, selector);
+
+        for (var clause in mode.rules) {
+            rule += clause + ": " + mode.rules[clause] + " !important;";
+            undo_rule += clause + ": initial !important;";
+        }
+
+        addCSSRule(EPUBJS.userSheet, selector, rule, 0);
+        addCSSRule(EPUBJS.userSheet, annulator, undo_rule, 0);
+
+        if (mode.extra) {
+            addCSSRule(EPUBJS.userSheet, mode.extra[0], mode.extra[1], 0);
+        }
+	};
+
+
+	// just switching in the "day" classname works on some browsers but not on others, hence the trickery with
+	// setStyle/removeStyle...
+    //
+    // call this with 'style' set to enable a custom style (or change to a different one),
+    // call this without parameters to disable custom styles
+
+    function toggleCustom (style) {
+
+        if (style) {
+            if (EPUBJS.styles.active) {
+                toggleCustom();
+            }
+
+            EPUBJS.styles.active = style;
+
+            $("#outerContainer").addClass(EPUBJS.styles.active.classname);
+            // and, just in case...
+            $("#outerContainer").removeClass("night");
+            EPUBJS.nightMode = false;
+            for (var clause in EPUBJS.styles.active.rules) {
+                reader.book.setStyle(clause, EPUBJS.styles.active.rules[clause]);
+            }
+        } else {
+            if (EPUBJS.styles.active) {
+                $("#outerContainer").removeClass(EPUBJS.styles.active.classname);
+                for (var clause in EPUBJS.styles.active.rules) {
+                    reader.book.removeStyle(clause);
+                }
+
+                delete EPUBJS.styles.active;
+            }
+        }
+    };
+
+    // night mode is not a normal custom style. It can be
+    // applied at the same time as custom styles (which it overrules).
+    // Custom styles will be restored when night mode is disabled
+    function toggleNight () {
+
+        if (EPUBJS.nightMode) {
+
+            EPUBJS.nightMode = false;
+
+            EPUBJS.styles.active = EPUBJS.styles.nightMode;
+            toggleCustom();
+
+            if (EPUBJS.styles.inactive) {
+                toggleCustom (EPUBJS.styles.inactive);
+                delete EPUBJS.styles.inactive;
+            }
+        } else {
+
+            EPUBJS.nightMode = true;
+
+            if (EPUBJS.styles.active) {
+                EPUBJS.styles.inactive = EPUBJS.styles.active;
+                toggleCustom();
+            }
+            for (var clause in EPUBJS.styles.nightMode.rules) {
+                reader.book.setStyle(clause, EPUBJS.styles.nightMode.rules[clause]);
+            }
+
+            $("#outerContainer").addClass(EPUBJS.styles.nightMode.classname);
+        }
+    };
+
+    // dayMode (custom colours)
+
+    EPUBJS.styles.dayMode = {};
+    EPUBJS.styles.dayMode.rules = {};
+    EPUBJS.styles.dayMode.classname = "day";
+    EPUBJS.styles.dayMode.rules.color = $('#day_color').val();
+    EPUBJS.styles.dayMode.rules.background = $('#day_background').val();
+
+    // nightMode
+
+    EPUBJS.styles.nightMode = {};
+    EPUBJS.styles.nightMode.rules = {};
+    EPUBJS.styles.nightMode.classname = "night";
+    EPUBJS.styles.nightMode.rules.color = $('#night_color').val();
+    EPUBJS.styles.nightMode.rules.background = $('#night_background').val();
+
+    modeConfig(EPUBJS.styles.dayMode);
+    modeConfig(EPUBJS.styles.nightMode);
+
+	$('#day_background').on('change', function() {
+		EPUBJS.styles.dayMode.rules.background = $('#day_background').val();
+		modeConfig(EPUBJS.styles.dayMode);
+	});
+
+	$('#day_color').on('change', function() {
+		EPUBJS.styles.dayMode.rules.color = $('#day_color').val();
+		modeConfig(EPUBJS.styles.dayMode);
+	});
 
 	// nightMode
+
 	EPUBJS.nightMode = false;
-	EPUBJS.nightSheet = addStyleSheet();
-	EPUBJS.nightSelector = '.night *';
-	EPUBJS.nightModeBackground = $('#nightModeBackground').val();
-	EPUBJS.nightModeColor = $('#nightModeColor').val();
-	addCSSRule(EPUBJS.nightSheet, '.nonight', 'background: initial !important;');
-	nightModeConfig();
 
-	$('#nightModeBackground').on('change', function() {
-		EPUBJS.nightModeBackground = $('#nightModeBackground').val();
-		nightModeConfig();
+	$('#night_background').on('change', function() {
+		EPUBJS.styles.nightMode.rules.background = $('#night_background').val();
+		modeConfig(EPUBJS.styles.nightMode);
 	});
 
-	$('#nightModeColor').on('change', function() {
-		EPUBJS.nightModeColor = $('#nightModeColor').val();
-		nightModeConfig();
+	$('#night_color').on('change', function() {
+		EPUBJS.styles.nightMode.rules.color = $('#night_color').val();
+		modeConfig(EPUBJS.styles.nightMode);
 	});
 
-	//var reader = ePubReader(document.getElementById("dllink").value,  { contained: true });
-	var reader = ePubReader(file, { contained: true });
+	// enable day mode switch
+	$('#use_custom_colors').on('change', function () {
+        console.log("click!");
+        if ($(this).prop('checked')) {
+            toggleCustom(EPUBJS.styles.dayMode);
+        } else {
+            toggleCustom();
+        }
+    });
 
-	// enable night/day mode switch by clicking on the book title/author
-	// just switching in the "night" class works on some browsers but not on others, hence the trickery with
-	// setStyle/removeStyle...
-	$('#metainfo').on('click', function() {
-		if(EPUBJS.nightMode) {
-			reader.book.removeStyle("background");
-			reader.book.removeStyle("color");
-			$("#outerContainer").removeClass("night");
-			EPUBJS.nightMode = false;
-		} else {
-			reader.book.setStyle("background", EPUBJS.nightModeBackground);
-			reader.book.setStyle("color", EPUBJS.nightModeColor);
-			$("#outerContainer").addClass("night");
-			EPUBJS.nightMode = true;
-		}
-	});
+    // enable night mode switch
+
+	$('#metainfo').on('click', toggleNight);
 
 	// extra-wide page turn area?
-	$('#touch_nav').on('click', function() {
+
+	$('#touch_nav').on('change', function() {
 		if ($('#touch_nav').prop('checked')) {
 			$("#prev").removeClass("touch_nav");
 			$("#next").removeClass("touch_nav");
@@ -140,24 +275,33 @@ function renderEpub(file) {
 			$("#next").addClass("touch_nav");
 		}
 	});
+
+    // page width
+    $("#page_width").on("change", function () {
+        EPUBJS.options.page_width = $(this).val();
+        $("#viewer").css("max-width", EPUBJS.options.page_width + "em");
+    });
 		
 	// user-defined font
 	EPUBJS.ignore_css = false;
 	EPUBJS.bookFrame = null;
-	EPUBJS.user_fontFamily = $('#fontFamily').val();
-	EPUBJS.user_fontSize = $('#fontSize').val() + '%';
+	EPUBJS.options.font_family = $('#font_family').val();
+	EPUBJS.options.font_size = $('#font_size').val() + '%';
+
+    $('#font_example').css('font-size', EPUBJS.options.font_size);
+    $('#font_example').css('font-family', EPUBJS.options.font_family);
 
 	$('#ignore_css').on('click', function() {
 		EPUBJS.bookFrame = document.getElementsByTagName('iframe')[0].contentDocument;
 		if ($('#ignore_css').prop('checked')) {
-			$('#fontFamily').prop('disabled',false);
-			$('#fontSize').prop('disabled',false);
+			$('#font_family').prop('disabled',false);
+			$('#font_size').prop('disabled',false);
 			EPUBJS.ignore_css = true;
-			reader.book.setStyle('font-size', EPUBJS.user_fontSize);
-			reader.book.setStyle('font-family', EPUBJS.user_fontFamily);
+			reader.book.setStyle('font-size', EPUBJS.options.font_size);
+			reader.book.setStyle('font-family', EPUBJS.options.font_family);
 		} else {
-			$('#fontFamily').prop('disabled',true);
-			$('#fontSize').prop('disabled',true);
+			$('#font_family').prop('disabled',true);
+			$('#font_size').prop('disabled',true);
 			EPUBJS.ignore_css = false;
 			reader.book.removeStyle('font-size');
 			reader.book.removeStyle('font-family');
@@ -166,16 +310,31 @@ function renderEpub(file) {
 ;
 	});
 
-	$('#fontSize').on('change', function() {
-		EPUBJS.user_fontSize = $('#fontSize').val() + '%';
-		$('#font_example').css('font-size', EPUBJS.user_fontSize);
-		reader.book.setStyle('font-size', EPUBJS.user_fontSize);
+
+	$('#font_size').on('change', function() {
+		EPUBJS.options.font_size = $(this).val() + '%';
+		$('#font_example').css('font-size', EPUBJS.options.font_size);
+		reader.book.setStyle('font-size', EPUBJS.options.font_size);
 	});
-	$('#fontFamily').on('change', function() {
-		EPUBJS.user_fontFamily = $('#fontFamily').val();
-		$('#font_example').css('font-family', EPUBJS.user_fontFamily);
-		reader.book.setStyle('font-family', EPUBJS.user_fontFamily);
+	$('#font_family').on('change', function() {
+		EPUBJS.options.font_family = $(this).val();
+		$('#font_example').css('font-family', EPUBJS.options.font_family);
+		reader.book.setStyle('font-family', EPUBJS.options.font_family);
 	});
+
+    // only enable close button when launched in an iframe
+	if (parent !== window) {
+		$('#close').show();
+		$('#close').on('click', function() { reader.book.destroy(); parent.OCA.Files_Reader.Plugin.hide(); });
+	}
+
+    // connect event handlers
+    //
+    //reader.book.ready.all.then(function () {
+    //    reader.book.on('renderer:locationChanged', function(location){
+    //        console.log(location);
+    //    });
+    //});
 }
 
 function renderCbr(file) {

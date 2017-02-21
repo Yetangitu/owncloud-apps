@@ -9,9 +9,8 @@
   $defaults = $_['defaults'];
   $preferences = $_['preferences'];
   $metadata = $_['metadata'];
-  $revision = '0017';
+  $revision = '0020';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
-    error_log("file_id: " . $fileId);
 
   /* Owncloud currently does not implement CSPv3, remove this test when it does */
   $nonce = class_exists('\OC\Security\CSP\ContentSecurityPolicyNonceManager')
@@ -21,7 +20,7 @@
 
 <html dir="ltr">
 
-<head class="session" data-downloadlink='<?php print_unescaped($downloadLink);?>' data-fileid='<?php print_unescaped($fileId);?>' data-basepath='<?php p($urlGenerator->linkTo('files_reader',''));?>' data-scope='<?php print_unescaped($scope);?>' data-cursor='<?php print_unescaped($cursor);?>' data-defaults='<?php print_unescaped($defaults);?>' data-preferences='<?php print_unescaped($preferences);?>' data-metadata='<?php print_unescaped($metadata);?>'>
+<head class="session" data-nonce='<?php p($nonce);?>' data-downloadlink='<?php print_unescaped($downloadLink);?>' data-fileid='<?php print_unescaped($fileId);?>' data-basepath='<?php p($urlGenerator->linkTo('files_reader',''));?>' data-scope='<?php print_unescaped($scope);?>' data-cursor='<?php print_unescaped($cursor);?>' data-defaults='<?php print_unescaped($defaults);?>' data-preferences='<?php print_unescaped($preferences);?>' data-metadata='<?php print_unescaped($metadata);?>'>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,7 +113,9 @@
     <div data-trigger="click" data-action="navigation" data-navigate-side="left" class="cbr-control navigate navigate-left control" name="navigateLeft">
         <span class="icon-navigate_before"></span>
     </div>
+    <!-- toggle toolbar (disabled)
     <div data-trigger="click" data-action="toggleToolbar" class="toggle-controls control" name="toggleToolbar"></div>
+    -->
     <div data-trigger="click" data-action="navigation" data-navigate-side="right" class="cbr-control navigate navigate-right control" name="navigateRight">
         <span class="icon-navigate_next"></span>
     </div>
@@ -129,12 +130,12 @@
     <!-- /inline progressbar -->
 
     <!-- sidebar -->
-    <div class="sidebar control" name="sidebar">
+    <div class="sidebar control" name="sidebar" id="sidebar">
         <div class="panels">
             <div class="pull-left">
-                <button data-trigger="click" data-action="showToc" title="show table of contents" class="icon-format_list_numbered toc-view open"></button>
-                <button data-trigger="click" data-action="showBookSettings" title="show book settings" class="icon-rate_review book-settings-view"></button>
-                <button data-trigger="click" data-action="showSettings" title="show settings" class="icon-settings settings-view"></button>
+                <button data-trigger="click" data-action="showToc" title="Table of Contents" class="icon-format_list_numbered toc-view open"></button>
+                <button data-trigger="click" data-action="showBookSettings" title="Book settings" class="icon-rate_review book-settings-view"></button>
+                <button data-trigger="click" data-action="showSettings" title="Default settings" class="icon-settings settings-view"></button>
             </div>
             <div class="pull-right">
                 <button id="toc-populate" data-trigger="click" data-action="tocPopulate" title="generate thumbnails" class="icon-sync" style="display:none"></button>
@@ -192,18 +193,35 @@
             </div>
         </div>
         <div class="settings-view view">
-            <div class="settings-container" name="settings" id="thumbnail-settings">
+            <div class="settings-container" name="thumbnail-settings" id="thumbnail-settings">
                 <label for="thumbnail-settings">Thumbnails</label>
-                <form name="settings" data-trigger="reset" data-action="resetSettings">
+                <div class="control-group pull-left">
+                    <input id="thumbnail-generate" data-trigger="change" data-action="thumbnails" type="checkbox">
+                    <label for="thumbnail-generate">Thumbnails in index </label>
+                </div>
+                <div class="control-group pull-left">
+                    <label for="thumbnail-width">Thumbnail width:</label>
+                    <input id="thumbnail-width" data-trigger="change" data-action="thumbnailWidth" type="number" min="50" max="500" step="10" value="200" >
+                    <label for="thumbnail-width">px</label>
+                </div>
+            </div>
+            <div class="settings-container" name="sidebar-settings" id="sidebar-settings">
+                <label for="sidebar-settings">Sidebar</label>
+                <form name="sidebar-preferences" data-trigger="reset" data-action="resetSidebar">
                     <div class="control-group pull-left">
-                        <input id="thumbnail-generate" data-trigger="change" data-action="thumbnails" type="checkbox">
-                        <label for="thumbnail-generate">Use thumbnails in index </label>
-                        <input id="thumbnail-width" data-trigger="change" data-action="thumbnailWidth" type="number" min="50" max="500" step="10" value="200" >
-                        <label for="thumbnail-width">Thumbnail width</label>
+                        <input id="sidebar-wide" data-trigger="change" data-action="sidebarWide" type="checkbox">
+                        <label for="sidebar-wide">Use extra-wide sidebar</label>
+                    </div>
+                    <div class="control-group pull-left">
+                        <label for="sidebar-width">Sidebar width:</label>
+                        <input id="sidebar-width" data-trigger="change" data-action="sidebarWidth" type="number" min="5" max="100" step="1" value="20" >
+                        <label for="sidebar-width">%</label>
+                    </div>
+                    <div class="control-group pull-right">
+                        <input type="reset" value="reset">
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
     <!-- /sidebar -->
