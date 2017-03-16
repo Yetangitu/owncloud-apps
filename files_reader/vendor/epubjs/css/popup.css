@@ -94,3 +94,16 @@
 .popup.show, .popup.on {
   display: block;
 }
+
+.note-marker,
+.EPUBJS-CFI-MARKER,
+.EPUBJS-CFI-SPLIT {
+    vertical-align: super;
+    font-size: 0.75em;
+    line-height: 1em;
+    padding: 0.1em;
+    background-color: #fffa96;
+    border-radius: 5px;
+    cursor: pointer;
+}
+

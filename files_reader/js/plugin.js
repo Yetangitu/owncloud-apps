@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Frank de Lange
+ * Copyright (c) 2015-2017 Frank de Lange
  * Copyright (c) 2013-2014 Lukas Reschke <lukas@owncloud.com>
  *
  * This file is licensed under the Affero General Public License version 3
@@ -9,17 +9,33 @@
  *
  */
 
+
 (function(OCA) {
 
-	OCA.FilesReader = OCA.FilesReader || {};
+	OCA.Files_Reader = OCA.Files_Reader || {};
 
 	var isMobile = navigator.userAgent.match(/Mobi/i);
 	var hasTouch = 'ontouchstart' in document.documentElement;
 
+	function actionHandler(fileName, mime, context) {
+		var downloadUrl = '';
+		if($('#isPublic').val()) {
+			var sharingToken = $('#sharingToken').val();
+			downloadUrl = OC.generateUrl('/s/{token}/download?files={files}&path={path}', {
+				token: sharingToken,
+				files: fileName,
+				path:  context.dir
+			});
+		} else {
+			downloadUrl = Files.getDownloadUrl(fileName, context.dir);
+		}
+		OCA.Files_Reader.Plugin.show(downloadUrl, mime, true);
+	}
+
 	/**
-	 * @namespace OCA.FilesReader.Plugin
+	 * @namespace OCA.Files_Reader.Plugin
 	 */
-	OCA.FilesReader.Plugin = {
+	OCA.Files_Reader.Plugin = {
 
 		/**
 		 * @param fileList
@@ -51,10 +67,10 @@
 		 * @param downloadUrl
 		 * @param isFileList
 		 */
-		show: function(downloadUrl, isFileList) {
+		show: function(downloadUrl, mimeType, isFileList) {
 			var self = this;
 			var $iframe;
-            		var viewer = OC.generateUrl('/apps/files_reader/?file={file}', {file: downloadUrl});
+            		var viewer = OC.generateUrl('/apps/files_reader/?file={file}&type={type}', {file: downloadUrl, type: mimeType});
 			// launch in new window on mobile and touch devices...
 			if (isMobile || hasTouch) {
 				window.open(viewer, downloadUrl);
@@ -86,39 +102,41 @@
 		_extendFileActions: function(fileActions) {
 			var self = this;
 			fileActions.registerAction({
-				name: 'view',
-				displayName: 'Favorite',
+				name: 'view-epub',
+				displayName: 'View',
 				mime: 'application/epub+zip',
 				permissions: OC.PERMISSION_READ,
-				actionHandler: function(fileName, context) {
-					var downloadUrl = '';
-					if($('#isPublic').val()) {
-						var sharingToken = $('#sharingToken').val();
-						downloadUrl = OC.generateUrl('/s/{token}/download?files={files}&path={path}', {
-							token: sharingToken,
-							files: fileName,
-							path:  context.dir
-						});
-					} else {
-						downloadUrl = Files.getDownloadUrl(fileName, context.dir);
-					}
-					self.show(downloadUrl, true);
+				actionHandler: function(fileName, context){
+					return actionHandler(fileName, 'application/epub+zip', context);
 				}
 			});
-			fileActions.setDefault('application/epub+zip', 'view');
+			fileActions.registerAction({
+				name: 'view-cbr',
+				displayName: 'View',
+				mime: 'application/x-cbr',
+				permissions: OC.PERMISSION_READ,
+				actionHandler: function(fileName, context) {
+					return actionHandler(fileName, 'application/x-cbr', context);
+				}
+			});
+
+
+			fileActions.setDefault('application/epub+zip', 'view-epub');
+			fileActions.setDefault('application/x-cbr', 'view-cbr');
 		}
 	};
 
 })(OCA);
 
-OC.Plugins.register('OCA.Files.FileList', OCA.FilesReader.Plugin);
+OC.Plugins.register('OCA.Files.FileList', OCA.Files_Reader.Plugin);
 
 // FIXME: Hack for single public file view since it is not attached to the fileslist
 $(document).ready(function(){
-	if ($('#isPublic').val() && $('#mimetype').val() === 'application/epub+zip') {
+	if ($('#isPublic').val() && ($('#mimetype').val() === 'application/epub+zip'|| $('#mimetype').val() === 'application/x-cbr)')) {
 		var sharingToken = $('#sharingToken').val();
 		var downloadUrl = OC.generateUrl('/s/{token}/download', {token: sharingToken});
-		var viewer = OCA.FilesReader.Plugin;
-		viewer.show(downloadUrl, false);
+		var viewer = OCA.Files_Reader.Plugin;
+		var mime = $('#mimetype').val();
+		viewer.show(downloadUrl, mime, false);
 	}
 });
