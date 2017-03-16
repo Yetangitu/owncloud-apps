@@ -87,13 +87,38 @@ body {
   font-weight: 600;
 }
 
-#title-seperator {
+#title-separator {
   display: none;
 }
 
+#title-controls,
+#opener {
+	margin-left: 0.3em;
+	margin-right: 0.3em;
+    position: fixed;
+    top: 0.3em;
+}
+
+#opener {
+    left: 0;
+}
+
+#metainfo {
+    position: fixed;
+    /* width: 80%;
+    left: 10%; */
+    width: 50%;
+    width: calc(100% - 7.5em);
+    left: 1.5em;
+    top: 0.3em;
+    padding: 0.2em;
+    height: 1em;
+    overflow: hidden;
+    text-align: center;
+}
+
 #title-controls {
-	margin-left: 1em;
-	margin-right: 1em;
+    right: 0;
 }
 
 #viewer {
@@ -166,13 +191,6 @@ body {
 
 #main.single {
 	width: calc(100% - 25em);
-}
-
-#metainfo {
-  display: inline-block;
-  text-align: center;
-  max-width: 80%;
-  min-width: 20%;
 }
 
 #divider {
@@ -308,8 +326,8 @@ body {
     /* margin: 0 50px 0 50px; */
   }
   
-  #metainfo {
-    font-size: 10px;
+  #metainfo span {
+    font-size: 0.5em;
   }
   /*
   #tocView {

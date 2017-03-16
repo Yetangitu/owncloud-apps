@@ -13,7 +13,7 @@
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
   $title = htmlentities(basename($dllink));
-  $revision = '0069';
+  $revision = '0071';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
   /* Mobile safari, the new IE6 */
@@ -176,7 +176,7 @@
                                     nightmode can be toggled by clicking the book title
                                     </div>
                                     <div class="center-box">
-                                    <input type="color" id="night_color" value="#3a516b">
+                                    <input type="color" id="night_color" value="#454545">
                                     on
                                     <input type="color" id="night_background" value="#000000">
                                     </div>
@@ -233,7 +233,7 @@
                 <!-- titlebar -->
 
                 <div id="titlebar">
-                    <div id="opener" class="pull-left">
+                    <div id="opener">
                         <a id="slider" class="icon-menu">
                             <?php p($l->t("menu")); ?>
                         </a>
@@ -241,13 +241,13 @@
                     <div id="metainfo" class="nightshift">
                         <span id="book-title">
                         </span>
-                        <span id="title-seperator">
+                        <span id="title-separator">
                               –  
                         </span>
                         <span id="chapter-title">
                         </span>
                     </div>
-                    <div id="title-controls" class="pull-right">
+                    <div id="title-controls">
                         <a id="note" class="icon-comment">
                         </a>
                         <a id="bookmark" class="icon-turned_in_not">
