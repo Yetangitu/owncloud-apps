@@ -94,6 +94,9 @@ document.onreadystatechange = function () {
             case 'application/x-cbr':
                 renderCbr(file, options);
                 break;
+            case 'application/pdf':
+                renderPdf(file, options);
+                break;
             default:
                 console.log(type + ' is not supported by Reader');
         }
@@ -133,6 +136,14 @@ document.onreadystatechange = function () {
             CBRJS.filePath = "vendor/cbrjs/";
 
             var reader = cbReader(file, options);
+        }
+
+        // start pdf.js renderer
+        function renderPdf(file, options) {
+            PDFJS.filePath = "vendor/pdfjs/";
+            PDFJS.workerSrc = options.session.basePath + 'vendor/pdfjs/lib/pdf.worker.js';
+
+            var reader = pdfReader(file, options);
         }
     }
 };

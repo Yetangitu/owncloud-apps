@@ -74,7 +74,8 @@ class PageController extends Controller {
     public function showReader() {
         $templates= [
             'application/epub+zip' => 'epubreader',
-            'application/x-cbr' => 'cbreader'
+            'application/x-cbr' => 'cbreader',
+            'application/pdf' => 'pdfreader'
         ];
 
         /**

@@ -119,10 +119,19 @@
 					return actionHandler(fileName, 'application/x-cbr', context);
 				}
 			});
-
+			fileActions.registerAction({
+				name: 'view-pdf',
+				displayName: 'View',
+				mime: 'application/pdf',
+				permissions: OC.PERMISSION_READ,
+				actionHandler: function(fileName, context) {
+					return actionHandler(fileName, 'application/pdf', context);
+				}
+			});
 
 			fileActions.setDefault('application/epub+zip', 'view-epub');
 			fileActions.setDefault('application/x-cbr', 'view-cbr');
+			fileActions.setDefault('application/pdf', 'view-pdf');
 		}
 	};
 
