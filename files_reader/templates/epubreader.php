@@ -12,7 +12,7 @@
   $preferences = $_['preferences'];
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
-  $title = htmlentities(basename($dllink));
+  $title = htmlentities(basename($downloadLink));
   $revision = '0071';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
