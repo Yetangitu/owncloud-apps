@@ -1,5 +1,6 @@
-## UNRELEASED
-###
+## 1.0.1 - 2017-03-19
+### Fixed
+ - #35: Internal Server Error: fixed path resolution so app works when NC/OC hosted in subdirectory
 
 ## 1.0.0 - 2017-03-15
 ### Added

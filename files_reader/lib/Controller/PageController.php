@@ -129,7 +129,7 @@ class PageController extends Controller {
         } else {
             $filePath = $path;
             $fileId = $this->rootFolder->getUserFolder($this->userId)
-                ->get(explode("/", rawurldecode($this->request->get['file']),4)[3])
+                ->get(preg_replace("/.*\/remote.php\/webdav(.*)/", "$1", rawurldecode($this->request->get['file'])))
                 ->getFileInfo()
                 ->getId();
         }
