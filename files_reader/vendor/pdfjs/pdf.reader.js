@@ -1,6 +1,8 @@
 PDFJS.reader = {};
 PDFJS.reader.plugins = {};
 
+PDFJS.TextLayerBuilder = {};
+
 (function(root, $) {
 
     var previousReader = root.pdfReader || {};
@@ -18,13 +20,20 @@ PDFJS.Reader = function(bookPath, _options) {
         $viewer = $("#viewer"),
         search = window.location.search;
 
+    var TEXT_RENDER_DELAY = 200,  // ms
+        PAGE_RENDER_DELAY = 200;  // ms
+
     this.settings = this.defaults(_options || {}, {
         bookPath: bookPath,
+        textRenderDelay: TEXT_RENDER_DELAY,
+        pageRenderDelay: PAGE_RENDER_DELAY,
+        textSelect: true,   // true || false, add selectable text layer
+        doubleBuffer: true,  // true || false, draw to off-screen canvas
         numPages: 0,
         currentPage: 1,
         scale: 1,
-        sideBySide: true,   // when true, render 2 pages side-by-side
         oddPageRight: true, // when true, odd pages render on the right side
+        zoomLevel: window.outerWidth > window.outerHeight ? "spread" : "fit_page",  // spread, fit_page, fit_width, percentage
         history: true,
         keyboard: {
             32: 'next', // space
@@ -38,7 +47,7 @@ PDFJS.Reader = function(bookPath, _options) {
             66: 'bookmark', // b
             82: 'reflow', // r
             83: 'toggleSidebar', // s
-            84: 'toolbar', // t
+            84: 'toggleTitlebar', // t
             68: 'toggleDay', // d
             78: 'toggleNight', // n
             70: 'toggleFullscreen', // f
@@ -72,15 +81,32 @@ PDFJS.Reader = function(bookPath, _options) {
         this.extra = extra || null;
     };
 
-    this.canvaslst = [
-        document.getElementById("left"),
-        document.getElementById("right")
+    this.resourcelst = [
+        {
+            canvas: document.getElementById("left"),
+            ctx: document.getElementById("left").getContext('2d'),
+            textdiv: document.getElementById("text_left"),
+            textLayer: null,
+            renderTask: null,
+            oscanvas: null,
+            osctx: null,
+            pageNum: null
+        },
+        {
+            canvas: document.getElementById("right"),
+            ctx: document.getElementById("right").getContext('2d'),
+            textdiv: document.getElementById("text_right"),
+            textLayer: null,
+            renderTask: null,
+            oscanvas: null,
+            osctx: null,
+            pageNum: null
+        }
     ];
 
-    this.contextlst = [
-        document.getElementById("left").getContext('2d'),
-        document.getElementById("right").getContext('2d')
-    ];
+    this.cancelPage = {};
+
+    this.renderQueue = false;
 
     // Overide options with search parameters
     if(search) {
@@ -93,13 +119,12 @@ PDFJS.Reader = function(bookPath, _options) {
         });
     }
 
+
     //this.restoreDefaults(this.settings.session.defaults);
     //this.restorePreferences(this.settings.session.preferences);
     //this.restoreAnnotations(this.settings.session.annotations);
     this.sideBarOpen = false;
     this.viewerResized = false;
-	//this.sideBySide = window.outerWidth > window.outerHeight ? true : false;
-    this.sideBySide = false;
 	this.pageNumPending = null;
 
  	PDFJS.getDocument(reader.settings.bookPath).then(function(_book) {
@@ -121,9 +146,11 @@ PDFJS.Reader = function(bookPath, _options) {
 		//reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
 		//reader.MetaController = EPUBJS.reader.MetaController.call(reader, meta);
 		//reader.TocController = EPUBJS.reader.TocController.call(reader, toc);
+	    //reader.TextLayerController = PDFJS.reader.TextLayerController();	
 
         //reader.queuePage(reader.settings.currentPage);
-        var startPage = reader.settings.oddPageRight ? 0 : 1;
+        console.log(reader.settings);
+        var startPage = (reader.settings.zoomLevel === "spread" && reader.settings.oddPageRight) ? 0 : 1;
         reader.queuePage(startPage);
 		reader.ReaderController.hideLoader();
     });
@@ -131,114 +158,273 @@ PDFJS.Reader = function(bookPath, _options) {
 	return this;
 };
 
+PDFJS.Reader.prototype.setZoom = function(zoom) {
+    
+    var reader = this,
+        page = reader.settings.currentPage;
+
+    reader.settings.zoomLevel = zoom;
+    reader.queuePage(page);
+};
+
+PDFJS.Reader.prototype.cancelRender = function (index) {
+
+    var reader = this,
+        resourcelst = reader.resourcelst[index];
+
+    if (resourcelst.renderTask) {
+        console.log("cancel render on canvas " + index + ", pageNum " + resourcelst.pageNum);
+        resourcelst.renderTask.cancel();
+        resourcelst.renderTask = resourcelst.pageNum = null;
+        resourcelst.oscanvas = resourcelst.osctx = null;
+    }
+
+    if (resourcelst.textLayer) {
+        resourcelst.textLayer.cancel();
+        resourcelst.textLayer = null;
+    }
+};
+
 PDFJS.Reader.prototype.renderPage = function(pageNum) {
 
-	var reader = this,
-		pageShift = this.settings.sideBySide ? 2 : 1,
-        oddPageShift = this.settings.oddPageRight ? 0 : 1,
-    	i = (pageNum - oddPageShift) % pageShift,
-    	canvas = this.canvaslst[i],
-    	ctx = this.contextlst[i],
-        pixelratio = window.devicePixelRatio,
-        max_view_height = parseInt(window.outerHeight * 0.95),
-        max_view_width = reader.settings.sideBySide
-            ? parseInt((window.outerWidth / 2) * 1)
-            : parseInt(window.outerWidth * 1),
-        scale,
-        transform,
+    var reader = this,
+        $viewer = $("#viewer"),
         $page_num = document.getElementById('page_num');
 
-    if (this.settings.sideBySide) {
-        this.canvaslst[1].style.display = "block";
+    var index,
+    	canvas,     // actual canvas
+    	ctx,        // actual context
+        oscanvas,   // off-screen canvas
+        osctx,      // off-screen context
+        textdiv,
+        textLayer,
+		outputscale,
+        max_view_width,
+        max_view_height,
+        scale_width, 
+        scale_height,
+        view_aspect,
+        document_aspect,
+        scale,
+        viewport,
+        zoom,
+        fraction,
+        offset,
+        renderContext,
+        renderTask,
+        resourcelst;
+
+    max_view_width = window.innerWidth;
+    max_view_height = window.innerHeight;
+
+    if (this.settings.zoomLevel === "spread") {
+
+        // show second canvas
+        reader.resourcelst[1].canvas.style.display = "block";
+        max_view_width /= 2;
+        // select canvas and ctx based on pageNum, pageShift and oddPageRight
+        pageShift = 2;
+        oddPageShift = reader.settings.oddPageRight ? 0 : 1;
+        index = (pageNum - oddPageShift) % pageShift;
+
     } else {
-        this.canvaslst[1].style.display = "none";
+
+        index = 0;
+        // hide second canvas
+        reader.resourcelst[1].canvas.style.display = "none";
+
+        // don't try to render non-existing page 0 (which is used
+        // to indicate the empty left page when oddPageRight === true)
+        if (pageNum === 0)
+            pageNum++;
+
     }
+
+    resourcelst = reader.resourcelst[index];
+
+    canvas = resourcelst.canvas;
+    ctx = resourcelst.ctx;
+    textdiv = resourcelst.textdiv;
+    outputscale = reader.getOutputScale(resourcelst.ctx);
+    fraction = reader.approximateFraction(outputscale);
 
     if (pageNum <= this.settings.numPages && pageNum >= 1) {
 
-        this.pageRendering = true;
+        if (resourcelst.renderTask) {
+            resourcelst.renderTask.cancel();
+            resourcelst.renderTask = null;
+        }
+
+        if (resourcelst.textLayer) {
+            resourcelst.textLayer.cancel();
+            resourcelst.textLayer = null;
+        }
+
+        resourcelst.pageNum = pageNum;
+
+        if (reader.cancelPage[pageNum])
+            delete reader.cancelPage[pageNum];
 
         this.book.getPage(pageNum).then(function(page) {
-            console.log(page);
+            //console.log(page);
             var page_width = page.pageInfo.view[2];
             var page_height = page.pageInfo.view[3];
+            document_aspect = parseFloat(page_width / page_height);
+            view_aspect = parseFloat(max_view_width / max_view_height);
 
-            var scale_height = parseFloat(max_view_height / page_height);
-            var scale_width = parseFloat(max_view_width / page_width);
-            var document_aspect = parseFloat(page_width / page_height);
-            var view_aspect = parseFloat(max_view_width / max_view_height);
+            scale_height = parseFloat(max_view_height / page_height);
+            scale_width = parseFloat(max_view_width / page_width);
 
-            console.log(max_view_width
-                + " " + max_view_height
-                + " " + page_width
-                + " " + page_height
-                + " " + document_aspect
-                + " " + view_aspect
-                + " " + scale_width
-                + " " + scale_height
-                + " " + pixelratio);
+            /*
+            console.log("m_v_w: " + max_view_width
+                + " m_v_h: " + max_view_height
+                + " p_w: " + page_width
+                + " p_h: " + page_height
+                + " d_a: " + document_aspect
+                + " v_a: " + view_aspect
+                + " s_w: " + scale_width
+                + " s_h: " + scale_height
+                + " o: " + outputscale);
+            console.log("fraction: ");
+            console.log(fraction);
+            */
 
-            scale = Math.min(scale_width, scale_height) / pixelratio;
+            switch (reader.settings.zoomLevel) {
 
-            if (scale_width < scale_height) {
-                canvas.width = max_view_width;
-                canvas.height = parseInt(page_height * scale_width);
-                canvas.style.width = parseInt(max_view_width / pixelratio);
-                scale = scale_width;
-            } else {
-                canvas.height = max_view_height;
-                canvas.width = parseInt(page_width * scale_height);
-                canvas.style.width = parseInt(max_view_width / pixelratio);
-                scale = scale_height;
+                case "spread":
+
+                    // INTENTIONAL FALL-THROUGH
+
+                case "fit_page":
+
+                    $viewer.addClass("flex");
+
+                    if (scale_width > scale_height) {
+                        scale = scale_height;
+                        canvas.height = reader.roundToDivide(max_view_height * outputscale, fraction[0]);
+                        canvas.width = reader.roundToDivide(parseInt(canvas.height * document_aspect), fraction[0]);
+                    } else {
+                        scale = scale_width;
+                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0])
+                        canvas.height = reader.roundToDivide(parseInt(canvas.width / document_aspect), fraction[0]);
+                    }
+
+                    break;
+
+                case "fit_width":
+
+                    $viewer.removeClass("flex");
+
+                    if (scale_width < scale_height) {
+                        scale = scale_height;
+                        canvas.height = reader.roundToDivide(max_view_height * outputscale, fraction[0]);
+                        canvas.width = reader.roundToDivide(parseInt(canvas.height * document_aspect), fraction[0]);
+                    } else {
+                        scale = scale_width;
+                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0])
+                        canvas.height = reader.roundToDivide(parseInt(canvas.width / document_aspect), fraction[0]);
+                    }
+
+                    break;
+
+                default:
+
+                    $viewer.removeClass("flex");
+                    scale = parseFloat(reader.settings.zoomLevel);
+                    canvas.width = reader.roundToDivide(parseInt(page_width * scale * outputscale), fraction[0]); ;
+                    canvas.height = reader.roundToDivide(parseInt(page_height * scale * outputscale), fraction[0]);
+                    break;
             }
 
-            if (document_aspect < view_aspect) {
-                console.log("document aspect < view aspect, aspect ratio " + document_aspect);
-                //canvas.height = parseInt(max_view_height / pixelratio);
-                //canvas.width = parseInt(canvas.height * document_aspect);
-                //scale = parseFloat(scale_height / pixelratio);
-                transform = [ 1, 0, 0, 1, parseInt((canvas.width - (page_width*scale)) / 2), 0 ];
+            //console.log(canvas.width + " " + canvas.height);
+
+            transform = (outputscale === 1)
+                ? null
+                : [outputscale, 0, 0, outputscale, 0, 0];
+
+            viewport = page.getViewport(scale);
+
+            if (outputscale !== 1) {
+                canvas.style.width = reader.roundToDivide(viewport.width, fraction[1]) + 'px';
+                canvas.style.height = reader.roundToDivide(viewport.height, fraction[1]) + 'px';
             } else {
-                console.log("document aspect > view_aspect, aspect ratio " + document_aspect);
-
-                //canvas.height = parseInt(max_view_height / pixelratio);
-                //canvas.width = parseInt(canvas.height * document_aspect);
-                //canvas.width = parseInt(max_view_width / pixelratio);
-                //canvas.height = parseInt(canvas.width * document_aspect);
-                //scale = parseFloat(scale_width / pixelratio);
-                canvas.style.top = parseInt((max_view_height - canvas.height) / 2);
-                transform = [ 1, 0, 0, 1, 0, parseInt((canvas.height - (page_height*scale)) / 2) ];
+                canvas.style.width = "";
+                canvas.style.height = "";
             }
-            console.log(canvas.width + " " + canvas.height);
 
-            var viewport = page.getViewport(scale);
-            console.log(viewport);
+            /* textlayer */
+            if (reader.settings.textSelect) {
+                textdiv.style.width = reader.roundToDivide(viewport.width, fraction[1]) + 'px';
+                textdiv.style.height = reader.roundToDivide(viewport.height, fraction[1]) + 'px';
+                offset = $(canvas).offset();
+                $(textdiv).offset({
+                    top: offset.top,
+                    left: offset.left
+                });
+                page.getTextContent().then(function (textContent) {
+                    resourcelst.textLayer = textLayer = new PDFJS.Reader.TextLayerController({
+						textLayerDiv: textdiv,
+						pageIdx: pageNum - 1,
+						viewport: viewport,
+						enhanceTextSelection: true
+					});
+                    textLayer.setTextContent(textContent);
+                });
+            } else {
+                resourcelst.textLayer = textLayer = null;
+            }
 
-            var renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-                //transform: transform
+            /* /textLayer */
+
+            if (reader.settings.doubleBuffer) {
+                resourcelst.oscanvas = oscanvas = document.createElement("canvas");
+                resourcelst.osctx = context = osctx = oscanvas.getContext('2d');
+                oscanvas.width = canvas.width;
+                oscanvas.height = canvas.height;
+            } else {
+                context = ctx;
+            }
+
+            renderContext = {
+                canvasContext: context,
+                viewport: viewport,
+                transform: transform,
+                textLayer: textLayer
             };
 
-            var renderTask = page.render(renderContext);
-            renderTask.promise.then(function() {
-                reader.pageRendering = false;
-                if (reader.pageNumPending !== null) {
-                    reader.renderPage(reader.pageNumPending);
-                    reader.pageNumPending = null;
+            resourcelst.renderTask = renderTask = page.render(renderContext);
+
+            renderTask.promise.then(
+                function pdfPageRenderCallback (something) {
+                    if (reader.cancelPage[pageNum] === undefined) { 
+                        console.log("finished rendering page " + pageNum);
+                        if (reader.settings.doubleBuffer)
+                            ctx.drawImage(oscanvas, 0, 0);
+                        if (textLayer)
+                            textLayer.render(reader.settings.textRenderDelay);
+                    } else {
+                        console.log("rendering page " + pageNum + " finished but cancelled");
+                    }
+                },
+                function pdfPageRenderError(error) {
+                    console.log("pdfPageRenderError: " + error);
                 }
-            });
+            );
         });
 
     } else {
-
-        canvas.width = max_view_width;
-        canvas.height = max_view_height;
+        // clear canvas, use maximum size
+        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0]);
+        canvas.height = reader.roundToDivide(max_view_height * outputscale, fraction[0]);
+        if (outputscale !== 1) {
+            canvas.style.width = reader.roundToDivide(max_view_width, fraction[1]) + 'px';
+            canvas.style.height = reader.roundToDivide(max_view_height, fraction[1]) + 'px';
+        }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     }
 
-	if (i === 0) {
+    /*
+	if (index === 0) {
 
         if (pageNum > 0) {
             $page_num.textContent = pageNum.toString();
@@ -251,7 +437,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
 
             $page_num.textContent = pageNum.toString();
 
-        } else {
+        } else if (pageNum <= reader.settings.numPages) {
 
             var text = $page_num.textContent;
             text += "-" + pageNum.toString();
@@ -259,40 +445,92 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
 
         }
     }
+    */
 };
 
-PDFJS.Reader.prototype.queuePage = function(pageNum) {
+PDFJS.Reader.prototype.queuePage = function(page) {
     
-	var pageShift = this.settings.sideBySide ? 2 : 1;
+	//var pageShift = (this.settings.zoomLevel === "spread") ? 2 : 1;
+    //
+    var reader = this,
+        zoom = reader.settings.zoomLevel,
+        oddPageRight = reader.settings.oddPageRight,
+        pageShift,
+        $page_num = document.getElementById('page_num'),
+        text;
 
-    if (this.pageRendering) {
-        this.pageNumPending = pageNum;
-    } else {
-        for (var i = 0; i < pageShift; i++) {
-            this.renderPage(pageNum + i);
+    if (zoom === "spread") {
+        pageShift = 2;
+        if (oddPageRight === true) {
+            page -= page % 2;
+        } else {
+            page -= (page + 1) % 2;
         }
+
+        console.log("page: " + page);
+
+        if (page >= 0 && page <= reader.settings.numPages) {
+            if (page === reader.settings.numPages) {
+                text = page.toString();
+            } else if (page === 0) {
+                text = "1";
+            } else {
+                text = page.toString() + "-" + parseInt(page+1).toString();
+            }
+
+            $page_num.textContent = text;
+        }
+
+    } else {
+        pageShift = 1;
+        if (page >= 1 && page <= reader.settings.numPages)
+            $page_num.textContent = page.toString();
     }
+
+    reader.settings.currentPage = page;
+
+    if (typeof reader.renderQueue === 'number') {
+        window.clearTimeout(reader.renderQueue);
+        reader.renderQueue = false;
+    }
+
+    reader.renderQueue = window.setTimeout(function queuePages() {
+        for (var i = 0; i < pageShift; i++) {
+            reader.renderPage(page + i);
+        }
+    }, reader.settings.pageRenderDelay);
 };
 
 PDFJS.Reader.prototype.prevPage = function() {
 
-    var pageShift = this.settings.sideBySide ? 2 : 1;
+    var reader = this;
+
+	var pageShift = (this.settings.zoomLevel === "spread") ? 2 : 1;
+
     var oddPageShift = this.settings.oddPageRight ? 0 : 1;
 
     if (this.settings.currentPage - pageShift < oddPageShift) {
         return;
     } else {
+        for (var i = 0; i < pageShift; i++) {
+            reader.cancelPage[this.settings.currentPage - i] = true;
+        }
         this.queuePage(this.settings.currentPage - pageShift);
     }
 };
 
 PDFJS.Reader.prototype.nextPage = function() {
 
-    var pageShift = this.settings.sideBySide ? 2 : 1;
+    var reader = this;
+
+	var pageShift = (this.settings.zoomLevel === "spread") ? 2 : 1;
 
     if (this.settings.currentPage + pageShift > this.settings.numPages) {
         return;
     } else {
+        for (var i = 0; i < pageShift; i++) {
+            reader.cancelPage[this.settings.currentPage + i] = true;
+        }
         this.queuePage(this.settings.currentPage + pageShift);
     }
 };
@@ -309,4 +547,77 @@ PDFJS.Reader.prototype.defaults = function (obj) {
 
 PDFJS.Reader.prototype.setScale = function (scale) {
 
+};
+
+PDFJS.Reader.prototype.getOutputScale = function (ctx) {
+	var devicePixelRatio = window.devicePixelRatio || 1,
+		backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+			ctx.mozBackingStorePixelRatio ||
+			ctx.msBackingStorePixelRatio ||
+			ctx.oBackingStorePixelRatio ||
+			ctx.backingStorePixelRatio || 1,
+  	pixelRatio = devicePixelRatio / backingStoreRatio;
+
+	return pixelRatio;
+};
+
+PDFJS.Reader.prototype.roundToDivide = function (x, div) {
+
+    var r = x % div;
+
+    return r === 0
+        ? x
+        : Math.round(x - r + div);
+};
+
+
+/**
+ *  Approximates float number as a fraction using Farey sequence (max order
+ *  of 8).
+ *  @param {number} x - Positive float number.
+ *  @returns {Array} Estimated fraction: the first array item is a numerator,
+ *                   the second one is a denominator.
+ */
+PDFJS.Reader.prototype.approximateFraction = function (x) {
+
+    // Fast paths for int numbers or their inversions.
+    if (Math.floor(x) === x) {
+        return [x, 1];
+    }
+    var xinv = 1 / x;
+    var limit = 8;
+    if (xinv > limit) {
+        return [1, limit];
+    } else if (Math.floor(xinv) === xinv) {
+        return [1, xinv];
+    }
+
+    var x_ = x > 1 ? xinv : x;
+    // a/b and c/d are neighbours in Farey sequence.
+    var a = 0, b = 1, c = 1, d = 1;
+    // Limiting search to order 8.
+    while (true) {
+        // Generating next term in sequence (order of q).
+        var p = a + c, q = b + d;
+        if (q > limit) {
+            break;
+        }
+        if (x_ <= p / q) {
+            c = p; d = q;
+        } else {
+            a = p; b = q;
+        }
+    }
+    var result;
+    // Select closest of the neighbours to x.
+    if (x_ - a / b < c / d - x_) {
+        result = x_ === x ? [a, b] : [b, a];
+    } else {
+        result = x_ === x ? [c, d] : [d, c];
+    }
+    return result;
+};
+
+PDFJS.Reader.prototype.isMobile = function () {
+    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
 };

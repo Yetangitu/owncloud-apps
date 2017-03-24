@@ -12,7 +12,7 @@
   $preferences = $_['preferences'];
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
-  $title = htmlentities(basename($dllink));
+  $title = htmlentities(basename($downloadLink));
   $revision = '0071';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
@@ -41,12 +41,14 @@
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/main.css')) ?>?v=<?php p($version) ?>">
 		<link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/sidebar.css')) ?>?v=<?php p($version) ?>">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/popup.css')) ?>?v=<?php p($version) ?>">
+        <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/text_layer_builder.css')) ?>?v=<?php p($version) ?>">
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/jquery.min.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/bartaz/jquery.highlight.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/jquery/put-delete.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/sindresorhus/screenfull.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/lib/pdf.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/pdf.reader.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/textlayer_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/reader_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/sidebar_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/settings_controller.js')) ?>?v=<?php p($version) ?>"> </script>
@@ -249,6 +251,40 @@
                         </span>
                     </div>
                     <div id="title-controls">
+                        <!-- select works fine, except for the fact that - as usual - apple mobile does not support icons...
+                        <label for="zoomlevel">zoom: </label>
+                        <select id="zoomlevel">
+                            <option value="spread" data-icon="&#xe86d;" data-text="2-page">&#xe86d;</option>
+                            <option value="fit_page" data-icon="&#xe86e;" data-text="fit page">&#xe86e;</option>
+                            <option value="fit_width" data-icon="&#xe85c;" data-text="fit width">&#xe85c;</option>
+                            <option value="0.25" class="text">25%</option>
+                            <option value="0.5" class="text">50%</option>
+                            <option value="0.75" class="text">75%</option>
+                            <option value="1" class="text">100%</option>
+                            <option value="1.25" class="text">125%</option>
+                            <option value="1.5" class="text">150%</option>
+                            <option value="2" class="text">200%</option>
+                            <option value="3" class="text">300%</option>
+                            <option value="4" class="text">400%</option>
+                        </select>
+                        -->
+                        <div id="zoom_options" class="hide">
+                            <div class="zoom_option icon-double_page_mode" data-value="spread" data-class="icon-double_page_mode" data-text=""></div>
+                            <div class="zoom_option icon-single_page_mode" data-value="fit_page" data-class="icon-single_page_mode" data-text=""></div>
+                            <div class="zoom_option icon-icon-fit-width" data-value="fit_width" data-class="icon-icon-fit-width" data-text=""></div>
+                            <div class="zoom_option" data-value="0.25" data-text="25%">25%</div>
+                            <div class="zoom_option" data-value="0.5" data-text="50%">50%</div>
+                            <div class="zoom_option" data-value="0.75" data-text="75%">75%</div>
+                            <div class="zoom_option" data-value="1" data-text="100%">100%</div>
+                            <div class="zoom_option" data-value="1.25" data-text="125%">125%</div>
+                            <div class="zoom_option" data-value="1.5" data-text="150%">150%</div>
+                            <div class="zoom_option" data-value="2" data-text="200%">200%</div>
+                            <div class="zoom_option" data-value="3" data-text="300%">300%</div>
+                            <div class="zoom_option" data-value="4" data-text="400%">400%</div>
+                        </div>
+                        <span id="zoom_icon"></span>
+                        <span class="controls-separator"> </span>
+                        <a></a>
                         <a id="note" class="icon-comment">
                         </a>
                         <a id="bookmark" class="icon-turned_in_not">
@@ -276,9 +312,9 @@
                         ‹
                     </div>
                 </div>
-                <div ID="viewer">
-                    <canvas id="left" class="viewer"></canvas>
-                    <canvas id="right" class="viewer"></canvas>
+                <div id="viewer" class="flex">
+                    <canvas id="left" class="viewer"></canvas><div id="text_left" class="textLayer"></div>
+                    <canvas id="right" class="viewer"></canvas><div id="text_right" class="textLayer"></div>
                 </div>
                 <div id="next" class="arrow">
                     <div class="translucent">

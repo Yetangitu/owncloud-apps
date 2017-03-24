@@ -1,26 +1,44 @@
 PDFJS.reader.ControlsController = function(book) {
-    var reader = this;
+    var reader = this,
+        settings = reader.settings;
 
     var $store = $("#store"),
+        $viewer = $("#viewer"),
         $fullscreen = $("#fullscreen"),
         $fullscreenicon = $("#fullscreenicon"),
         $cancelfullscreenicon = $("#cancelfullscreenicon"),
         $slider = $("#slider"),
         $main = $("#main"),
         $sidebar = $("#sidebar"),
+        $titlebar = $("#titlebar"),
         $settings = $("#setting"),
         $bookmark = $("#bookmark"),
-        $note = $("#note");
+        $note = $("#note"),
+        $togglelayout = $("#toggle-layout"),
+        $zoom_icon = $("#zoom_icon"),
+        $zoom_options = $("#zoom_options"),
+        $zoom_option = $(".zoom_option"),
+        $page_num = $("#page_num");
 
-    var goOnline = function() {
-        reader.offline = false;
-        // $store.attr("src", $icon.data("save"));
+    if (reader.isMobile() === true) {
+        $titlebar.addClass("background_visible");
     };
 
-    var goOffline = function() {
-        reader.offline = true;
-        // $store.attr("src", $icon.data("saved"));
+    var show = function () {
+        $titlebar.removeClass("hide");
     };
+
+    var hide = function () {
+        $titlebar.addClass("hide");
+    };
+
+    var toggle = function () {
+        $titlebar.toggleClass("hide");
+    };
+
+    $viewer.on("touchstart", function(e) {
+        reader.ControlsController.toggle();
+    });
 
     var fullscreen = false;
 
@@ -81,6 +99,94 @@ PDFJS.reader.ControlsController = function(book) {
 
     });
 
+    /* select works fine on most browsers, but - of course - apple mobile has 'special needs'
+     * in that it does not support any styling in the drop-down list, and as such can not display
+     * icons there. Due to the unfortunate fact that many still buy these apple-encumbered devices
+     * a custom select is needed...
+     *    
+    $zoomlevel.val(settings.zoomLevel);
+
+    $zoomlevel.on("change", function () {
+        reader.setZoom($(this).val());
+        var $option = $zoomlevel.find(":selected");
+        if ($option.data("icon") !== undefined)
+            $("#zoom_icon")[0].textContent = $option.data("icon");
+    });
+
+    *
+    */ 
+
+    /* custom select, supports icons in drop-down list */
+    $zoom_icon.on("click", function () {
+        var offset = $(this).offset();
+        console.log(offset);
+        $zoom_options.css({
+            'left': parseInt(offset.left) + "px",
+            'top' : parseInt(parseInt(offset.top) + parseInt($zoom_icon.height())) + "px"
+        });
+
+        $zoom_options.toggleClass("hide");
+    });
+
+    $zoom_icon[0].className="";
+    var $current_zoom_option = $zoom_options.find("[data-value='" + settings.zoomLevel + "']");
+    if ($current_zoom_option.data("class")) {
+        $zoom_icon.addClass($current_zoom_option.data("class"));
+    } else {
+        $zoom_icon[0].textContent = $current_zoom_option.data("text");
+    }
+
+    $zoom_option.on("click", function () {
+        var $this = $(this);
+        reader.setZoom($this.data("value"));
+        $zoom_icon[0].className="";
+        $zoom_icon[0].textContent = "";
+        if ($this.data("class")) {
+            $zoom_icon.addClass($this.data("class"));
+        } else {
+            $zoom_icon[0].textContent = $this.data("text");
+        }
+        $zoom_options.addClass("hide");
+    });
+    /* end custom select */
+
+    var enterPageNum = function(e) {
+        var text = e.target,
+            page;
+
+        switch (e.keyCode) {
+            case 27: // escape - cancel, discard changes
+                $page_num[0].removeEventListener("keydown", enterPageNum, false);
+                $page_num.removeClass("editable");
+                $page_num.prop("contenteditable",false);
+                $page_num.text($page_num.data("content"));
+                break;
+            case 13: // enter - accept changes
+                $page_num[0].removeEventListener("keydown", enterPageNum, false);
+                $page_num.removeClass("editable");
+                $page_num.attr("contenteditable", false);
+                page = parseInt($page_num.text());
+                if (page > 0 && page <= reader.settings.numPages) {
+                    reader.queuePage(page);
+                } else {
+                    $page_num.text($page_num.data("content"));
+                }
+                break;
+        }
+
+        e.stopPropagation;
+    };
+
+
+    $page_num.on("click", function() {
+        $page_num.data("content", $page_num.text());
+        $page_num.text("");
+        $page_num.prop("contenteditable", true);
+        $page_num.addClass("editable");
+        $page_num[0].addEventListener("keydown", enterPageNum, false);
+    });
+
+
     /*
     book.on('renderer:locationChanged', function(cfi){
         var cfiFragment = "#" + cfi;
@@ -113,6 +219,8 @@ PDFJS.reader.ControlsController = function(book) {
     */
 
     return {
-
+        "show": show,
+        "hide": hide,
+        "toggle": toggle
     };
 };

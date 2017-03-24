@@ -1,5 +1,9 @@
 ## UNRELEASED
-###
+### Added
+ - Reader now supports PDF
+ - PDF should work more or less like EPUB, ie. double page spreads are supported
+ - optional double-buffering for faster rendering, can be disabled for low-memory devices
+ - optional selectable text layer, can be disabled for low-memory devices
 
 ## 1.0.0 - 2017-03-15
 ### Added

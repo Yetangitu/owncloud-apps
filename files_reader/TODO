@@ -1,6 +1,5 @@
- - add hook to delete book info when books are deleted
-    - do this for files_opds as well
- - for maximize page area, disable two-column when in portrait mode
-    - maybe always disable two-column in portrait mode
- - swipe gestures for open/close sidebar, page turn
- - disable wide page turn when placing markers
+ - index
+ - search
+ - bookmarks
+ - annotations
+ - settings

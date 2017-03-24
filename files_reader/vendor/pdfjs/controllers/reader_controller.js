@@ -1,5 +1,6 @@
 PDFJS.reader.ReaderController = function(book) {
     var $main = $("#main"),
+        $viewer = $("#viewer"),
         $divider = $("#divider"),
         $loader = $("#loader"),
         $next = $("#next"),
@@ -84,7 +85,7 @@ PDFJS.reader.ReaderController = function(book) {
                 page_no = 1;
                 break;
             case 'last':
-                // TODO
+                page_no = reader.settings.numPages;
                 break;
             case 'annotate':
                 $note.click();
@@ -94,6 +95,9 @@ PDFJS.reader.ReaderController = function(book) {
                 break;
             case 'reflow':
                 $sidebarReflow.click();
+                break;
+            case 'toggleTitlebar':
+                reader.ControlsController.toggle();
                 break;
             case 'toggleSidebar':
                 reader.SidebarController.toggle();
@@ -115,8 +119,7 @@ PDFJS.reader.ReaderController = function(book) {
         }
 
         if (page_no) {
-
-            // TODO
+            reader.queuePage(page_no);
         }
     }
 

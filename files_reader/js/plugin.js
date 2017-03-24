@@ -46,6 +46,8 @@
 
 		hideControls: function() {
 			$('#app-content #controls').hide();
+            // and, for NC12...
+            $('#app-navigation').css("display", "none");
 		},
 
 		hide: function() {
@@ -54,6 +56,8 @@
 			}
 			$("#controls").show();
 			$('#app-content #controls').removeClass('hidden');
+            // NC12...
+            $('#app-navigation').css("display", "");
 			if ($('#isPublic').val()) {
 				$('#imgframe').show();
 				$('footer').show();
