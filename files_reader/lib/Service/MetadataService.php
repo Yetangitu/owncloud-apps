@@ -10,7 +10,18 @@
 
 namespace OCA\Files_Reader\Service;
 
+use OCP\App\IAppManager;
+
 class MetadataService {
+
+    private $appManager;
+
+    /**
+     * @param IAppManager $appManager
+     */ 
+    public function __construct(IAppManager $appManager) {
+        $this->appManager = $appManager;
+    }
 
     /**
      * @brief get metadata item(s)
@@ -21,7 +32,7 @@ class MetadataService {
      * @return array
      */
     public function get($fileId, $name=null) {
-        if (class_exists('\OCA\Files_Opds\Meta')) {
+        if ($this->appManager->isInstalled('files_opds')) {
             if ($meta = \OCA\Files_Opds\Meta::get($fileId)) {
                 if (!empty($name) && array_key_exists($name, $meta)) {
                     return [$item => $meta[$name]];
