@@ -1,3 +1,13 @@
+## 1.0.2 - 2017-03-25
+### Fixed
+ - #37, use getAppManager()->isInstalled('files_opds') instead of class_exists to avoid log spam
+
+### Changed
+ - new version bitjs unarchiver, increases compatibility with CBR files (at the cost of some speed)
+ - move function declarations in js/ready.js down one block level so browsers which do not support
+   ES6 (e.g. Palemoon) can find them. Unfortunately the above new version of bitjs uses another ES6 
+   feature (classes) which Palemoon does not support so this change may be moot...
+
 ## 1.0.1 - 2017-03-19
 ### Fixed
  - #35: Internal Server Error: fixed path resolution so app works when NC/OC hosted in subdirectory
