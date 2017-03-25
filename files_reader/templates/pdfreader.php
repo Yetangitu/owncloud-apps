@@ -284,6 +284,16 @@
                         </div>
                         <span id="zoom_icon"></span>
                         <span class="controls-separator"> </span>
+                        <div id="rotate_options" class="hide">
+                            <div class="rotate_option icon-rotate_0" data-value="0" data-class="icon-rotate_0" data-text=""></div>
+                            <div class="rotate_option icon-rotate_90" data-value="90" data-class="icon-rotate_90" data-text=""></div>
+                            <div class="rotate_option icon-rotate_180" data-value="180" data-class="icon-rotate_180" data-text=""></div>
+                            <div class="rotate_option icon-rotate_270" data-value="270" data-class="icon-rotate_270" data-text=""></div>
+                        </div>
+                        <span id="rotate_left" class="icon-rotate_left"></span>
+                        <span id="rotate_icon" class=icon-rotate_0"></span>
+                        <span id="rotate_right" class="icon-rotate_right"></span>
+                        <span class="controls-separator"> </span>
                         <a></a>
                         <a id="note" class="icon-comment">
                         </a>

@@ -11,7 +11,9 @@ PDFJS.reader.ReaderController = function(book) {
         $container = $("#container"),
         $fullscreen = $("#fullscreen"),
         $bookmark = $("#bookmark"),
-        $note = $("#note");
+        $note = $("#note"),
+        $rotate_left = $("#rotate_left"),
+        $rotate_right = $("#rotate_right");
 
     var reader = this,
         book = this.book,
@@ -93,9 +95,6 @@ PDFJS.reader.ReaderController = function(book) {
             case 'bookmark':
                 $bookmark.click();
                 break;
-            case 'reflow':
-                $sidebarReflow.click();
-                break;
             case 'toggleTitlebar':
                 reader.ControlsController.toggle();
                 break;
@@ -113,6 +112,15 @@ PDFJS.reader.ReaderController = function(book) {
                 break;
             case 'toggleDay':
                 $use_custom_colors.click();
+                break;
+            case 'rotateLeft':
+                $rotate_left.click();
+                break;
+            case 'rotateRight':
+                $rotate_right.click();
+                break;
+            case 'toggleZoom':
+                // TODO
                 break;
             default:
                 console.log("unsupported keyCode: " + e.keyCode);

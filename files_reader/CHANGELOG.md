@@ -1,9 +1,17 @@
 ## UNRELEASED
 ### Added
  - Reader now supports PDF
- - PDF should work more or less like EPUB, ie. double page spreads are supported
+ - PDF double page spreads are supported
  - optional double-buffering for faster rendering, can be disabled for low-memory devices
  - optional selectable text layer, can be disabled for low-memory devices
+
+### Changed
+ - #38: moved declarations in js/ready.js one level lower to work around a bug in the Palemoon browser
+ - new version bitjs archive tools, fixes compatibility problems with some CBR files
+
+## 1.0.1 - 2017-03-19
+### Fixed
+ - #35: Internal Server Error: fixed path resolution so app works when NC/OC hosted in subdirectory
 
 ## 1.0.0 - 2017-03-15
 ### Added

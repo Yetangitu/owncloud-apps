@@ -18,6 +18,11 @@ PDFJS.reader.ControlsController = function(book) {
         $zoom_icon = $("#zoom_icon"),
         $zoom_options = $("#zoom_options"),
         $zoom_option = $(".zoom_option"),
+        $rotate_icon = $("#rotate_icon"),
+        $rotate_options = $("#rotate_options"),
+        $rotate_option = $(".rotate_option"),
+        $rotate_left = $("#rotate_left"),
+        $rotate_right = $("#rotate_right"),
         $page_num = $("#page_num");
 
     if (reader.isMobile() === true) {
@@ -117,15 +122,18 @@ PDFJS.reader.ControlsController = function(book) {
     */ 
 
     /* custom select, supports icons in drop-down list */
+    // zooooooooooooooom
     $zoom_icon.on("click", function () {
         var offset = $(this).offset();
         console.log(offset);
+        $zoom_options.css("opacity", 0);
+        $zoom_options.toggleClass("hide");
         $zoom_options.css({
-            'left': parseInt(offset.left) + "px",
+            'left': parseInt(offset.left - ($zoom_options.width() / 2)) + "px",
             'top' : parseInt(parseInt(offset.top) + parseInt($zoom_icon.height())) + "px"
         });
 
-        $zoom_options.toggleClass("hide");
+        $zoom_options.css("opacity", "");
     });
 
     $zoom_icon[0].className="";
@@ -147,6 +155,50 @@ PDFJS.reader.ControlsController = function(book) {
             $zoom_icon[0].textContent = $this.data("text");
         }
         $zoom_options.addClass("hide");
+    });
+
+    // rotate
+    $rotate_icon[0].className = "";
+    $rotate_icon[0].className = "icon-rotate_" + settings.rotation;
+
+    $rotate_icon.on("click", function () {
+        var offset = $(this).offset();
+        $rotate_options.css("opacity", 0);
+        $rotate_options.toggleClass("hide");
+        $rotate_options.css({
+            'left': parseInt(offset.left - ($rotate_options.width() / 2)) + "px",
+            'top' : parseInt(parseInt(offset.top) + parseInt($rotate_icon.height())) + "px"
+        });
+
+        $rotate_options.css("opacity", "");
+    });
+
+    $rotate_option.on("click", function () {
+        var $this = $(this);
+        reader.setRotation($this.data("value"));
+        $rotate_icon[0].className="";
+        $rotate_icon[0].textContent = "";
+        if ($this.data("class")) {
+            $rotate_icon.addClass($this.data("class"));
+        } else {
+            $rotate_icon[0].textContent = $this.data("text");
+        }
+        $rotate_options.addClass("hide");
+    });
+
+    $rotate_left.on("click", function () {
+        // add 360 to avoid negative rotation value
+        var rotation = (settings.rotation - 90 + 360) % 360;
+        reader.setRotation(rotation);
+        $rotate_icon[0].className = "";
+        $rotate_icon[0].className = "icon-rotate_" + rotation;
+    });
+
+    $rotate_right.on("click", function () {
+        var rotation = (settings.rotation + 90) % 360;
+        reader.setRotation(rotation);
+        $rotate_icon[0].className = "";
+        $rotate_icon[0].className = "icon-rotate_" + rotation;
     });
     /* end custom select */
 

@@ -62,13 +62,13 @@ class Isbndb
         static function parse($data,&$meta) {
                 /* did the call succeed? If not, schedule a rescan */
                 if (Isbn::REQUEST_LIMIT_EXCEEDED == $data) {
-                        $meta['rescan'] = date("Y-m-d\TH:i:sP", time() + Isbn::RESCAN_LIMIT_EXCEEDED);
+                        $meta['rescan'] = date("Y-m-d H:i:s", time() + Isbn::RESCAN_LIMIT_EXCEEDED);
                         return false;
                 } elseif (Isbn::NOT_FOUND == $data) {
-                        $meta['rescan'] = date("Y-m-d\TH:i:sP", time() + Isbn::RESCAN_NOT_FOUND);
+                        $meta['rescan'] = date("Y-m-d H:i:s", time() + Isbn::RESCAN_NOT_FOUND);
                         return false;
                 } elseif (Isbn::ERROR == $data) {
-                        $meta['rescan'] = date("Y-m-d\TH:i:sP", time() + Isbn::RESCAN_ERROR);
+                        $meta['rescan'] = date("Y-m-d H:i:s", time() + Isbn::RESCAN_ERROR);
                         return false;
                 }
 

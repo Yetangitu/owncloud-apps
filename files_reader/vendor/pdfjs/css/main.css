@@ -142,33 +142,52 @@ body {
     right: 0;
 }
 
-#zioom_icon {
-	text-align: center;
-	font-family: 'icomoon', 'Helvetica' !important;
-	font-size: 1.2em;
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-    border: none;
+#zoom_icon,
+#rotate_icon,
+#rotate_left,
+#rotate_right {
+    padding: 0;
+    border-radius: 0.2em;
+    border: 1px rgba(0,0,0,0) solid;
+    opacity: 0.5;
+    display: inline-block;
+    overflow: hidden;
 }
 
-#zoom_icon {
-    padding: 0 0.5em;
+#zoom_icon:hover,
+#rotate_icon:hover,
+#rotate_left:hover,
+#rotate_right:hover {
+    opacity: .8;
+    border: 1px rgba(0,0,0,.2) solid;
 }
 
-#zoom_options {
+#zoom_icon:active,
+#rotate_icon:active,
+#rotate_left:active,
+#rotate_right:active {
+    opacity: 1;
+    color: rgba(0,0,0,.6);
+    box-shadow: inset 0 0 6px rgba(155,155,155,.8);
+}
+
+#zoom_options,
+#rotate_options {
     font-family: "Lucida Console", "Monospace", "Courier New";
     position: fixed;
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.4);
     background-color: white;
     font-size: 1em;
-    padding: 0.2em 0.5em;
+    padding: 0.5em;
 }
 
-.zoom_option:hover {
+.zoom_option,
+.rotate_option {
+    padding: 0.25em;
+}
+
+.zoom_option:hover,
+.rotate_option:hover {
     background: black;
     color: white;
 }

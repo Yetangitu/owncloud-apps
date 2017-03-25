@@ -100,51 +100,52 @@ document.onreadystatechange = function () {
             default:
                 console.log(type + ' is not supported by Reader');
         }
-        
-        // why is there no standard library function for this? 
-        function getUrlParameter (param) {
-            var pattern = new RegExp('[?&]'+param+'((=([^&]*))|(?=(&|$)))','i');
-            var m = window.location.search.match(pattern);
-            return m && ( typeof(m[3])==='undefined' ? '' : m[3] );
-        }
+    }
 
-        // start epub.js renderer
-        function renderEpub(file, options) {
+    // why is there no standard library function for this? 
+    function getUrlParameter (param) {
+        var pattern = new RegExp('[?&]'+param+'((=([^&]*))|(?=(&|$)))','i');
+        var m = window.location.search.match(pattern);
+        return m && ( typeof(m[3])==='undefined' ? '' : m[3] );
+    }
 
-            // some parameters... 
-            EPUBJS.filePath = "vendor/epubjs/";
-            EPUBJS.cssPath = "vendor/epubjs/css/";
-            EPUBJS.basePath = $('.session').data('basepath');
+    // start epub.js renderer
+    function renderEpub(file, options) {
 
-            /* device-specific boilerplate */
+        // some parameters... 
+        EPUBJS.filePath = "vendor/epubjs/";
+        EPUBJS.cssPath = "vendor/epubjs/css/";
+        EPUBJS.basePath = $('.session').data('basepath');
+
+        /* device-specific boilerplate */
 
             // IE < 11
-            if (navigator.userAgent.indexOf("MSIE") != -1) {
-                EPUBJS.Hooks.register("beforeChapterDisplay").wgxpath = function(callback, renderer){
-                    wgxpath.install(renderer.render.window);
-                    if(callback)
-                        callback();
-                };
-                wgxpath.install(window);
-            }
-
-            var reader = ePubReader(file, options);
+        if (navigator.userAgent.indexOf("MSIE") != -1) {
+            EPUBJS.Hooks.register("beforeChapterDisplay").wgxpath = function(callback, renderer){
+                wgxpath.install(renderer.render.window);
+                if(callback)
+                    callback();
+            };
+            wgxpath.install(window);
         }
 
-        // start cbr.js renderer
-        function renderCbr(file, options) {
-            CBRJS.filePath = "vendor/cbrjs/";
-
-            var reader = cbReader(file, options);
-        }
-
-        // start pdf.js renderer
-        function renderPdf(file, options) {
-            PDFJS.filePath = "vendor/pdfjs/";
-            PDFJS.workerSrc = options.session.basePath + 'vendor/pdfjs/lib/pdf.worker.js';
-
-            var reader = pdfReader(file, options);
-        }
+        var reader = ePubReader(file, options);
     }
+
+    // start cbr.js renderer
+    function renderCbr(file, options) {
+        CBRJS.filePath = "vendor/cbrjs/";
+
+        var reader = cbReader(file, options);
+    }
+
+    // start pdf.js renderer
+    function renderPdf(file, options) {
+        PDFJS.filePath = "vendor/pdfjs/";
+        PDFJS.workerSrc = options.session.basePath + 'vendor/pdfjs/lib/pdf.worker.js';
+
+        var reader = pdfReader(file, options);
+    }
+
 };
 
