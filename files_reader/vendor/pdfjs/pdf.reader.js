@@ -17,11 +17,16 @@ PDFJS.Reader = function(bookPath, _options) {
 
     var reader = this,
         book,
+        loader,
         $viewer = $("#viewer"),
         search = window.location.search;
 
-    var TEXT_RENDER_DELAY = 200,  // ms
-        PAGE_RENDER_DELAY = 200,  // ms
+    var TEXT_RENDER_DELAY = 200,    // ms
+        PAGE_RENDER_DELAY = 200,    // ms
+        LAZY_DELAY = 200,           // ms
+        INITIAL_LAZY_DELAY = 2000,  // ms
+        PRELOAD_OFFSET = 500,       // px
+        THUMBNAIL_WIDTH = 200,      // px
         MAX_CANVAS_PIXELS = 5242880,
         CSS_UNITS = 96.0 / 72.0,
         MIN_SCALE = 0.25,
@@ -42,6 +47,11 @@ PDFJS.Reader = function(bookPath, _options) {
         oddPageRight: true, // when true, odd pages render on the right side
         zoomLevel: window.outerWidth > window.outerHeight ? "spread" : "fit_page",  // spread, fit_page, fit_width, percentage
         rotation: 0,    // 0 || 90 || 180 || 270 
+        thumbnails: false,  // true || false, show thumbnails (visual index)
+        thumbnailWidth: THUMBNAIL_WIDTH,
+        lazyDelay: LAZY_DELAY,     // ms, delay before lazyloader loads image
+        initialLazyDelay: INITIAL_LAZY_DELAY,  // ms, delay before preloading images for lazyloader
+        preloadOffset: PRELOAD_OFFSET,  // px, preload thumbs when they are within this distance from viewport
         history: true,
         keyboard: {
             32: 'next',         // space
@@ -55,7 +65,7 @@ PDFJS.Reader = function(bookPath, _options) {
             66: 'bookmark',     // b
             76: 'rotateLeft',   // l
             82: 'rotateRight',  // r
-            90: 'toggleZoom',   // z
+            90: 'cycleZoom',    // z
             83: 'toggleSidebar',// s
             84: 'toggleTitlebar',   // t
             68: 'toggleDay',    // d
@@ -75,7 +85,7 @@ PDFJS.Reader = function(bookPath, _options) {
 
     // used for annotations and bookmarks
     this.Annotation = function (type, anchor, body, id) {
-        this.id = id || EPUBJS.core.uuid();
+        this.id = id || PDFJS.core.uuid();
         this.type = type;
         this.date = Date.now();
         this.edited = this.date;
@@ -96,6 +106,9 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("left"),
             ctx: document.getElementById("left").getContext('2d'),
             textdiv: document.getElementById("text_left"),
+            cache_canvas: null,
+            cache_ctx: null,
+            cache_textdiv: null,
             textLayer: null,
             renderTask: null,
             oscanvas: null,
@@ -106,6 +119,9 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("right"),
             ctx: document.getElementById("right").getContext('2d'),
             textdiv: document.getElementById("text_right"),
+            cache_canvas: null,
+            cache_ctx: null,
+            cache_textdiv: null,
             textLayer: null,
             renderTask: null,
             oscanvas: null,
@@ -117,6 +133,19 @@ PDFJS.Reader = function(bookPath, _options) {
     this.cancelPage = {};
 
     this.renderQueue = false;
+
+    // define which zoom states to cycle through in cycleZoom
+    this.zoomCycle = {
+        'spread':   'fit_page',
+        'fit_page': 'fit_width',
+        'fit_width':'spread'
+    };
+
+    this.thumbs = [];
+
+    this.pageLabels = [];
+
+    this.pageRefs = {};
 
     // Overide options with search parameters
     if(search) {
@@ -142,35 +171,157 @@ PDFJS.Reader = function(bookPath, _options) {
     this.MIN_SCALE = MIN_SCALE;
     this.MAX_SCALE = MAX_SCALE;
 
- 	PDFJS.getDocument(reader.settings.bookPath).then(function(_book) {
-		reader.book = book = _book;
-        console.log(book);
-        reader.settings.numPages = reader.book.numPages;
-        document.getElementById('total_pages').textContent = reader.settings.numPages;
-        if(reader.settings.session.cursor !== {}) {
-            reader.settings.currentPage = parseInt(reader.settings.session.cursor.anchor);
+    reader.ProgressController = PDFJS.reader.ProgressController.call(reader);
+
+    loadingTask = PDFJS.getDocument(reader.settings.bookPath);
+
+    reader.ProgressController.show();
+    reader.ProgressController.setMessage("Loading " + reader.settings.session.title, "download", "active");
+
+    loadingTask.onProgress = function getDocumentProgress(progress) {
+        reader.ProgressController.setProgress(progress);
+    };
+
+    loadingTask.then(
+
+        function(_book) {
+            reader.book = book = _book;
+            console.log(book);
+            reader.settings.numPages = reader.book.numPages;
+            document.getElementById('total_pages').textContent = reader.settings.numPages;
+            if(!$.isEmptyObject(reader.settings.session.cursor)) {
+                console.log("setting cursor:", reader.settings.session.cursor);
+                reader.settings.currentPage = parseInt(reader.settings.session.cursor.anchor);
+            }
+
+            // set labels
+            reader.book.getPageLabels().then(function (labels) {
+                if (labels) {
+                    for (var i = 0; i < labels.length; i++) {
+                        if (labels[i] !== (i + 1).toString()) {
+                            reader.pageLabels[i + 1] = labels[i];
+                        }
+                    }
+                }
+            });
+
+            reader.ReaderController = PDFJS.reader.ReaderController.call(reader, book);
+            reader.SettingsController = PDFJS.reader.SettingsController.call(reader, book);
+            reader.ControlsController = PDFJS.reader.ControlsController.call(reader, book);
+            reader.SidebarController = PDFJS.reader.SidebarController.call(reader, book);
+
+            reader.queuePage(reader.settings.currentPage);
+            reader.ReaderController.hideLoader();
+            reader.ProgressController.hide();
+
+            reader.book.getOutline().then(function (outline) {
+                reader.OutlineController = PDFJS.reader.OutlineController.call(reader, outline);
+            }); 
+            reader.book.getMetadata().then(function (metadata) {
+                console.log("metadata", metadata);
+                reader.settings.pdfMetadata = metadata;
+            });
+            reader.book.getAttachments().then(function (attachments) {
+                console.log("attachments", attachments);
+            });
+
+            // BookmarksController depends on NotesController so load NotesController first
+            //reader.NotesController = PDFJS.reader.NotesController.call(reader, book);
+            //reader.BookmarksController = PDFJS.reader.BookmarksController.call(reader, book);
+            //reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
+            //reader.MetaController = PDFJS.reader.MetaController.call(reader, meta);
+            reader.TocController = PDFJS.reader.TocController.call(reader, book);
+        },
+        function getDocumentError(exception) {
+            var message = exception && exception.message;
+            var errormsg = "An error occurred while loading the PDF";
+            if (exception instanceof PDFJS.InvalidPDFException) {
+                                errormsg = "Invalid or corrupted PDF file";
+                            } else if (exception instanceof PDFJS.MissingPDFException) {
+                                errormsg = "Missing PDF file";
+                            } else if (exception instanceof PDFJS.UnexpectedResponseException) {
+                                errormsg = "Unexpected server response";
+                            }
+
+            console.log("Reader: ", errormsg);
+            reader.ProgressController.setMessage(errormsg, "download", "error");
         }
-
-		reader.ReaderController = PDFJS.reader.ReaderController.call(reader, book);
-		reader.SettingsController = PDFJS.reader.SettingsController.call(reader, book);
-		reader.ControlsController = PDFJS.reader.ControlsController.call(reader, book);
-		reader.SidebarController = PDFJS.reader.SidebarController.call(reader, book);
-		// BookmarksController depends on NotesController so load NotesController first
-		//reader.NotesController = PDFJS.reader.NotesController.call(reader, book);
-		//reader.BookmarksController = PDFJS.reader.BookmarksController.call(reader, book);
-		//reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
-		//reader.MetaController = EPUBJS.reader.MetaController.call(reader, meta);
-		//reader.TocController = EPUBJS.reader.TocController.call(reader, toc);
-	    //reader.TextLayerController = PDFJS.reader.TextLayerController();	
-
-        //reader.queuePage(reader.settings.currentPage);
-        console.log(reader.settings);
-        var startPage = (reader.settings.zoomLevel === "spread" && reader.settings.oddPageRight) ? 0 : 1;
-        reader.queuePage(startPage);
-		reader.ReaderController.hideLoader();
-    });
+    );
 
 	return this;
+};
+
+PDFJS.Reader.prototype.getThumb = function (pageNum, insert) {
+
+    var reader = this,
+        thumb,
+        scale,
+        initial_viewport,
+        viewport,
+        canvas,
+        ctx,
+        page_aspect,
+        page_width,
+        page_height,
+        page_rotation,
+        rotation,
+        outputscale,
+        transform,
+        renderContext,
+        renderTask;
+
+    reader.book.getPage(parseInt(pageNum)).then(function(page) {
+        page_rotation = page.rotate;
+        rotation = (page_rotation + reader.settings.rotation) % 360;
+        initial_viewport = page.getViewport(1, rotation);
+        canvas = document.createElement("canvas");
+        ctx = canvas.getContext("2d");
+        outputscale = reader.getOutputScale(ctx);
+        if (outputscale < 1)
+            outputscale = 1;    // ignore browser zoom
+        page_width = initial_viewport.width;
+        page_height = initial_viewport.height;
+        page_aspect = parseFloat(page_width / page_height);
+        scale = parseFloat(reader.settings.thumbnailWidth / page_width);
+        canvas.width = parseInt(reader.settings.thumbnailWidth * outputscale);
+        canvas.height = parseInt(canvas.width / page_aspect);
+
+        viewport = initial_viewport.clone({scale: scale, rotation: rotation});
+
+        //ctx.scale(outputscale, outputscale);
+        transform = (outputscale === 1)
+            ? null
+            : [outputscale, 0, 0, outputscale, 0, 0];
+
+        console.log("thumbs, canvas w*h " + canvas.width + "*" + canvas.height);
+
+        renderContext = {
+            canvasContext: ctx,
+            viewport: viewport,
+            transform: transform
+        };
+
+        renderTask = page.render(renderContext);
+
+        renderTask.promise.then(
+            function pdfPageRenderCallback () {
+                thumb = new Image();
+                thumb.id = "thumb_" + pageNum;
+                thumb.className = "thumbnail";
+                thumb.src = canvas.toDataURL();
+                canvas.width = canvas.height = 0;
+                delete canvas;
+                if (insert) {
+                    reader.TocController.tocInsert(thumb, pageNum, true);
+                } else {
+                    reader.thumbs[pageNum] = thumb;
+                }
+            },
+            function pdfPageRenderError (error) {
+                console.log("pdfPageRenderError in getThumb: " + error);
+            }
+        );
+    });
 };
 
 PDFJS.Reader.prototype.setZoom = function(zoom) {
@@ -179,7 +330,22 @@ PDFJS.Reader.prototype.setZoom = function(zoom) {
         page = reader.settings.currentPage;
 
     reader.settings.zoomLevel = zoom;
+    reader.ControlsController.setZoomIcon(zoom);
     reader.queuePage(page);
+};
+
+PDFJS.Reader.prototype.cycleZoom = function() {
+
+    var reader = this,
+        zoom = reader.settings.zoomLevel,
+        nextzoom,
+        page = reader.settings.currentPage;
+
+    nextzoom = reader.zoomCycle[zoom];
+
+    if (nextzoom !== undefined) {
+        reader.setZoom(nextzoom);
+    }
 };
 
 PDFJS.Reader.prototype.setRotation = function (rotation) {
@@ -187,8 +353,11 @@ PDFJS.Reader.prototype.setRotation = function (rotation) {
     var reader = this,
         page = reader.settings.currentPage;
 
-    reader.settings.rotation = rotation;
-    reader.queuePage(page);
+    if (rotation % 90 === 0) {
+        reader.settings.rotation = rotation;
+        reader.ControlsController.setRotateIcon(rotation);
+        reader.queuePage(page);
+    }
 };
 
 PDFJS.Reader.prototype.cancelRender = function (index) {
@@ -209,11 +378,10 @@ PDFJS.Reader.prototype.cancelRender = function (index) {
     }
 };
 
-PDFJS.Reader.prototype.renderPage = function(pageNum) {
+PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
 
     var reader = this,
-        $viewer = $("#viewer"),
-        $page_num = document.getElementById('page_num');
+        $viewer = $("#viewer");
 
     var index,
     	canvas,     // actual canvas
@@ -343,7 +511,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
                         canvas.width = reader.roundToDivide(parseInt(canvas.height * document_aspect), fraction[0]);
                     } else {
                         scale = scale_width;
-                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0])
+                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0]);
                         canvas.height = reader.roundToDivide(parseInt(canvas.width / document_aspect), fraction[0]);
                     }
 
@@ -359,7 +527,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
                         canvas.width = reader.roundToDivide(parseInt(canvas.height * document_aspect), fraction[0]);
                     } else {
                         scale = scale_width;
-                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0])
+                        canvas.width = reader.roundToDivide(max_view_width * outputscale, fraction[0]);
                         canvas.height = reader.roundToDivide(parseInt(canvas.width / document_aspect), fraction[0]);
                     }
 
@@ -369,7 +537,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
 
                     $viewer.removeClass("flex");
                     scale = parseFloat(reader.settings.zoomLevel * reader.CSS_UNITS);
-                    canvas.width = reader.roundToDivide(parseInt(page_width * scale * outputscale), fraction[0]); ;
+                    canvas.width = reader.roundToDivide(parseInt(page_width * scale * outputscale), fraction[0]);
                     canvas.height = reader.roundToDivide(parseInt(page_height * scale * outputscale), fraction[0]);
                     break;
             }
@@ -486,21 +654,15 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             canvas.style.width = reader.roundToDivide(max_view_width, fraction[1]) + 'px';
             canvas.style.height = reader.roundToDivide(max_view_height, fraction[1]) + 'px';
         }
-        // resizing clears canvas so this is not needed...
-        //ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 };
 
 PDFJS.Reader.prototype.queuePage = function(page) {
     
-	//var pageShift = (this.settings.zoomLevel === "spread") ? 2 : 1;
-    //
     var reader = this,
         zoom = reader.settings.zoomLevel,
         oddPageRight = reader.settings.oddPageRight,
-        pageShift,
-        $page_num = document.getElementById('page_num'),
-        text;
+        pageShift;
 
     if (zoom === "spread") {
         pageShift = 2;
@@ -512,25 +674,13 @@ PDFJS.Reader.prototype.queuePage = function(page) {
 
         console.log("page: " + page);
 
-        if (page >= 0 && page <= reader.settings.numPages) {
-            if (page === reader.settings.numPages) {
-                text = page.toString();
-            } else if (page === 0) {
-                text = "1";
-            } else {
-                text = page.toString() + "-" + parseInt(page+1).toString();
-            }
-
-            $page_num.textContent = text;
-        }
-
     } else {
         pageShift = 1;
-        if (page >= 1 && page <= reader.settings.numPages)
-            $page_num.textContent = page.toString();
     }
 
     reader.settings.currentPage = page;
+
+    reader.ControlsController.setCurrentPage(page);
 
     if (typeof reader.renderQueue === 'number') {
         window.clearTimeout(reader.renderQueue);
@@ -673,4 +823,113 @@ PDFJS.Reader.prototype.isMobile = function () {
     }
 
     return isMobile;
+};
+
+PDFJS.Reader.prototype.getPageLabel = function (page) {
+
+    var reader = this;
+
+    if (reader.pageLabels[parseInt(page)] !== undefined) {
+        return reader.pageLabels[parseInt(page)].toString();
+    } else {
+        return page.toString();
+    }
+};
+
+PDFJS.Reader.prototype.navigateTo = function (destination) {
+
+    var reader = this,
+        destString = "",
+        destinationPromise,
+        goToDestination;
+
+    goToDestination = function (destRef) {
+
+        var pageNumber;
+
+        if (destRef instanceof Object) {
+
+            pageNumber = reader.cachedPageNum(destRef);
+        } else if ((destRef | 0) === destRef) { // Integer
+            pageNumber = destRef + 1;
+        } else {
+            console.error('PDFJS.Reader.navigateTo: "' + destRef
+                + '" is not a valid destination reference.');
+
+            return;
+        }
+
+        if (pageNumber) {
+
+            if (pageNumber < 1 || pageNumber > reader.settings.numPages) {
+                console.error('PDFJS.Reader.navigateTo: "' + pageNumber
+                    + '" is a non-existent page number.');
+
+                return;
+            }
+
+            reader.queuePage(pageNumber);
+
+        } else {
+            
+            reader.book.getPageIndex(destRef).then(function (pageIndex) {
+
+                reader.cachePageRef(pageIndex + 1, destRef);
+                goToDestination(destRef);
+            }).catch(function () {
+                console.error('PDFJS.Reader.navigateTo: "' + destRef
+                    + '" is not a valid page reference.');
+
+                return;
+            });
+        }
+    };
+
+    if (typeof destination === 'string') {
+
+        destString = destination;
+        destinationPromise = reader.book.getDestination(destination);
+
+    } else {
+
+        destinationPromise = Promise.resolve(destination);
+
+    }
+
+    destinationPromise.then(function (_destination) {
+
+        destination = _destination;
+
+        if (!(destination instanceof Array)) {
+
+            console.error('PDFJS.Reader.navigateTo: "' + destination
+                + '" is not a valid destination array.');
+
+            return;
+        }
+
+        goToDestination(destination[0]);
+
+    });
+};
+
+PDFJS.Reader.prototype.pageRefStr = function (pageRef) {
+
+    return pageRef.num + ' ' + pageRef.gen + ' R';
+};
+
+PDFJS.Reader.prototype.cachePageRef = function (pageNum, pageRef) {
+
+    var reader = this,
+        refStr;
+
+    reader.pageRefs[reader.pageRefStr(pageRef)] = pageNum;
+};
+
+PDFJS.Reader.prototype.cachedPageNum = function (pageRef) {
+
+    var reader = this;
+
+    return (reader.pageRefs[reader.pageRefStr(pageRef)])
+        || null;
 };

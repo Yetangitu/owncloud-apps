@@ -1,11 +1,10 @@
- - index
  - search
  - bookmarks
  - annotations
  - settings
 
  - rtl and ltr
- - switch spread-page-width by key combo
 
  - test canvas size restriction
- - toggle zoom via keyboard
+
+ - add preload/postload of X pages around current position (optional), store resulting rendered pages in off-screen canvas?

@@ -119,8 +119,8 @@ PDFJS.reader.ReaderController = function(book) {
             case 'rotateRight':
                 $rotate_right.click();
                 break;
-            case 'toggleZoom':
-                // TODO
+            case 'cycleZoom':
+                reader.cycleZoom();
                 break;
             default:
                 console.log("unsupported keyCode: " + e.keyCode);

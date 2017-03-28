@@ -23,7 +23,8 @@ PDFJS.reader.ControlsController = function(book) {
         $rotate_option = $(".rotate_option"),
         $rotate_left = $("#rotate_left"),
         $rotate_right = $("#rotate_right"),
-        $page_num = $("#page_num");
+        $page_num = $("#page_num"),
+        $total_pages = $("#total_pages");
 
     if (reader.isMobile() === true) {
         $titlebar.addClass("background_visible");
@@ -136,6 +137,19 @@ PDFJS.reader.ControlsController = function(book) {
         $zoom_options.css("opacity", "");
     });
 
+    var setZoomIcon = function(zoom) {
+        $zoom_icon[0].className="";
+        var $current_zoom_option = $zoom_options.find("[data-value='" + zoom + "']");
+        if ($current_zoom_option.data("class")) {
+            $zoom_icon.addClass($current_zoom_option.data("class"));
+        } else {
+            $zoom_icon[0].textContent = $current_zoom_option.data("text");
+        }
+    };
+
+    setZoomIcon(settings.zoomLevel);
+
+    /*
     $zoom_icon[0].className="";
     var $current_zoom_option = $zoom_options.find("[data-value='" + settings.zoomLevel + "']");
     if ($current_zoom_option.data("class")) {
@@ -143,6 +157,7 @@ PDFJS.reader.ControlsController = function(book) {
     } else {
         $zoom_icon[0].textContent = $current_zoom_option.data("text");
     }
+    */
 
     $zoom_option.on("click", function () {
         var $this = $(this);
@@ -158,8 +173,12 @@ PDFJS.reader.ControlsController = function(book) {
     });
 
     // rotate
-    $rotate_icon[0].className = "";
-    $rotate_icon[0].className = "icon-rotate_" + settings.rotation;
+    var setRotateIcon = function (rotation) {
+        $rotate_icon[0].className = "";
+        $rotate_icon[0].className = "icon-rotate_" + rotation;
+    };
+
+    setRotateIcon(settings.rotation);
 
     $rotate_icon.on("click", function () {
         var offset = $(this).offset();
@@ -238,6 +257,42 @@ PDFJS.reader.ControlsController = function(book) {
         $page_num[0].addEventListener("keydown", enterPageNum, false);
     });
 
+    var setPageCount = function (_numPages) {
+
+        var numPages = _numPages || reader.settings.numPages;
+
+        $total_pages[0].textContent = parseInt(numPages).toString();
+    };
+
+    var setCurrentPage = function (_page) {
+
+        var page = _page || reader.settings.currentPage,
+            zoom = reader.settings.zoomLevel,
+            oddPageRight = reader.settings.oddPageRight,
+            total_pages = reader.settings.numPages,
+            text;
+
+        if (zoom === "spread") {
+             if (oddPageRight === true) {
+                 page -= page % 2;
+             } else {
+                 page -= (page + 1) % 2;
+             }
+        }
+
+        if (page >= 0 && page <= total_pages) {
+            if (page === total_pages) {
+                text = reader.getPageLabel(page);
+            } else if (page === 0) {
+                text = reader.getPageLabel(page + 1);
+            } else {
+                text = reader.getPageLabel(page) + "-" + reader.getPageLabel(page + 1);
+            }
+        }
+
+        $page_num[0].textContent = text;
+    };
+
 
     /*
     book.on('renderer:locationChanged', function(cfi){
@@ -273,6 +328,10 @@ PDFJS.reader.ControlsController = function(book) {
     return {
         "show": show,
         "hide": hide,
-        "toggle": toggle
+        "toggle": toggle,
+        "setZoomIcon": setZoomIcon,
+        "setRotateIcon": setRotateIcon,
+        "setCurrentPage": setCurrentPage,
+        "setPageCount": setPageCount
     };
 };

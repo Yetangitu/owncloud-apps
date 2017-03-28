@@ -9,7 +9,7 @@
   background: #6b6b6b;
   position: fixed;
   top: 0;
-  min-width: 25em;
+  min-width: 17em;
   height: 100%;
   overflow: hidden;
   display: none;
@@ -231,7 +231,28 @@ legend {
 /* END panels */
 
 /* TOC (and search, and bookmarks) */
-.toc_toggle {
+.thumbnail {
+	margin: 1em;
+}
+
+#toc li,
+#outline li{
+	position: relative;
+    display: inline-block;
+    /* max-width: calc(100% - 2em); */
+}
+
+.page_label {
+	position: absolute;
+	background-color: white;
+	box-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+	border-radius: 3px;
+	padding: 0.2em;
+    top: 1em;
+    right: 1em;
+}
+
+.outline_toggle {
   display: inline-block;
   width: 14px;
   cursor: pointer;
@@ -240,23 +261,23 @@ legend {
   user-select: none;
 }
 
-.toc_toggle:before {
+.outline_toggle:before {
   content: '▸';
   color: #fff;
   margin-right: -4px;
 }
 
-.currentChapter > .toc_toggle:before,
-.openChapter > .toc_toggle:before {
+.currentChapter > .outline_toggle:before,
+.openChapter > .outline_toggle:before {
   content: '▾';
 }
 
-#toc-populate.open {
+#outline-populate.open {
     display: inline-block !important;
     background-color: #4e4e4e;
 }
 
-.toc-view li,
+.outline-view li,
 .bookmarks-view li,
 .search-view li {
 	margin: 1em;
@@ -264,11 +285,11 @@ legend {
 	list-style: none;
 }
 
-.toc-view li {
+.outline-view li {
 	text-transform: capitalize;
 }
 
-.toc-vew.hidden {
+.outline-vew.hidden {
   display: none;
 }
 

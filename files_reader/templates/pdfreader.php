@@ -48,11 +48,14 @@
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/sindresorhus/screenfull.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/lib/pdf.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/pdf.reader.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/progress_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/textlayer_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/reader_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/sidebar_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/settings_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/controls_controller.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/toc_controller.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/outline_controller.js')) ?>?v=<?php p($version) ?>"> </script>
         <?php if ($idevice): ?>
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/idevice.css')) ?>?v=<?php p($version) ?>">
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/bgrins/spectrum.js')) ?>?v=<?php p($version) ?>"> </script>
@@ -64,23 +67,41 @@
     <body>
         <div id="outerContainer">
 
+            <!-- progress -->
+
+            <div id="progress" class="hide">
+                <span class="progress"><span class="bar"></span></span>
+                <br>
+                <div class="message"><span class="message-icons"><span id="download_icon" class="icon-cloud_download"></span></span> <span class="message-text"></span></div>
+            </div>
+
+            <!-- /progress -->
+
             <!-- sidebar -->
 
             <div id="sidebar" class="sidebar">
                 <div id="panels" class="panels">
                     <div class="pull-left">
-                        <button id="show-Toc" class="show_view icon-format_list_numbered open" title="Table of Contents" data-view="Toc"></button>
+                        <button id="show-Toc" class="show_view icon-dns open" title="Table of Contents" data-view="Toc"></button>
+                        <button id="show-Outline" class="show_view icon-format_list_numbered" title="Outline" data-view="Outline"></button>
                         <button id="show-Bookmarks" class="show_view icon-turned_in" title="Bookmarks" data-view="Bookmarks"></button>
                         <button id="show-Search" class="show_view icon-search" title="Search" data-view="Search"></button>
                         <button id="show-Notes" class="show_view icon-comment" title="Notes" data-view="Notes"></button>
                         <button id="show-Settings" class="show_view icon-settings" title="Settings" data-view="Settings"></button>
                     </div>
                     <div class="pull-right">
+                        <button id="toc_populate" title="generate thumbnails" class="icon-sync" style="display:none"></button>
                         <button id="hide-Sidebar" class="close_sidebar icon-arrow-left2" title="Close sidebar"></button>
                     </div>
                 </div>
                 <div id="views">
                     <div id="tocView" class="toc-view view open">
+                        <ul id="toc">
+                        </ul>
+                    </div>
+                     <div id="outlineView" class="outline-view view">
+                        <ul id="outline" class="outline">
+                        </ul>
                     </div>
                     <div id="bookmarksView" class="bookmarks-view view">
                         <ul id="bookmarks" class="bookmarks">

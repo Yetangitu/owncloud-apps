@@ -6,7 +6,7 @@ PDFJS.reader.SidebarController = function(book) {
         $panels = $("#panels"),
         $views = $("#views"),
         $close = $("#hide-Sidebar");
-    $slider = $("#slider");
+        $slider = $("#slider");
 
     var activePanel = "Toc";
 
@@ -61,6 +61,8 @@ PDFJS.reader.SidebarController = function(book) {
         changePanelTo(view);
         e.preventDefault();
     });
+
+    $sidebar.css("width", "calc(" + parseInt(settings.thumbnailWidth) + "px + 2em)");
 
     return {
         'show' : show,
