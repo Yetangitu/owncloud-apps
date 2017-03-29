@@ -17,6 +17,8 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\Files\IRootFolder;
 use OCP\Share\IManager;
+use OCP\Files\FileInfo;
+use OCP\Files\NotFoundException;
 
 use OCA\Files_Reader\Service\BookmarkService;
 use OCA\Files_Reader\Service\MetadataService;
@@ -124,15 +126,32 @@ class PageController extends Controller {
      * @brief sharing-aware file info retriever
      *
      * Work around the differences between normal and shared file access
+     * (this should be abstracted away in OC/NC IMnsHO)
      *
      * @param string $path path-fragment from url
      * @return array
+     * @throws NotFoundException
      */ 
     private function getFileInfo($path) {
         $count = 0;
-        $shareToken = preg_replace("/(?:\/index\.php)?\/s\/([A-Za-z0-9]{15})\/download/", "$1", $path, 1,$count);
+        $shareToken = preg_replace("/(?:\/index\.php)?\/s\/([A-Za-z0-9]{15})\/download.*/", "$1", $path, 1,$count);
+
         if ($count === 1) {
+
+            /* shared file or directory */
             $node = $this->shareManager->getShareByToken($shareToken)->getNode();
+            $type = $node->getType();
+
+            /* shared directory, need file path to continue, */
+            if ($type == \OCP\Files\FileInfo::TYPE_FOLDER) {
+                $query = [];
+                parse_str(parse_url($path, PHP_URL_QUERY), $query);
+                if (isset($query['path']) && isset($query['files'])) {
+                    $node = $node->get($query['path'])->get($query['files']);
+                } else {
+                    throw new NotFoundException('Shared file path or name not set');
+                }
+            } 
             $filePath = $node->getPath();
             $fileId = $node->getId();
         } else {
