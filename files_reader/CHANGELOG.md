@@ -1,3 +1,7 @@
+## 1.0.3 - 2017-03-29
+### Fixed
+ - #40, detect shared file OR folder and (try to) get fileId for such when applicable
+
 ## 1.0.2 - 2017-03-25
 ### Fixed
  - #37, use getAppManager()->isInstalled('files_opds') instead of class_exists to avoid log spam
