@@ -41,6 +41,7 @@ PDFJS.Reader = function(bookPath, _options) {
         cssZoomOnly: false, // true || false, only zoom using CSS, render document at 100% size
         textSelect: false,   // true || false, add selectable text layer
         doubleBuffer: true, // true || false, draw to off-screen canvas
+        cacheNext: true,    // true || false, pre-render next page (by creathing thumbnail))
         numPages: 0,
         currentPage: 1,
         scale: DEFAULT_SCALE,
@@ -106,9 +107,6 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("left"),
             ctx: document.getElementById("left").getContext('2d'),
             textdiv: document.getElementById("text_left"),
-            cache_canvas: null,
-            cache_ctx: null,
-            cache_textdiv: null,
             textLayer: null,
             renderTask: null,
             oscanvas: null,
@@ -119,9 +117,6 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("right"),
             ctx: document.getElementById("right").getContext('2d'),
             textdiv: document.getElementById("text_right"),
-            cache_canvas: null,
-            cache_ctx: null,
-            cache_textdiv: null,
             textLayer: null,
             renderTask: null,
             oscanvas: null,
@@ -194,6 +189,9 @@ PDFJS.Reader = function(bookPath, _options) {
                 reader.settings.currentPage = parseInt(reader.settings.session.cursor.anchor);
             }
 
+            var firstPagePromise = book.getPage(1);
+            reader.firstPagePromise = firstPagePromise;
+
             // set labels
             reader.book.getPageLabels().then(function (labels) {
                 if (labels) {
@@ -228,7 +226,7 @@ PDFJS.Reader = function(bookPath, _options) {
             // BookmarksController depends on NotesController so load NotesController first
             //reader.NotesController = PDFJS.reader.NotesController.call(reader, book);
             //reader.BookmarksController = PDFJS.reader.BookmarksController.call(reader, book);
-            //reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
+            reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
             //reader.MetaController = PDFJS.reader.MetaController.call(reader, meta);
             reader.TocController = PDFJS.reader.TocController.call(reader, book);
         },
@@ -270,58 +268,61 @@ PDFJS.Reader.prototype.getThumb = function (pageNum, insert) {
         renderContext,
         renderTask;
 
-    reader.book.getPage(parseInt(pageNum)).then(function(page) {
-        page_rotation = page.rotate;
-        rotation = (page_rotation + reader.settings.rotation) % 360;
-        initial_viewport = page.getViewport(1, rotation);
-        canvas = document.createElement("canvas");
-        ctx = canvas.getContext("2d");
-        outputscale = reader.getOutputScale(ctx);
-        if (outputscale < 1)
-            outputscale = 1;    // ignore browser zoom
-        page_width = initial_viewport.width;
-        page_height = initial_viewport.height;
-        page_aspect = parseFloat(page_width / page_height);
-        scale = parseFloat(reader.settings.thumbnailWidth / page_width);
-        canvas.width = parseInt(reader.settings.thumbnailWidth * outputscale);
-        canvas.height = parseInt(canvas.width / page_aspect);
+    if (reader.thumbs[pageNum] === undefined) {
 
-        viewport = initial_viewport.clone({scale: scale, rotation: rotation});
+        reader.thumbs[pageNum] = true;
 
-        //ctx.scale(outputscale, outputscale);
-        transform = (outputscale === 1)
-            ? null
-            : [outputscale, 0, 0, outputscale, 0, 0];
+        reader.book.getPage(parseInt(pageNum)).then(function(page) {
+            page_rotation = page.rotate;
+            rotation = (page_rotation + reader.settings.rotation) % 360;
+            initial_viewport = page.getViewport(1, rotation);
+            canvas = document.createElement("canvas");
+            ctx = canvas.getContext("2d");
+            outputscale = reader.getOutputScale(ctx);
+            if (outputscale < 1)
+                outputscale = 1;    // ignore browser zoom
+            page_width = initial_viewport.width;
+            page_height = initial_viewport.height;
+            page_aspect = parseFloat(page_width / page_height);
+            scale = parseFloat(reader.settings.thumbnailWidth / page_width);
+            canvas.width = parseInt(reader.settings.thumbnailWidth * outputscale);
+            canvas.height = parseInt(canvas.width / page_aspect);
 
-        console.log("thumbs, canvas w*h " + canvas.width + "*" + canvas.height);
+            viewport = initial_viewport.clone({scale: scale, rotation: rotation});
 
-        renderContext = {
-            canvasContext: ctx,
-            viewport: viewport,
-            transform: transform
-        };
+            //ctx.scale(outputscale, outputscale);
+            transform = (outputscale === 1)
+                ? null
+                : [outputscale, 0, 0, outputscale, 0, 0];
 
-        renderTask = page.render(renderContext);
+            renderContext = {
+                canvasContext: ctx,
+                viewport: viewport,
+                transform: transform
+            };
 
-        renderTask.promise.then(
-            function pdfPageRenderCallback () {
-                thumb = new Image();
-                thumb.id = "thumb_" + pageNum;
-                thumb.className = "thumbnail";
-                thumb.src = canvas.toDataURL();
-                canvas.width = canvas.height = 0;
-                delete canvas;
-                if (insert) {
-                    reader.TocController.tocInsert(thumb, pageNum, true);
-                } else {
-                    reader.thumbs[pageNum] = thumb;
+            renderTask = page.render(renderContext);
+
+            renderTask.promise.then(
+                function pdfPageRenderCallback () {
+                    thumb = new Image();
+                    thumb.id = "thumb_" + pageNum;
+                    thumb.className = "thumbnail";
+                    thumb.src = canvas.toDataURL();
+                    canvas.width = canvas.height = 0;
+                    delete canvas;
+                    if (insert) {
+                        reader.TocController.tocInsert(thumb, pageNum, true);
+                    } else {
+                        reader.thumbs[pageNum] = thumb;
+                    }
+                },
+                function pdfPageRenderError (error) {
+                    console.log("pdfPageRenderError in getThumb: " + error);
                 }
-            },
-            function pdfPageRenderError (error) {
-                console.log("pdfPageRenderError in getThumb: " + error);
-            }
-        );
-    });
+            );
+        });
+    }
 };
 
 PDFJS.Reader.prototype.setZoom = function(zoom) {
@@ -366,7 +367,6 @@ PDFJS.Reader.prototype.cancelRender = function (index) {
         resourcelst = reader.resourcelst[index];
 
     if (resourcelst.renderTask) {
-        console.log("cancel render on canvas " + index + ", pageNum " + resourcelst.pageNum);
         resourcelst.renderTask.cancel();
         resourcelst.renderTask = resourcelst.pageNum = null;
         resourcelst.oscanvas = resourcelst.osctx = null;
@@ -378,7 +378,7 @@ PDFJS.Reader.prototype.cancelRender = function (index) {
     }
 };
 
-PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
+PDFJS.Reader.prototype.renderPage = function(pageNum) {
 
     var reader = this,
         $viewer = $("#viewer");
@@ -410,7 +410,9 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
         renderContext,
         renderTask,
         resourcelst,
-        swap_orientation;
+        swap_orientation,
+        double_buffer,
+        cache_next;
 
     max_view_width = window.innerWidth;
     max_view_height = window.innerHeight;
@@ -447,6 +449,8 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
     textdiv = resourcelst.textdiv;
     outputscale = reader.getOutputScale(resourcelst.ctx);
     fraction = reader.approximateFraction(outputscale);
+    double_buffer = reader.settings.doubleBuffer;
+    cache_next = reader.settings.cacheNext;
 
     if (pageNum <= this.settings.numPages && pageNum >= 1) {
 
@@ -545,7 +549,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
             viewport = initial_viewport.clone({scale: scale, rotation: rotation});
 
             if (reader.settings.cssZoomOnly) {
-                console.log("css zoom only");
                 var actualSizeViewport = viewport.clone({scale: 1});
                 canvas.width = actualSizeViewport.width;
                 canvas.height = actualSizeViewport.height;
@@ -554,12 +557,10 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
             } 
 
             if (reader.settings.canvasLimit > 0) {
-                console.log("canvas is limited");
                 var pixelsInViewport = viewport.width * viewport.height;
                 var maxscale =
                     Math.sqrt(reader.settings.canvasLimit / pixelsInViewport);
                 if (outputscale > maxscale) {
-                    console.log("outputscale: " + outputscale, "maxscale: " + maxscale);
                     outputscale = maxscale;
                     reader.output_scaled = true;
                     reader.restricted_scaling = true;
@@ -608,7 +609,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
 
             /* /textLayer */
 
-            if (reader.settings.doubleBuffer) {
+            if (double_buffer) {
                 resourcelst.oscanvas = oscanvas = document.createElement("canvas");
                 resourcelst.osctx = context = osctx = oscanvas.getContext('2d');
                 oscanvas.width = canvas.width;
@@ -629,14 +630,13 @@ PDFJS.Reader.prototype.renderPage = function(pageNum, cache_result) {
             renderTask.promise.then(
                 function pdfPageRenderCallback (something) {
                     if (reader.cancelPage[pageNum] === undefined) { 
-                        console.log("finished rendering page " + pageNum);
-                        if (reader.settings.doubleBuffer)
+                        if (double_buffer)
                             ctx.drawImage(oscanvas, 0, 0);
                         if (textLayer)
                             textLayer.render(reader.settings.textRenderDelay);
-                    } else {
-                        console.log("rendering page " + pageNum + " finished but cancelled");
-                    }
+                        if (cache_next)
+                            reader.getThumb(parseInt(pageNum + pageShift), true);
+                    } 
                 },
                 function pdfPageRenderError(error) {
                     console.log("pdfPageRenderError: " + error);
@@ -671,8 +671,6 @@ PDFJS.Reader.prototype.queuePage = function(page) {
         } else {
             page -= (page + 1) % 2;
         }
-
-        console.log("page: " + page);
 
     } else {
         pageShift = 1;
@@ -933,3 +931,16 @@ PDFJS.Reader.prototype.cachedPageNum = function (pageRef) {
     return (reader.pageRefs[reader.pageRefStr(pageRef)])
         || null;
 };
+
+PDFJS.Reader.prototype.getPageTextContent = function (pageIndex) {
+
+    var reader = this,
+        book = reader.book;
+
+    return book.getPage(pageIndex + 1).then(function (page) {
+        return page.getTextContent({
+            normalizeWhitespace: true,
+        });
+    });
+};
+

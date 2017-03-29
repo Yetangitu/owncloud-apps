@@ -5,7 +5,6 @@ PDFJS.reader.OutlineController = function(_outline) {
         outline = _outline || [];
 
 	var outlineView = document.getElementById("outlineView"),
-        $list = $("#outlineView"),
         baseUrl = location.href.split('#')[0],
         lastToggleIsShow;
 
@@ -113,9 +112,6 @@ PDFJS.reader.OutlineController = function(_outline) {
         return container;
     }
 
-
-    console.log(outline);
-
 	var onShow = function() {
         outlineView.classList.add('open');
 	};
@@ -124,28 +120,9 @@ PDFJS.reader.OutlineController = function(_outline) {
         outlineView.classList.remove('open');
 	};
 
-	$list.append(generateOutlineItems(outline));
+	outlineView.appendChild(generateOutlineItems(outline));
 
-    /*
-	$list.find(".outline_link").on("click", function(event){
-			var url = this.getAttribute('href');
-
-			event.preventDefault();
-
-			//-- Provide the Book with the url to show
-			//   The Url must be found in the books manifest
-			book.goto(url);
-
-			$list.find(".currentChapter")
-					.addClass("openChapter")
-					.removeClass("currentChapter");
-
-			$(this).parent('li').addClass("currentChapter");
-
-	});
-    */
-
-	$list.find(".outline_toggle").on("click", function(event){
+	$(outlineView).find(".outline_toggle").on("click", function(event){
 			var $el = $(this).parent('li'),
 					open = $el.hasClass("openChapter");
 

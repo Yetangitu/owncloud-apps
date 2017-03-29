@@ -177,16 +177,26 @@ PDFJS.reader.TocController = function() {
 
 	var onShow = function() {
         tocView.classList.add('open');
+        scrollToPage(settings.currentPage);
 	};
 
 	var onHide = function() {
         tocView.classList.remove('open');
 	};
 
+    var scrollToPage = function (pageNum) {
+        if (pageNum > 0 && pageNum <= settings.numPages) {
+            thumb = document.getElementById("page_" + pageNum);
+            if (thumb)
+                thumb.scrollIntoView();
+        }
+    };
+
 	return {
 		"show" : onShow,
 		"hide" : onHide,
         "tocInsert": tocInsert,
-        "totPopulate": tocPopulate
+        "totPopulate": tocPopulate,
+        "scrollToPage": scrollToPage
 	};
 };

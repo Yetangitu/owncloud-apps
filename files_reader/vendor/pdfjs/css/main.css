@@ -33,10 +33,11 @@ body {
   overflow: hidden;
   -webkit-transition: -webkit-transform .4s, width .2s;
   -moz-transition: -webkit-transform .4s, width .2s;
-
+  /*
   -moz-box-shadow:    inset 0 0 50px rgba(0,0,0,.1);
   -webkit-box-shadow: inset 0 0 50px rgba(0,0,0,.1);
   box-shadow:         inset 0 0 50px rgba(0,0,0,.1);
+  */
 }
 
 #titlebar {

@@ -79,7 +79,7 @@
 			if (isMobile || hasTouch) {
 				window.open(viewer, downloadUrl);
             		} else {
-				$iframe = '<iframe style="width:100%;height:100%;display:block;position:absolute;top:0;" src="' + viewer + '" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  sandbox="allow-scripts allow-same-origin"/>';
+				$iframe = '<iframe style="width:100%;height:100%;display:block;position:absolute;top:0;" src="' + viewer + '" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  sandbox="allow-popups allow-scripts allow-same-origin"/>';
 				if (isFileList === true) {
 					FileList.setViewerMode(true);
 				}

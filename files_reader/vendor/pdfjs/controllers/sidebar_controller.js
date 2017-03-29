@@ -35,6 +35,8 @@ PDFJS.reader.SidebarController = function(book) {
         if (settings.sidebarReflow) reader.ReaderController.slideOut();
         $slider.hide();
         $sidebar.addClass("open");
+        if (getActivePanel() === "Toc")
+            reader.TocController.scrollToPage(settings.currentPage);
     }
 
     var hide = function() {

@@ -50,6 +50,7 @@
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/pdf.reader.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/progress_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/textlayer_controller.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/search_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/reader_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/sidebar_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/settings_controller.js')) ?>?v=<?php p($version) ?>"> </script>
