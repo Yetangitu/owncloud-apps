@@ -105,9 +105,18 @@ class PageController extends Controller {
             'annotations' => $this->toJson($this->bookmarkService->get($fileId))
         ];
 
-
+        $policy = new ContentSecurityPolicy();
+		$policy->addAllowedStyleDomain('\'self\'');
+		$policy->addAllowedStyleDomain('blob:');
+		$policy->addAllowedScriptDomain('\'self\'');
+		$policy->addAllowedFrameDomain('\'self\'');
+		$policy->addAllowedChildSrcDomain('\'self\'');
+		$policy->addAllowedFontDomain('\'self\'');
+		$policy->addAllowedFontDomain('data:');
+		$policy->addAllowedImageDomain('blob:');
 
         $response = new TemplateResponse($this->appName, $template, $params, 'blank');
+		$response->setContentSecurityPolicy($policy);
 
         return $response;
     }
@@ -122,7 +131,7 @@ class PageController extends Controller {
      */ 
     private function getFileInfo($path) {
         $count = 0;
-        $shareToken = preg_replace("/\/index\.php\/s\/([A-Za-z0-9]{15})\/download/", "$1", $path, 1,$count);
+        $shareToken = preg_replace("/(?:\/index\.php)?\/s\/([A-Za-z0-9]{15})\/download/", "$1", $path, 1,$count);
         if ($count === 1) {
             $node = $this->shareManager->getShareByToken($shareToken)->getNode();
             $filePath = $node->getPath();
