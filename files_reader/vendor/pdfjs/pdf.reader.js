@@ -39,7 +39,7 @@ PDFJS.Reader = function(bookPath, _options) {
         pageRenderDelay: PAGE_RENDER_DELAY,
         canvasLimit: 0,
         cssZoomOnly: false, // true || false, only zoom using CSS, render document at 100% size
-        textSelect: false,   // true || false, add selectable text layer
+        textSelect: true,   // true || false, add selectable text layer
         doubleBuffer: true, // true || false, draw to off-screen canvas
         cacheNext: true,    // true || false, pre-render next page (by creathing thumbnail))
         numPages: 0,
@@ -128,6 +128,9 @@ PDFJS.Reader = function(bookPath, _options) {
     this.cancelPage = {};
 
     this.renderQueue = false;
+
+    // used for search
+    this.pageMatches = [];
 
     // define which zoom states to cycle through in cycleZoom
     this.zoomCycle = {
@@ -268,7 +271,9 @@ PDFJS.Reader.prototype.getThumb = function (pageNum, insert) {
         renderContext,
         renderTask;
 
-    if (reader.thumbs[pageNum] === undefined) {
+    if (pageNum > 0 &&
+		pageNum <= reader.settings.numPages &&
+		reader.thumbs[pageNum] === undefined) {
 
         reader.thumbs[pageNum] = true;
 
@@ -451,6 +456,8 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
     fraction = reader.approximateFraction(outputscale);
     double_buffer = reader.settings.doubleBuffer;
     cache_next = reader.settings.cacheNext;
+
+    textdiv.innerHTML = "";
 
     if (pageNum <= this.settings.numPages && pageNum >= 1) {
 
@@ -942,5 +949,119 @@ PDFJS.Reader.prototype.getPageTextContent = function (pageIndex) {
             normalizeWhitespace: true,
         });
     });
+};
+
+PDFJS.Reader.prototype.getDestinationHash = function (destination) {
+
+	var url = location.href.split('#')[0],
+		str;
+
+	if (typeof destination === 'string') {
+
+		url += "#"
+			+ (parseInt(destination) === destination)
+			? "nameddest="
+			: ""
+			+ escape(destination);
+
+	} else if (destination instanceof Array) {
+
+		url += "#"
+			+ escape(JSON.stringify(destination));
+	}
+
+	return url;
+};
+
+PDFJS.Reader.prototype.setStyles = function (element, item) {
+
+	var styleStr = "";
+
+	if (item.bold) {
+		styleStr += 'font-weight: bold;';
+	}
+
+	if (item.italic) {
+		styleStr += 'font-style: italic;';
+	}
+
+	if (styleStr) {
+		element.setAttribute('style', styleStr);
+	}
+};
+
+
+PDFJS.Reader.prototype.bindLink = function (element, item) {
+
+	var reader = this,
+		destination = item.dest;
+
+	if (item.url) {
+
+		PDFJS.addLinkAttributes (element, {
+			url: item.url,
+			target: (item.newWindow
+				? PDFJS.LinkTarget.BLANK
+					: undefined),
+		});
+
+		return;
+	} else {
+
+		element.href = reader.getDestinationHash(destination);
+		element.onclick = function () {
+			if (destination) {
+				reader.navigateTo(destination);
+			}
+
+			return false;
+		};
+	}
+};
+
+// https://github.com/mvhenten/ellipsize/blob/master/index.js
+PDFJS.Reader.prototype.ellipsize = function(str, max, opts) {
+
+	var defaults = {
+		ellipse: '…',
+		chars: [' ', '-'],
+		max: 140,
+		truncate: true
+	};
+
+	if (typeof str !== 'string' || str.length === 0) return '';
+	if (max === 0) return '';
+
+	opts = opts || {};
+
+	for (var key in defaults) {
+		if (opts[key] === null || typeof opts[key] === 'undefined') {
+			opts[key] = defaults[key];
+		}
+	}
+
+	opts.max = max || opts.max;
+
+	var last = 0,
+		c = '';
+
+	if (str.length < opts.max) return str;
+
+	for (var i = 0, len = str.length; i < len; i++) {
+		c = str.charAt(i);
+
+		if (opts.chars.indexOf(c) !== -1) {
+			last = i;
+		}
+
+		if (i < opts.max) continue;
+		if (last === 0) {
+			return !opts.truncate ? '' : str.substring(0, opts.max - 1) + opts.ellipse;
+		}
+
+		return str.substring(0, last) + opts.ellipse;
+	}
+
+	return str;
 };
 

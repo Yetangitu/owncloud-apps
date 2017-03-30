@@ -152,6 +152,7 @@ PDFJS.reader.SearchController = function () {
                 matches.push(matchIdx);
             }
             this.pageMatches[pageIndex] = matches;
+
         };
 
     var calcFindWordMatch = function (
@@ -189,6 +190,55 @@ PDFJS.reader.SearchController = function () {
                 this.pageMatchesLength[pageIndex]);
         };
 
+    var getSnippet = function (pageIndex, position) {
+
+        var ellipse = '…',
+            match_length = this.state.query.length,
+            span = '<span class="search_match">',
+            span_close = '</span>',
+            limit = 160 + span.length + span_close.length,
+            leader,
+            trailer,
+            context;
+
+        leader = this.pageContents[pageIndex].substring(position - limit/2, position);
+        leader = leader.slice(leader.indexOf(" "));
+        trailer = this.pageContents[pageIndex].substring(position + match_length, position + limit/2 + match_length);
+        query = this.pageContents[pageIndex].substring(position, position + match_length);
+
+        context = ellipse + leader + span + query + span_close + trailer;
+
+        return reader.ellipsize(context, context.length - 10);
+    };
+
+    var createItem = function (pageIndex, position) {
+
+        var listitem = document.createElement("li"),
+            link = document.createElement("a"),
+            id = parseInt(pageIndex + 1) + ":" + position,
+            item = {
+                url: null,
+                dest: null,
+                bold: null,
+                italic: null
+            };
+
+        // for now only the pageIndex is used
+        item.dest = [pageIndex,position];
+
+        //link.textContent = getSnippet(pageIndex, position);
+        link.innerHTML = getSnippet(pageIndex, position);
+        listitem.classList.add("list_item");
+        listitem.id = "search-"+id;
+        listitem.dataset.position = position;
+        reader.bindLink(link, item);
+        link.classList.add("search_link");
+        listitem.appendChild(link);
+
+        return listitem;
+    };
+
+
     var calcFindMatch = function (pageIndex) {
         var pageContent = normalize(this.pageContents[pageIndex]);
         var query = normalize(this.state.query);
@@ -210,18 +260,6 @@ PDFJS.reader.SearchController = function () {
             calcFindPhraseMatch(query, pageIndex, pageContent);
         } else {
             calcFindWordMatch(query, pageIndex, pageContent);
-        }
-
-        updatePage(pageIndex);
-        if (this.resumePageIdx === pageIndex) {
-            this.resumePageIdx = null;
-            nextPageMatch();
-        }
-
-        // Update the matches count
-        if (this.pageMatches[pageIndex].length > 0) {
-            this.matchCount += this.pageMatches[pageIndex].length;
-            updateUIResultsCount();
         }
     };
 
@@ -253,19 +291,12 @@ PDFJS.reader.SearchController = function () {
                     }
 
                     // Store the pageContent as a string.
-                    self.pageContents.push(str.join(''));
+                    self.pageContents.push(str.join(' ').replace(/\s\s+/g, ' '));
 
                     extractTextPromisesResolves[pageIndex](pageIndex);
                     if ((pageIndex + 1) < reader.settings.numPages) {
-						console.log("extracting text from page " + parseInt(pageIndex + 1));
                         extractPageText(pageIndex + 1);
-                    } else {
-						console.log("finished extracting text");
-                        for (var i=0;i < reader.settings.numPages;i++) {
-                            console.log("PAGE: " + parseInt(i + 1));
-                            console.log(self.pageContents[i]);	
-                        }
-					}
+                    } 
                 }
             );
         }
@@ -287,7 +318,8 @@ PDFJS.reader.SearchController = function () {
             clearTimeout(this.findTimeout);
             if (cmd === 'find') {
                 // Only trigger the find action after 250ms of silence.
-                this.findTimeout = setTimeout(nextMatch.bind(this), 250);
+                //this.findTimeout = setTimeout(nextMatch.bind(this), 250);
+                generateMatchList();
             } else {
                 nextMatch();
             }
@@ -307,6 +339,39 @@ PDFJS.reader.SearchController = function () {
         //if (page.textLayer) {
             //    page.textLayer.updateMatches();
             //}
+    };
+
+    var generateMatchList = function () {
+
+        var container = document.getElementById("searchResults"),
+            numPages = reader.settings.numPages,
+            self = this;
+
+        for (var i = 0; i < numPages; i++) {
+            //var placeholder = document.createElement("li");
+            //placeholder.style.display = "none";
+            //container.appendChild(placeholder);
+            if (!(i in this.pendingFindMatches)) {
+                this.pendingFindMatches[i] = true;
+                this.extractTextPromises[i].then(function(pageIdx) {
+                    delete self.pendingFindMatches[pageIdx];
+                    calcFindMatch(pageIdx);
+                    if (self.pageMatches[pageIdx].length > 0) {
+                        reader.pageMatches[pageIdx] = self.pageMatches[pageIdx];
+                        var fragment = document.createDocumentFragment();
+                        var listitem = document.createElement("li");
+                        listitem.textContent="page " + parseInt(pageIdx + 1);
+                        listitem.classList.add("search_page_header");
+                        fragment.appendChild(listitem);
+                        self.pageMatches[pageIdx].forEach(function (match) {
+                            fragment.appendChild(createItem(pageIdx, match));
+                        });
+
+                        container.appendChild(fragment);
+                    }
+                });
+            }
+        }
     };
 
     var nextMatch = function () {
@@ -501,22 +566,20 @@ PDFJS.reader.SearchController = function () {
             q = $searchBox.val();
         }
 
-        if (q == '') {
+        if (q === '') {
             clear();
             return;
         }
 
         reader.SidebarController.changePanelTo("Search");
 
+        reset();
         $searchResults.empty();
-        $searchResults.append("<li><p>Searching...</p></li>");
 
-        reader.SearchController.query = q;
-
-        //runQuery(q, $searchResults[0]);
+        this.query = q;
 
 		executeCommand('find', {query: q});
-
+        highlightQuery();
     };
 
     $searchBox.on("keydown", function(e) {
@@ -537,12 +600,14 @@ PDFJS.reader.SearchController = function () {
     });
 
     $clear_search.on("click", function () {
+        reset();
         unhighlight();
         $searchResults.empty();
     });
 
     var clear = function () {
 
+        reset();
         unhighlight();
         $searchResults.empty();
 
@@ -552,13 +617,13 @@ PDFJS.reader.SearchController = function () {
     };
 
     var highlightQuery = function(e) {
-        $("#viewer iframe").contents().find('body').highlight(reader.SearchController.query, { element: 'span' });
+        $("#text_left").contents().highlight(this.state.query, { element: 'span' });
+        $("#text_right").contents().highlight(this.state.query, { element: 'span' });
     };
 
     var unhighlight = function(e) {
-        $body = $("#viewer iframe").contents().find('body');
-        $body.unhighlight();
-        book.off("renderer:chapterDisplayed", highlightQuery);
+        $("#text_left").unhighlight();
+        $("#text_right").unhighlight();
     };
 
 
@@ -566,6 +631,8 @@ PDFJS.reader.SearchController = function () {
         "show": onShow,
         "hide": onHide,
         "search": search,
-        "executeCommand": executeCommand
+        "executeCommand": executeCommand,
+        "highlightQuery": highlightQuery,
+        "unhighlight": unhighlight
     };
 };

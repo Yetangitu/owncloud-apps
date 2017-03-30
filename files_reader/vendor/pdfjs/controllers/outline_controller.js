@@ -4,77 +4,9 @@ PDFJS.reader.OutlineController = function(_outline) {
         book = this.book,
         outline = _outline || [];
 
-	var outlineView = document.getElementById("outlineView"),
-        baseUrl = location.href.split('#')[0],
-        lastToggleIsShow;
+	var outlineView = document.getElementById("outlineView");
 
     var DEFAULT_TITLE = '\u2013';
-
-    var bindLink = function (element, item) {
-
-		var destination = item.dest;
-
-		if (item.url) {
-
-			PDFJS.addLinkAttributes (element, {
-				url: item.url,
-				target: (item.newWindow
-					? PDFJS.LinkTarget.BLANK
-					: undefined),
-			});
-
-			return;
-		} else {
-
-			element.href = getDestinationHash(destination);
-			element.onclick = function () {
-				if (destination) {
-					reader.navigateTo(destination);
-				}
-				
-				return false;
-			};
-		}
-	};
-
-	var setStyles = function (element, item) {
-	
-        var styleStr = "";
-
-        if (item.bold) {
-            styleStr += 'font-weight: bold;';
-        }
-
-        if (item.italic) {
-            styleStr += 'font-style: italic;';
-        }
-
-        if (styleStr) {
-            element.setAttribute('style', styleStr);
-        }
-    };
-
-	var getDestinationHash = function (destination) {
-
-		var url = baseUrl || "",
-			str;
-
-		if (typeof destination === 'string') {
-
-			url += "#"
-				+ (parseInt(destination) === destination)
-					? "nameddest="
-					: ""
-				+ escape(destination);
-
-		} else if (destination instanceof Array) {
-
-			url += "#"
-				+ escape(JSON.stringify(destination));
-		}
-
-		return url;
-	};
 
     var generateOutlineItems = function (outline, level) {
 
@@ -83,6 +15,7 @@ PDFJS.reader.OutlineController = function(_outline) {
         if(!level) level = 1;
 
         outline.forEach(function (chapter) {
+
             var listitem = document.createElement("li"),
                 link = document.createElement("a"),
                 toggle = document.createElement("a"),
@@ -92,8 +25,8 @@ PDFJS.reader.OutlineController = function(_outline) {
             listitem.classList.add('list_item');
 
             link.textContent = PDFJS.removeNullCharacters(chapter.title) || DEFAULT_TITLE;
-            bindLink(link, chapter);
-            setStyles(link, chapter);
+            reader.bindLink(link, chapter);
+            reader.setStyles(link, chapter);
             link.classList.add('outline_link');
 
             listitem.appendChild(link);

@@ -116,12 +116,14 @@ PDFJS.Reader.TextLayerController.prototype.setTextContent = function (textConten
 };
 
 PDFJS.Reader.TextLayerController.prototype.convertMatches = function(matches, matchesLength) {
+
+    var reader = this;
+
     var i = 0;
     var iIndex = 0;
     var bidiTexts = this.textContent.items;
     var end = bidiTexts.length - 1;
-    var queryLen = (this.findController === null ?
-        0 : this.findController.state.query.length);
+    var queryLen = reader.search.query.length;
     var ret = [];
     if (!matches) {
         return ret;
@@ -176,6 +178,8 @@ PDFJS.Reader.TextLayerController.prototype.renderMatches = function (matches) {
     if (matches.length === 0) {
         return;
     }
+
+    var reader = this;
 
     var bidiTexts = this.textContent.items;
     var textDivs = this.textDivs;

@@ -313,6 +313,7 @@ legend {
 
 .search-results {
 	overflow-y: scroll;
+    overflow-wrap: break-word;
     height: 95%;
 	height: calc(100vh - 5em);
 }
@@ -321,6 +322,11 @@ legend {
 	padding-top: 1em;
 	padding-bottom: 1em;
 	box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+.search_match {
+    font-weight: bold;
+    font-decoration: underline;
 }
 
 .searchbox {
@@ -345,6 +351,8 @@ legend {
 #clear_search {
     padding: 0;
     padding-right: 0.5em;
+    position: absolute;
+    height: auto;
 }
 
 /* END search */
