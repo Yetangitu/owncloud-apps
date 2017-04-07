@@ -120,7 +120,7 @@ PDFJS.reader.TocController = function() {
             scale = parseFloat(settings.thumbnailWidth / width);
             preloadcount = parseInt(window.innerHeight / placeholder_height) + 2;
             if (preloadcount > settings.numPages)
-                preloadcount = numPages;
+                preloadcount = settings.numPages;
 
             var _timeout = setTimeout(function () {
                 for (var i = 1; i <= preloadcount; i++) {

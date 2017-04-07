@@ -37,6 +37,7 @@ PDFJS.Reader = function(bookPath, _options) {
         bookPath: bookPath,
         textRenderDelay: TEXT_RENDER_DELAY,
         pageRenderDelay: PAGE_RENDER_DELAY,
+        preloadTextcontent: true,   // true || false, preload text content to speed up first full-text search operation
         canvasLimit: 0,
         cssZoomOnly: false, // true || false, only zoom using CSS, render document at 100% size
         textSelect: true,   // true || false, add selectable text layer
@@ -70,9 +71,13 @@ PDFJS.Reader = function(bookPath, _options) {
             83: 'toggleSidebar',// s
             84: 'toggleTitlebar',   // t
             68: 'toggleDay',    // d
-            78: 'toggleNight',  // n
+            //78: 'toggleNight',  // n
+            55: 'search',       // '/'
+            80: 'previousMatch',  // p
+            78: 'nextMatch',    // n
             70: 'toggleFullscreen', // f
-            27: 'closeSidebar'  // esc
+            27: 'closeSidebar', // esc
+           114: 'nextMatch'     // F3 
         },
         nightMode: false,
         dayMode: false,
@@ -129,8 +134,17 @@ PDFJS.Reader = function(bookPath, _options) {
 
     this.renderQueue = false;
 
-    // used for search
+    // used for search, textlayer, hightlight etc
+    this.pageContents = [];
     this.pageMatches = [];
+    this.pageMatchesLength = null;
+    this.search_state = null;
+    this.selected = {
+        pageIdx: -1,
+        matchIdx: -1,
+		at_start: false,
+		at_end: false
+    };
 
     // define which zoom states to cycle through in cycleZoom
     this.zoomCycle = {
@@ -184,7 +198,7 @@ PDFJS.Reader = function(bookPath, _options) {
 
         function(_book) {
             reader.book = book = _book;
-            console.log(book);
+            //console.log(book);
             reader.settings.numPages = reader.book.numPages;
             document.getElementById('total_pages').textContent = reader.settings.numPages;
             if(!$.isEmptyObject(reader.settings.session.cursor)) {
@@ -439,6 +453,8 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
         reader.resourcelst[1].canvas.style.display = "none";
         // clear text layer
         reader.resourcelst[1].textdiv.innerHTML = "";
+        // clear page number
+        reader.resourcelst[1].pageNum = null;
 
         // don't try to render non-existing page 0 (which is used
         // to indicate the empty left page when oddPageRight === true)
@@ -480,7 +496,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             //console.log(page);
             page_rotation = page.rotate;
             rotation = (page_rotation + reader.settings.rotation) % 360;
-            //initial_viewport = page.getViewport({scale: 1, rotation: rotation});
             initial_viewport = page.getViewport(1, rotation);
             page_width = initial_viewport.width;
             page_height = initial_viewport.height;
@@ -490,21 +505,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             
             scale_height = parseFloat(max_view_height / page_height);
             scale_width = parseFloat(max_view_width / page_width);
-
-            /*
-            console.log("m_v_w: " + max_view_width
-                + " m_v_h: " + max_view_height
-                + " p_w: " + page_width
-                + " p_h: " + page_height
-                + " d_a: " + document_aspect
-                + " v_a: " + view_aspect
-                + " s_w: " + scale_width
-                + " s_h: " + scale_height
-                + " p_r: " + page_rotation
-                + " r: " + rotation
-                + " o: " + outputscale);
-            console.log("fraction: ", fraction);
-            */
 
             switch (reader.settings.zoomLevel) {
 
@@ -604,10 +604,10 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
                 page.getTextContent({ normalizeWhitespace: true }).then(function (textContent) {
                     resourcelst.textLayer = textLayer = new PDFJS.Reader.TextLayerController({
 						textLayerDiv: textdiv,
-						pageIdx: pageNum - 1,
+						pageIndex: pageNum - 1,
 						viewport: viewport,
 						enhanceTextSelection: true
-					});
+					}, reader);
                     textLayer.setTextContent(textContent);
                 });
             } else {
@@ -661,6 +661,8 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             canvas.style.width = reader.roundToDivide(max_view_width, fraction[1]) + 'px';
             canvas.style.height = reader.roundToDivide(max_view_height, fraction[1]) + 'px';
         }
+        // reset pageNum
+        resourcelst.pageNum = null;
     }
 };
 
@@ -1063,5 +1065,21 @@ PDFJS.Reader.prototype.ellipsize = function(str, max, opts) {
 	}
 
 	return str;
+};
+
+PDFJS.Reader.prototype.isVisible = function (element) {
+
+	var reader = this,
+		viewport = element.getBoundingClientRect(),
+		visible;
+
+	visible = (
+		viewport.top  >= 0
+			&& viewport.left >= 0
+			&& viewport.right < window.innerWidth
+			&& viewport.bottom < window.innerHeight
+	);
+
+	return visible;
 };
 

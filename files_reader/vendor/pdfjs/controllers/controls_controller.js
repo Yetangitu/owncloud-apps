@@ -24,11 +24,18 @@ PDFJS.reader.ControlsController = function(book) {
         $rotate_left = $("#rotate_left"),
         $rotate_right = $("#rotate_right"),
         $page_num = $("#page_num"),
-        $total_pages = $("#total_pages");
+        $total_pages = $("#total_pages"),
+        $status_message_left = $("#status_message_left"),
+        $status_message_right = $("#status_message_right");
+
+    var STATUS_MESSAGE_LENGTH = 30,
+        STATUS_MESSAGE_TIMEOUT = 3000,
+        status_timeout_left,
+        status_timeout_right;
 
     if (reader.isMobile() === true) {
         $titlebar.addClass("background_visible");
-    };
+    }
 
     var show = function () {
         $titlebar.removeClass("hide");
@@ -45,6 +52,31 @@ PDFJS.reader.ControlsController = function(book) {
     $viewer.on("touchstart", function(e) {
         reader.ControlsController.toggle();
     });
+
+    var setStatus = function (message, right) {
+
+        $status_message = (right) ? $status_message_right : $status_message_left;
+        status_timeout = (right) ? status_timeout_right : status_timeout_left;
+
+        $status_message[0].textContent = reader.ellipsize(message, STATUS_MESSAGE_LENGTH);
+        //$status_message[0].textContent = message;
+
+        if (typeof status_timeout === "number") {
+            clearTimeout(status_timeout);
+            status_timeout = undefined;
+        }
+        
+        status_timeout = setTimeout(function () {
+            $status_message[0].textContent = "";
+        }, STATUS_MESSAGE_TIMEOUT);
+
+        if (right) {
+            status_timeout_right = status_timeout;
+        } else {
+            status_timeout_left = status_timeout;
+        }
+    };
+
 
     var fullscreen = false;
 
@@ -105,21 +137,8 @@ PDFJS.reader.ControlsController = function(book) {
 
     });
 
-    /* select works fine on most browsers, but - of course - apple mobile has 'special needs'
-     * in that it does not support any styling in the drop-down list, and as such can not display
-     * icons there. Due to the unfortunate fact that many still buy these apple-encumbered devices
+    /* select works fine on most browsers, but - of course - apple mobile has 'special needs' so
      * a custom select is needed...
-     *    
-    $zoomlevel.val(settings.zoomLevel);
-
-    $zoomlevel.on("change", function () {
-        reader.setZoom($(this).val());
-        var $option = $zoomlevel.find(":selected");
-        if ($option.data("icon") !== undefined)
-            $("#zoom_icon")[0].textContent = $option.data("icon");
-    });
-
-    *
     */ 
 
     /* custom select, supports icons in drop-down list */
@@ -245,7 +264,7 @@ PDFJS.reader.ControlsController = function(book) {
                 break;
         }
 
-        e.stopPropagation;
+        e.stopPropagation();
     };
 
 
@@ -273,21 +292,23 @@ PDFJS.reader.ControlsController = function(book) {
             text;
 
         if (zoom === "spread") {
-             if (oddPageRight === true) {
-                 page -= page % 2;
-             } else {
-                 page -= (page + 1) % 2;
-             }
-        }
-
-        if (page >= 0 && page <= total_pages) {
-            if (page === total_pages) {
-                text = reader.getPageLabel(page);
-            } else if (page === 0) {
-                text = reader.getPageLabel(page + 1);
+            if (oddPageRight === true) {
+                page -= page % 2;
             } else {
-                text = reader.getPageLabel(page) + "-" + reader.getPageLabel(page + 1);
+                page -= (page + 1) % 2;
             }
+
+            if (page >= 0 && page <= total_pages) {
+                if (page === total_pages) {
+                    text = reader.getPageLabel(page);
+                } else if (page === 0) {
+                    text = reader.getPageLabel(page + 1);
+                } else {
+                    text = reader.getPageLabel(page) + "-" + reader.getPageLabel(page + 1);
+                }
+            }
+        } else {
+            text = reader.getPageLabel(page);
         }
 
         $page_num[0].textContent = text;
@@ -332,6 +353,7 @@ PDFJS.reader.ControlsController = function(book) {
         "setZoomIcon": setZoomIcon,
         "setRotateIcon": setRotateIcon,
         "setCurrentPage": setCurrentPage,
-        "setPageCount": setPageCount
+        "setPageCount": setPageCount,
+        "setStatus": setStatus
     };
 };

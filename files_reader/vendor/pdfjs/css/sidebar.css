@@ -122,6 +122,10 @@
   display: block;
 }
 
+.list_item.selected a {
+    color: #D2D2D2;
+}
+
 legend {
     margin-left: 1em;
     padding: 0.5em;
@@ -327,6 +331,20 @@ legend {
 .search_match {
     font-weight: bold;
     font-decoration: underline;
+}
+
+.search_page_header {
+    text-align: right;
+    color: #DDD;
+    font-style: italic;
+}
+
+.match_label {
+	background-color: #DDD;
+    color: black;
+	box-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+	border-radius: 3px;
+	padding: 0.2em;
 }
 
 .searchbox {

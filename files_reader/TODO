@@ -1,4 +1,3 @@
- - search
  - bookmarks
  - annotations
  - settings
@@ -6,5 +5,7 @@
  - rtl and ltr
 
  - test canvas size restriction
+ - test internal links
 
- - add preload/postload of X pages around current position (optional), store resulting rendered pages in off-screen canvas?
+ - add IDs to highlights so they can be marked when hovered - or when related list item is hovered
+

@@ -1,32 +1,7 @@
-var FindStates = {
-    FIND_FOUND: 0,
-    FIND_NOTFOUND: 1,
-    FIND_WRAPPED: 2,
-    FIND_PENDING: 3
-};
-
-var FIND_SCROLL_OFFSET_TOP = -50;
-var FIND_SCROLL_OFFSET_LEFT = -400;
-
-var CHARACTERS_TO_NORMALIZE = {
-    '\u2018': '\'', // Left single quotation mark
-    '\u2019': '\'', // Right single quotation mark
-    '\u201A': '\'', // Single low-9 quotation mark
-    '\u201B': '\'', // Single high-reversed-9 quotation mark
-    '\u201C': '"', // Left double quotation mark
-    '\u201D': '"', // Right double quotation mark
-    '\u201E': '"', // Double low-9 quotation mark
-    '\u201F': '"', // Double high-reversed-9 quotation mark
-    '\u00BC': '1/4', // Vulgar fraction one quarter
-    '\u00BD': '1/2', // Vulgar fraction one half
-    '\u00BE': '3/4', // Vulgar fraction three quarters
-};
-
 PDFJS.reader.SearchController = function () {
 
     var reader = this,
-        book = this.book,
-        query = "";
+        book = this.book;
 
     var $searchBox = $("#searchBox"),
         $clearBtn = $("#searchBox").next(),
@@ -34,54 +9,53 @@ PDFJS.reader.SearchController = function () {
         $searchResults = $("#searchResults"),
         $searchView = $("#searchView"),
         $body = $("#viewer iframe").contents().find('body'),
-        $sidebar = $("#sidebar");
+        $sidebar = $("#sidebar"),
+        $match_count = $("#match_count");
 
-    var onShow = function() {
-        $searchView.addClass("open");
-        $searchBox.focus();
+    /* search logic, partly from Mozilla pdfViewer */
+    var CHARACTERS_TO_NORMALIZE = {
+        '\u2018': '\'', // Left single quotation mark
+        '\u2019': '\'', // Right single quotation mark
+        '\u201A': '\'', // Single low-9 quotation mark
+        '\u201B': '\'', // Single high-reversed-9 quotation mark
+        '\u201C': '"', // Left double quotation mark
+        '\u201D': '"', // Right double quotation mark
+        '\u201E': '"', // Double low-9 quotation mark
+        '\u201F': '"', // Double high-reversed-9 quotation mark
+        '\u00BC': '1/4', // Vulgar fraction one quarter
+        '\u00BD': '1/2', // Vulgar fraction one half
+        '\u00BE': '3/4', // Vulgar fraction three quarters
     };
 
-    var onHide = function() {
-        unhighlight();
-        $searchView.removeClass("open");
-    };
-
-    this.onUpdateResultsCount = null;
-    this.onUpdateState = null;
+	var startedTextExtraction = false,
+		extractTextPromises = [],
+        matchCount = 0,
+		pendingFindMatches = Object.create(null);
 
     // Compile the regular expression for text normalization once.
-    var replace = Object.keys(CHARACTERS_TO_NORMALIZE).join('');
-    this.normalizationRegex = new RegExp('[' + replace + ']', 'g');
+    var replace = Object.keys(CHARACTERS_TO_NORMALIZE).join(''),
+		normalizationRegex = new RegExp('[' + replace + ']', 'g');
 
     var reset = function () {
-        this.startedTextExtraction = false;
-        this.extractTextPromises = [];
-        this.pendingFindMatches = Object.create(null);
-        this.active = false; // If active, find results will be highlighted.
-        this.pageContents = []; // Stores the text for each page.
-        this.pageMatches = [];
-        this.pageMatchesLength = null;
-        this.matchCount = 0;
-        this.selected = { // Currently selected match.
+
+        pendingFindMatches = Object.create(null);
+        reader.search_active = false; // If active, find results will be highlighted.
+        reader.pageMatches.length = 0;
+        reader.pageMatchesLength = null;
+        reader.search_state = null;
+        matchCount = 0;
+        resetMatchCounter();
+        reader.selected = { // Currently selected match.
             pageIdx: -1,
-            matchIdx: -1
+            matchIdx: -1,
+            at_start: false,
+            at_end: false
         };
-        this.offset = { // Where the find algorithm currently is in the document.
-            pageIdx: null,
-            matchIdx: null
-        };
-        this.pagesToSearch = null;
-        this.resumePageIdx = null;
-        this.state = null;
-        this.dirtyMatch = false;
-        this.findTimeout = null;
+        updatePage();
     };
 
-    reset();
-
-
     var normalize = function (text) {
-        return text.replace(this.normalizationRegex, function (ch) {
+        return text.replace(normalizationRegex, function (ch) {
             return CHARACTERS_TO_NORMALIZE[ch];
         });
     };
@@ -151,7 +125,7 @@ PDFJS.reader.SearchController = function () {
                 }
                 matches.push(matchIdx);
             }
-            this.pageMatches[pageIndex] = matches;
+            reader.pageMatches[pageIndex] = matches;
 
         };
 
@@ -179,21 +153,22 @@ PDFJS.reader.SearchController = function () {
                 }
             }
             // Prepare arrays for store the matches.
-            if (!this.pageMatchesLength) {
-                this.pageMatchesLength = [];
+            if (!reader.pageMatchesLength) {
+                reader.pageMatchesLength = [];
             }
-            this.pageMatchesLength[pageIndex] = [];
-            this.pageMatches[pageIndex] = [];
+            reader.pageMatchesLength[pageIndex] = [];
+            reader.pageMatches[pageIndex] = [];
             // Sort matchesWithLength, clean up intersecting terms
             // and put the result into the two arrays.
-            _prepareMatches(matchesWithLength, this.pageMatches[pageIndex],
-                this.pageMatchesLength[pageIndex]);
+            _prepareMatches(matchesWithLength, reader.pageMatches[pageIndex],
+                reader.pageMatchesLength[pageIndex]);
+
         };
 
     var getSnippet = function (pageIndex, position) {
 
         var ellipse = '…',
-            match_length = this.state.query.length,
+            match_length = reader.search_state.query.length,
             span = '<span class="search_match">',
             span_close = '</span>',
             limit = 160 + span.length + span_close.length,
@@ -201,10 +176,10 @@ PDFJS.reader.SearchController = function () {
             trailer,
             context;
 
-        leader = this.pageContents[pageIndex].substring(position - limit/2, position);
+        leader = reader.pageContents[pageIndex].substring(position - limit/2, position);
         leader = leader.slice(leader.indexOf(" "));
-        trailer = this.pageContents[pageIndex].substring(position + match_length, position + limit/2 + match_length);
-        query = this.pageContents[pageIndex].substring(position, position + match_length);
+        trailer = reader.pageContents[pageIndex].substring(position + match_length, position + limit/2 + match_length);
+        query = reader.pageContents[pageIndex].substring(position, position + match_length);
 
         context = ellipse + leader + span + query + span_close + trailer;
 
@@ -215,7 +190,6 @@ PDFJS.reader.SearchController = function () {
 
         var listitem = document.createElement("li"),
             link = document.createElement("a"),
-            id = parseInt(pageIndex + 1) + ":" + position,
             item = {
                 url: null,
                 dest: null,
@@ -227,10 +201,9 @@ PDFJS.reader.SearchController = function () {
         item.dest = [pageIndex,position];
 
         //link.textContent = getSnippet(pageIndex, position);
-        link.innerHTML = getSnippet(pageIndex, position);
+        listitem.dataset.index = ++matchCount;
+        link.innerHTML = '<span class="match_label">' + matchCount + '</span>' + getSnippet(pageIndex, position);
         listitem.classList.add("list_item");
-        listitem.id = "search-"+id;
-        listitem.dataset.position = position;
         reader.bindLink(link, item);
         link.classList.add("search_link");
         listitem.appendChild(link);
@@ -238,16 +211,40 @@ PDFJS.reader.SearchController = function () {
         return listitem;
     };
 
+    var createItemList = function (pageIdx) {
+
+        var currentIdx = reader.settings.currentPage - 1,
+            item,
+            i = 0;
+
+        // currentIdx can be up to 2 different from pageIdx due to oddPageFirst and spread rendering
+        if (Math.abs(pageIdx - currentIdx) <= 2)
+            updatePage(pageIdx);
+        var fragment = document.createDocumentFragment();
+        var listitem = document.createElement("li");
+        listitem.textContent="page " + parseInt(pageIdx + 1);
+        listitem.classList.add("search_page_header");
+        fragment.appendChild(listitem);
+        reader.pageMatches[pageIdx].forEach(function (match) {
+            item = createItem(pageIdx, match);
+            item.id = "match:" + pageIdx + ":" + i;
+            item.classList.add("match:" + pageIdx + ":" + i++);
+            fragment.appendChild(item);
+			updateMatchCounter();
+        });
+
+        return fragment;
+    };
 
     var calcFindMatch = function (pageIndex) {
-        var pageContent = normalize(this.pageContents[pageIndex]);
-        var query = normalize(this.state.query);
-        var caseSensitive = this.state.caseSensitive;
-        var phraseSearch = this.state.phraseSearch;
+        var pageContent = normalize(reader.pageContents[pageIndex]);
+        var query = normalize(reader.search_state.query);
+        var caseSensitive = reader.search_state.caseSensitive;
+        var phraseSearch = reader.search_state.phraseSearch;
         var queryLen = query.length;
 
         if (queryLen === 0) {
-            // Do nothing: the matches should be wiped out already.
+            reset();
             return;
         }
 
@@ -265,24 +262,25 @@ PDFJS.reader.SearchController = function () {
 
     var extractText = function () {
 
-        if (this.startedTextExtraction) {
+        if (startedTextExtraction) {
             return;
         }
-        this.startedTextExtraction = true;
+        startedTextExtraction = true;
 
-        this.pageContents = [];
+        reader.pageContents = [];
         var extractTextPromisesResolves = [];
         var numPages = reader.settings.numPages;
+
         for (var i = 0; i < numPages; i++) {
-            this.extractTextPromises.push(new Promise(function (resolve) {
+            extractTextPromises.push(new Promise(function (resolve) {
                 extractTextPromisesResolves.push(resolve);
             }));
         }
 
-        var self = this;
         function extractPageText(pageIndex) {
             reader.getPageTextContent(pageIndex).then(
                 function textContentResolved(textContent) {
+                    reader.ControlsController.setStatus("extracting text page " + parseInt(pageIndex + 1),true);
                     var textItems = textContent.items;
                     var str = [];
 
@@ -291,7 +289,7 @@ PDFJS.reader.SearchController = function () {
                     }
 
                     // Store the pageContent as a string.
-                    self.pageContents.push(str.join(' ').replace(/\s\s+/g, ' '));
+                    reader.pageContents.push(str.join(''));
 
                     extractTextPromisesResolves[pageIndex](pageIndex);
                     if ((pageIndex + 1) < reader.settings.numPages) {
@@ -303,263 +301,210 @@ PDFJS.reader.SearchController = function () {
         extractPageText(0);
     };
 
-    var executeCommand = function (cmd, state) {
-        if (this.state === null || cmd !== 'findagain') {
-            this.dirtyMatch = true;
+    var updatePage = function (pageIdx) {
+
+        var pageNum = (pageIdx) ? pageIdx + 1 : null;
+
+        if (reader.resourcelst) {
+
+            reader.resourcelst.forEach(function(list) {
+
+                if (list.textLayer && (pageNum === list.pageNum || pageNum === null)) {
+                    list.textLayer.updateMatches();
+                }
+            });
         }
-        this.state = state;
-        updateUIState(FindStates.FIND_PENDING);
-
-		console.log("execute command ", cmd, " with state ", state);
-
-        reader.firstPagePromise.then(function() {
-            extractText();
-
-            clearTimeout(this.findTimeout);
-            if (cmd === 'find') {
-                // Only trigger the find action after 250ms of silence.
-                //this.findTimeout = setTimeout(nextMatch.bind(this), 250);
-                generateMatchList();
-            } else {
-                nextMatch();
-            }
-        }.bind(this));
     };
 
-    var updatePage = function (index) {
+    var executeCommand = function (cmd, state) {
 
-        if (this.selected.pageIdx === index) {
-            // If the page is selected, scroll the page into view, which triggers
-            // rendering the page, which adds the textLayer. Once the textLayer is
-            // build, it will scroll onto the selected match.
-            reader.settings.currentPage = index + 1;
-        }
+        reader.search_state = state;
 
-        //var page = this.pdfViewer.getPageView(index);
-        //if (page.textLayer) {
-            //    page.textLayer.updateMatches();
-            //}
+        reader.firstPagePromise.then(function() {
+            if (reader.pageContents.length < reader.settings.numPages) 
+                extractText();
+
+            if (cmd === 'find') {
+                reader.search_active = true;
+                $match_count.show();
+                generateMatchList();
+            } 
+        }.bind(this));
     };
 
     var generateMatchList = function () {
 
         var container = document.getElementById("searchResults"),
             numPages = reader.settings.numPages,
-            self = this;
+            currentIdx = reader.settings.currentPage - 1,
+            i;
 
-        for (var i = 0; i < numPages; i++) {
-            //var placeholder = document.createElement("li");
-            //placeholder.style.display = "none";
-            //container.appendChild(placeholder);
-            if (!(i in this.pendingFindMatches)) {
-                this.pendingFindMatches[i] = true;
-                this.extractTextPromises[i].then(function(pageIdx) {
-                    delete self.pendingFindMatches[pageIdx];
-                    calcFindMatch(pageIdx);
-                    if (self.pageMatches[pageIdx].length > 0) {
-                        reader.pageMatches[pageIdx] = self.pageMatches[pageIdx];
-                        var fragment = document.createDocumentFragment();
-                        var listitem = document.createElement("li");
-                        listitem.textContent="page " + parseInt(pageIdx + 1);
-                        listitem.classList.add("search_page_header");
-                        fragment.appendChild(listitem);
-                        self.pageMatches[pageIdx].forEach(function (match) {
-                            fragment.appendChild(createItem(pageIdx, match));
-                        });
-
-                        container.appendChild(fragment);
-                    }
-                });
-            }
-        }
-    };
-
-    var nextMatch = function () {
-
-        var previous = this.state.findPrevious;
-        var currentPageIndex = reader.settings.currentPage - 1;
-        var numPages = reader.settings.numPages;
-
-        this.active = true;
-
-        if (this.dirtyMatch) {
-            // Need to recalculate the matches, reset everything.
-            this.dirtyMatch = false;
-            this.selected.pageIdx = this.selected.matchIdx = -1;
-            this.offset.pageIdx = currentPageIndex;
-            this.offset.matchIdx = null;
-            this.hadMatch = false;
-            this.resumePageIdx = null;
-            this.pageMatches = [];
-            this.matchCount = 0;
-            this.pageMatchesLength = null;
-            var self = this;
-
-            for (var i = 0; i < numPages; i++) {
-                // Wipe out any previous highlighted matches.
-                updatePage(i);
-
-                // As soon as the text is extracted start finding the matches.
-                if (!(i in this.pendingFindMatches)) {
-                    this.pendingFindMatches[i] = true;
-                    this.extractTextPromises[i].then(function(pageIdx) {
-                        delete self.pendingFindMatches[pageIdx];
+        if (reader.pageContents.length !== numPages) {
+            extractText();
+            for (i = 0; i < numPages; i++) {
+                if (!(i in pendingFindMatches)) {
+                    pendingFindMatches[i] = true;
+                    extractTextPromises[i].then(function(pageIdx) {
+                        delete pendingFindMatches[pageIdx];
                         calcFindMatch(pageIdx);
+                        if (reader.pageMatches[pageIdx].length > 0) {
+                            container.appendChild(createItemList(pageIdx));
+                        }
                     });
                 }
             }
-        }
-
-        // If there's no query there's no point in searching.
-        if (this.state.query === '') {
-            updateUIState(FindStates.FIND_FOUND);
-            return;
-        }
-
-        // If we're waiting on a page, we return since we can't do anything else.
-        if (this.resumePageIdx) {
-            return;
-        }
-
-        var offset = this.offset;
-        // Keep track of how many pages we should maximally iterate through.
-        this.pagesToSearch = numPages;
-        // If there's already a matchIdx that means we are iterating through a
-        // page's matches.
-        if (offset.matchIdx !== null) {
-            var numPageMatches = this.pageMatches[offset.pageIdx].length;
-            if ((!previous && offset.matchIdx + 1 < numPageMatches) ||
-                (previous && offset.matchIdx > 0)) {
-                    // The simple case; we just have advance the matchIdx to select
-                    // the next match on the page.
-                    this.hadMatch = true;
-                    offset.matchIdx = (previous ? offset.matchIdx - 1 :
-                        offset.matchIdx + 1);
-                    updateMatch(true);
-                    return;
+        } else {
+            for (i = 0; i < numPages; i++) {
+                calcFindMatch(i);
+                if (reader.pageMatches[i].length > 0) {
+                    container.appendChild(createItemList(i));
                 }
-            // We went beyond the current page's matches, so we advance to
-            // the next page.
-            advanceOffsetPage(previous);
-        }
-        // Start searching through the page.
-        nextPageMatch();
-    };
-
-    var matchesReady = function (matches) {
-        var offset = this.offset;
-        var numMatches = matches.length;
-        var previous = this.state.findPrevious;
-
-        if (numMatches) {
-            // There were matches for the page, so initialize the matchIdx.
-            this.hadMatch = true;
-            offset.matchIdx = (previous ? numMatches - 1 : 0);
-            updateMatch(true);
-            return true;
-        }
-        // No matches, so attempt to search the next page.
-        advanceOffsetPage(previous);
-        if (offset.wrapped) {
-            offset.matchIdx = null;
-            if (this.pagesToSearch < 0) {
-                // No point in wrapping again, there were no matches.
-                updateMatch(false);
-                // while matches were not found, searching for a page
-                // with matches should nevertheless halt.
-                return true;
             }
         }
-        // Matches were not found (and searching is not done).
-        return false;
     };
 
-    /**
-        * The method is called back from the text layer when match presentation
-        * is updated.
-        * @param {number} pageIndex - page index.
-        * @param {number} index - match index.
-        * @param {Array} elements - text layer div elements array.
-        * @param {number} beginIdx - start index of the div array for the match.
-        */
-        var updateMatchPosition = function (
-            pageIndex, index, elements, beginIdx) {
-                if (this.selected.matchIdx === index &&
-                    this.selected.pageIdx === pageIndex) {
-                        //var spot = {
-                            //    top: FIND_SCROLL_OFFSET_TOP,
-                            //    left: FIND_SCROLL_OFFSET_LEFT
-                            //};
-                        //scrollIntoView(elements[beginIdx], spot,
-                            //        /* skipOverflowHiddenElements = */ true);
-                    }
-                console.log("would scroll into view here except for the fact that Reader is a non-scrolling reader...");
-            };
+    var nextMatch = function (previous) {
 
-    var nextPageMatch = function () {
-        if (this.resumePageIdx !== null) {
-            console.error('There can only be one pending page.');
-        }
-        do {
-            var pageIdx = this.offset.pageIdx;
-            var matches = this.pageMatches[pageIdx];
-            if (!matches) {
-                // The matches don't exist yet for processing by "matchesReady",
-                // so set a resume point for when they do exist.
-                this.resumePageIdx = pageIdx;
-                break;
-            }
-        } while (!matchesReady(matches));
-    };
+        /* don't try to follow non-existing matches */
+        if (!reader.search_active ||
+            reader.pageMatches.length === 0)
+            return;
 
-    var advanceOffsetPage = function (previous) {
-        var offset = this.offset;
-        var numPages = this.extractTextPromises.length;
-        offset.pageIdx = (previous ? offset.pageIdx - 1 : offset.pageIdx + 1);
-        offset.matchIdx = null;
+        var numPages = reader.settings.numPages,
+            selected = reader.selected,
+            leftIdx = idxOrNull(reader.resourcelst[0].pageNum),
+            rightIdx = idxOrNull(reader.resourcelst[1].pageNum),
+            try_match = false;
 
-        this.pagesToSearch--;
+        /* prevent match cycling on first or last page */
+        if (!((previous && selected.at_start) || (!previous && selected.at_end)))  {
 
-        if (offset.pageIdx >= numPages || offset.pageIdx < 0) {
-            offset.pageIdx = (previous ? numPages - 1 : 0);
-            offset.wrapped = true;
-        }
-    };
+            selected.at_start = selected.at_end = false;
 
-    var updateMatch = function (found) {
-        var state = FindStates.FIND_NOTFOUND;
-        var wrapped = this.offset.wrapped;
-        this.offset.wrapped = false;
+            /*  when in spread view, start at left (forward search) or right (backward search) page
+             *  if not iterating over matches on currently visible pages
+             */
+            if (!(selected.matchIdx !== -1 && isVisible(selected.pageIdx))) {
+                if (previous) {
+                    selected.pageIdx = (typeof rightIdx === "number") ? rightIdx : leftIdx;
+                } else {
+                    selected.pageIdx = (typeof leftIdx === "number") ? leftIdx : rightIdx;
+                }
+                try_match = true;
 
-        if (found) {
-            var previousPage = this.selected.pageIdx;
-            this.selected.pageIdx = this.offset.pageIdx;
-            this.selected.matchIdx = this.offset.matchIdx;
-            state = (wrapped ? FindStates.FIND_WRAPPED : FindStates.FIND_FOUND);
-            // Update the currently selected page to wipe out any selected matches.
-            if (previousPage !== -1 && previousPage !== this.selected.pageIdx) {
-                updatePage(previousPage);
+            } else  {
+
+                var numPageMatches = reader.pageMatches[selected.pageIdx].length;
+
+                if ((!previous && selected.matchIdx + 1 < numPageMatches) || (previous && selected.matchIdx > 0)) {
+                    selected.matchIdx = (previous ? selected.matchIdx - 1 : selected.matchIdx + 1);
+                    updateOrQueue();
+                    return;
+                } else {
+                    selected.pageIdx += (previous) ? -1 : 1;
+                    try_match = true;
+                }
             }
         }
 
-        updateUIState(state, this.state.findPrevious);
-        if (this.selected.pageIdx !== -1) {
-            updatePage(this.selected.pageIdx);
+        if (try_match && nextPageMatch(previous)) {
+            updateOrQueue();
+            return;
+        } else {
+            if (previous) {
+                reader.ControlsController.setStatus("at first match", true);
+                selected.at_start = true;
+            } else {
+                reader.ControlsController.setStatus("at last match", true);
+                selected.at_end = true;
+            }
+            return;
+        }
+
+        function idxOrNull(num) {
+
+            if (typeof num === "number") {
+                return num - 1;
+            } else {
+                return null;
+            }
+        }
+
+        function isVisible (idx) {
+            return (idx === leftIdx || idx === rightIdx);
+        }
+
+        function nextPageMatch (previous) {
+
+            var i,
+                found;
+
+            if (previous) {
+                for (i = selected.pageIdx; i >= -1 && reader.pageMatches[i] === undefined; i--) {}
+            } else {
+                for (i = selected.pageIdx; i <= numPages && reader.pageMatches[i] === undefined; i++) {}
+            }
+
+            if (i < 0 || i >= numPages) {
+                i = -1;
+                //selected.pageIdx = selected.matchIdx = -1;
+                selected.matchIdx = -1;
+                found = false;
+            } else {
+                selected.pageIdx = i;
+                selected.matchIdx = (previous) ? reader.pageMatches[i].length - 1 : 0;
+                found = true;
+            }
+
+            return found;
+        }
+
+        function updateOrQueue() {
+
+            var root = document.getElementById("searchResults"),
+                item,
+                match,
+                i;
+
+            item = root.getElementsByClassName("selected");
+            while (item.length)
+                item[0].classList.remove("selected");
+
+            match = document.getElementById("match:" + selected.pageIdx + ":" + selected.matchIdx);
+            match.classList.add("selected");
+            match = document.getElementsByClassName("match:" + selected.pageIdx + ":" + selected.matchIdx);
+            for (i = 0; i < match.length; i++)
+                match[i].classList.add("selected_again");
+            
+
+            updateMatchCounter(match.dataset.index);
+            if (!reader.isVisible(match))
+                match.scrollIntoView();
+
+            if (isVisible(selected.pageIdx)) {
+                [ leftIdx, rightIdx ].forEach(function (idx) {
+                    if (typeof idx === "number") updatePage(idx);
+                });
+            } else {
+                reader.queuePage(selected.pageIdx + 1);
+            }
         }
     };
 
-    var updateUIResultsCount = function () {
-        if (this.onUpdateResultsCount) {
-            onUpdateResultsCount(this.matchCount);
-        }
+    var updateMatchCounter = function (index) {
+
+        var prefix = "";
+
+        if (index)
+            prefix = index + "/";
+
+        $match_count[0].textContent = prefix + matchCount;
     };
 
-    var updateUIState = function (state, previous) {
-        if (this.onUpdateState) {
-            onUpdateState(state, previous, this.matchCount);
-        }
+    var resetMatchCounter = function () {
+        $match_count[0].textContent = "0";
+        $match_count.hide();
     };
-
 
     var search = function(q) {
         if (q === undefined) {
@@ -576,10 +521,7 @@ PDFJS.reader.SearchController = function () {
         reset();
         $searchResults.empty();
 
-        this.query = q;
-
 		executeCommand('find', {query: q});
-        highlightQuery();
     };
 
     $searchBox.on("keydown", function(e) {
@@ -601,14 +543,13 @@ PDFJS.reader.SearchController = function () {
 
     $clear_search.on("click", function () {
         reset();
-        unhighlight();
         $searchResults.empty();
+        $searchBox.val("");
     });
 
     var clear = function () {
 
         reset();
-        unhighlight();
         $searchResults.empty();
 
         if (reader.SidebarController.getActivePanel() == "Search") {
@@ -616,14 +557,24 @@ PDFJS.reader.SearchController = function () {
         }
     };
 
-    var highlightQuery = function(e) {
-        $("#text_left").contents().highlight(this.state.query, { element: 'span' });
-        $("#text_right").contents().highlight(this.state.query, { element: 'span' });
+    // initialize search
+    reset();
+
+    if (reader.settings.preloadTextcontent) {
+        reader.firstPagePromise.then(function() {
+            setTimeout(function() {
+                extractText();
+            }, 5000);
+        });
+    }
+
+    var onShow = function() {
+        $searchView.addClass("open");
+        $searchBox.focus();
     };
 
-    var unhighlight = function(e) {
-        $("#text_left").unhighlight();
-        $("#text_right").unhighlight();
+    var onHide = function() {
+        $searchView.removeClass("open");
     };
 
 
@@ -632,7 +583,7 @@ PDFJS.reader.SearchController = function () {
         "hide": onHide,
         "search": search,
         "executeCommand": executeCommand,
-        "highlightQuery": highlightQuery,
-        "unhighlight": unhighlight
+        "nextMatch": nextMatch
+
     };
 };

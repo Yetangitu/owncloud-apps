@@ -125,6 +125,15 @@ body {
     left: 0;
 }
 
+#status_message_left {
+    margin-left: 1em;
+}
+
+#status_message_right,
+#match_count {
+    margin-right: 1em;
+}
+
 #metainfo {
     position: fixed;
     /* width: 80%;

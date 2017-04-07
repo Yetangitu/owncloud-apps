@@ -258,6 +258,8 @@
                         <a id="slider" class="icon-menu">
                             <?php p($l->t("menu")); ?>
                         </a>
+                        <div id="status_message_left">
+                        </div>
                     </div>
                     <div id="metainfo" class="nightshift">
                         <span id="book-title">
@@ -273,23 +275,11 @@
                         </span>
                     </div>
                     <div id="title-controls">
-                        <!-- select works fine, except for the fact that - as usual - apple mobile does not support icons...
-                        <label for="zoomlevel">zoom: </label>
-                        <select id="zoomlevel">
-                            <option value="spread" data-icon="&#xe86d;" data-text="2-page">&#xe86d;</option>
-                            <option value="fit_page" data-icon="&#xe86e;" data-text="fit page">&#xe86e;</option>
-                            <option value="fit_width" data-icon="&#xe85c;" data-text="fit width">&#xe85c;</option>
-                            <option value="0.25" class="text">25%</option>
-                            <option value="0.5" class="text">50%</option>
-                            <option value="0.75" class="text">75%</option>
-                            <option value="1" class="text">100%</option>
-                            <option value="1.25" class="text">125%</option>
-                            <option value="1.5" class="text">150%</option>
-                            <option value="2" class="text">200%</option>
-                            <option value="3" class="text">300%</option>
-                            <option value="4" class="text">400%</option>
-                        </select>
-                        -->
+                        <div id="status_message_right">
+                        </div>
+                        <div id="match_count">
+                        </div>
+                        <!-- select works fine, except for the fact that - as usual - apple mobile acts up... -->
                         <div id="zoom_options" class="hide">
                             <div class="zoom_option icon-double_page_mode" data-value="spread" data-class="icon-double_page_mode" data-text=""></div>
                             <div class="zoom_option icon-single_page_mode" data-value="fit_page" data-class="icon-single_page_mode" data-text=""></div>

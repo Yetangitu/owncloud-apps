@@ -1,4 +1,4 @@
-PDFJS.reader.ReaderController = function(book) {
+PDFJS.reader.ReaderController = function() {
     var $main = $("#main"),
         $viewer = $("#viewer"),
         $divider = $("#divider"),
@@ -13,7 +13,8 @@ PDFJS.reader.ReaderController = function(book) {
         $bookmark = $("#bookmark"),
         $note = $("#note"),
         $rotate_left = $("#rotate_left"),
-        $rotate_right = $("#rotate_right");
+        $rotate_right = $("#rotate_right"),
+        $clear_search = $("#clear_search");
 
     var reader = this,
         book = this.book,
@@ -76,6 +77,8 @@ PDFJS.reader.ReaderController = function(book) {
 
         var page_no = false;
 
+        e.preventDefault();
+
         switch (settings.keyboard[e.keyCode]) {
             case 'previous':
                 $prev.click();
@@ -122,6 +125,22 @@ PDFJS.reader.ReaderController = function(book) {
             case 'cycleZoom':
                 reader.cycleZoom();
                 break;
+            case 'previousMatch':
+                reader.SearchController.nextMatch(true);
+                break;
+            case 'nextMatch':
+                reader.SearchController.nextMatch(false);
+                break;
+            case 'clearSearch':
+                $clear_search.click();
+                break;
+            case 'search':
+                if (e.shiftKey) {
+                    reader.SidebarController.changePanelTo("Search");
+                    reader.SearchController.show();
+                }
+
+                break;
             default:
                 console.log("unsupported keyCode: " + e.keyCode);
         }
@@ -129,7 +148,7 @@ PDFJS.reader.ReaderController = function(book) {
         if (page_no) {
             reader.queuePage(page_no);
         }
-    }
+    };
 
     document.addEventListener('keydown', keyCommands, false);
 

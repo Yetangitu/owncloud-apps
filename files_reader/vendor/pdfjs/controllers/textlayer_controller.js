@@ -1,40 +1,8 @@
-/* Copyright 2012 Mozilla Foundation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * @typedef {Object} TextLayerBuilderOptions
- * @property {HTMLDivElement} textLayerDiv - The text layer container.
- * @property {EventBus} eventBus - The application event bus.
- * @property {number} pageIndex - The page index.
- * @property {PageViewport} viewport - The viewport of the text layer.
- * @property {PDFFindController} findController
- * @property {boolean} enhanceTextSelection - Option to turn on improved
- *   text selection.
- */
-
-/**
- * TextLayerBuilder provides text-selection functionality for the PDF.
- * It does this by creating overlay divs over the PDF text. These divs
- * contain text that matches the PDF text they are overlaying. This object
- * also provides a way to highlight text that is being searched for.
- * @class
- */
-PDFJS.Reader.TextLayerController = function (options) {
+PDFJS.Reader.TextLayerController = function (options, reader) {
 
     var EXPAND_DIVS_TIMEOUT = 300; // ms
 
+    this.reader = reader;
     this.textLayerDiv = options.textLayerDiv;
     this.eventBus = options.eventBus || null;
     this.textContent = null;
@@ -44,7 +12,6 @@ PDFJS.Reader.TextLayerController = function (options) {
     this.matches = [];
     this.viewport = options.viewport;
     this.textDivs = [];
-    this.findController = options.findController || null;
     this.textLayerRenderTask = null;
     this.enhanceTextSelection = options.enhanceTextSelection;
     this._bindMouse();
@@ -117,13 +84,14 @@ PDFJS.Reader.TextLayerController.prototype.setTextContent = function (textConten
 
 PDFJS.Reader.TextLayerController.prototype.convertMatches = function(matches, matchesLength) {
 
-    var reader = this;
+    var reader = this.reader;
 
     var i = 0;
     var iIndex = 0;
     var bidiTexts = this.textContent.items;
     var end = bidiTexts.length - 1;
-    var queryLen = reader.search.query.length;
+    var queryLen = reader.search_state ?
+        reader.search_state.query.length : null;
     var ret = [];
     if (!matches) {
         return ret;
@@ -179,18 +147,15 @@ PDFJS.Reader.TextLayerController.prototype.renderMatches = function (matches) {
         return;
     }
 
-    var reader = this;
+    var reader = this.reader;
 
     var bidiTexts = this.textContent.items;
     var textDivs = this.textDivs;
     var prevEnd = null;
     var pageIdx = this.pageIdx;
-    var isSelectedPage = (this.findController === null ?
-        false : (pageIdx === this.findController.selected.pageIdx));
-    var selectedMatchIdx = (this.findController === null ?
-        -1 : this.findController.selected.matchIdx);
-    var highlightAll = (this.findController === null ?
-        false : this.findController.state.highlightAll);
+    var isSelectedPage = (pageIdx === reader.selected.pageIdx);
+    var selectedMatchIdx = reader.selected.matchIdx;
+    var highlightAll = true;
     var infinity = {
         divIdx: -1,
         offset: undefined
@@ -230,12 +195,8 @@ PDFJS.Reader.TextLayerController.prototype.renderMatches = function (matches) {
         var begin = match.begin;
         var end = match.end;
         var isSelected = (isSelectedPage && i === selectedMatchIdx);
-        var highlightSuffix = (isSelected ? ' selected' : '');
-
-        if (this.findController) {
-            this.findController.updateMatchPosition(pageIdx, i, textDivs,
-                begin.divIdx);
-        }
+        var id = "match:" + pageIdx + ":" + i;
+        var highlightSuffix = (isSelected ? ' selected ' + id : ' ' + id);
 
         // Match inside new div.
         if (!prevEnd || begin.divIdx !== prevEnd.divIdx) {
@@ -274,6 +235,13 @@ PDFJS.Reader.TextLayerController.prototype.updateMatches = function () {
         return;
     }
 
+    var reader = this.reader;
+
+    // Only show matches when search is active
+    if (reader.search_active !== true) {
+        return;
+    }
+
     // Clear all matches.
     var matches = this.matches;
     var textDivs = this.textDivs;
@@ -292,18 +260,12 @@ PDFJS.Reader.TextLayerController.prototype.updateMatches = function () {
         clearedUntilDivIdx = match.end.divIdx + 1;
     }
 
-    if (this.findController === null || !this.findController.active) {
-        return;
-    }
-
     // Convert the matches on the page controller into the match format
     // used for the textLayer.
-    var pageMatches, pageMatchesLength;
-    if (this.findController !== null) {
-        pageMatches = this.findController.pageMatches[this.pageIdx] || null;
-        pageMatchesLength = (this.findController.pageMatchesLength) ?
-            this.findController.pageMatchesLength[this.pageIdx] || null : null;
-    }
+    var pageMatches = reader.pageMatches[this.pageIdx] || null,
+        pageMatchesLength = reader.pageMatchesLength ? 
+        reader.pageMatchesLength[this.pageIdx] || null : null;
+
 
     this.matches = this.convertMatches(pageMatches, pageMatchesLength);
     this.renderMatches(this.matches);
