@@ -32,21 +32,21 @@ class Hooks {
 
     protected static function deleteFile(IDBConnection $connection, $fileId) {
         $queryBuilder = $connection->getQueryBuilder();
-        $queryBuilder->delete('reader_bookmarks','b')->where('b.file_id = :file_id')->setParameter(':file_id', $fileId);
+        $queryBuilder->delete('reader_bookmarks')->where('file_id = :file_id')->setParameter(':file_id', $fileId);
         $queryBuilder->execute();
 
         $queryBuilder = $connection->getQueryBuilder();
-        $queryBuilder->delete('reader_preferences','p')->where('p.file_id = :file_id')->setParameter(':file_id', $fileId); 
+        $queryBuilder->delete('reader_preferences')->where('file_id = :file_id')->setParameter(':file_id', $fileId); 
         $queryBuilder->execute();
     }
 
     protected static function deleteUser(IDBConnection $connection, $userId) {
         $queryBuilder = $connection->getQueryBuilder();
-        $queryBuilder->delete('reader_bookmarks','b')->where('b.user_id = :user_id')->setParameter(':user_id', $userId);
+        $queryBuilder->delete('reader_bookmarks')->where('user_id = :user_id')->setParameter(':user_id', $userId);
         $queryBuilder->execute();
 
         $queryBuilder = $connection->getQueryBuilder();
-        $queryBuilder->delete('reader_preferences','p')->where('p.user_id = :user_id')->setParameter(':user_id', $userId); 
+        $queryBuilder->delete('reader_preferences')->where('user_id = :user_id')->setParameter(':user_id', $userId); 
         $queryBuilder->execute();
     }
 
