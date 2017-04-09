@@ -1,3 +1,8 @@
+## 1.0.4 - 2017-04-09
+### Fixed
+ - #43, remove table aliases in hooks to avoid being bit by querybuilder/doctrine/MySQL incompatibility/idiosyncracy
+ - #39, #41 and #42, NOTE: if you're on MySQL or MariaDB you might need to enable 4-byte support if this has not been done yet, otherwise you'll get a '1071 Specified key was too long' error on install. More information on this issue - which also occurs when trying to use Emoji characters in a NC/OC installation on a MySQL or MariaDB database - can be found here: https://docs.nextcloud.com/server/11/admin_manual/maintenance/mysql_4byte_support.html
+
 ## 1.0.3 - 2017-03-29
 ### Fixed
  - #40, detect shared file OR folder and (try to) get fileId for such when applicable
