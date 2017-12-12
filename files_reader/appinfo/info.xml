@@ -121,7 +121,7 @@ The same Android device showing a zoomed-in part of a page|![The same Android de
    [SS18]: https://github.com/Yetangitu/owncloud-apps/blob/master/screenshots/photo_2017-03-15_18-28-56.jpg?raw=true "The same Android device showing a zoomed-in part of a page"
 	]]>
     </description>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
@@ -141,7 +141,7 @@ The same Android device showing a zoomed-in part of a page|![The same Android de
     </types>
     <dependencies>
         <owncloud min-version="8.1" max-version="9.2" />
-        <nextcloud min-version="8.1" max-version="12"/>
+        <nextcloud min-version="8.1" max-version="13"/>
 		<database>pgsql</database>
 		<database>sqlite</database>
 		<database>mysql</database>
