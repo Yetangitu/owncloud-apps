@@ -1,4 +1,4 @@
-## 1.1 - 2018-01-18
+## 1.1.0 - 2018-01-18
 ### Added
  - Reader now supports PDF
  - PDF double page spreads are supported
