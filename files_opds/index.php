@@ -12,8 +12,6 @@
 
 namespace OCA\Files_Opds;
 
-\OCP\App::checkAppEnabled('files_opds');
-
 Util::authenticateUser();
 
 /* Refuse access if user disabled opds support */
