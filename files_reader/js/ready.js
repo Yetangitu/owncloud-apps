@@ -121,7 +121,7 @@ document.onreadystatechange = function () {
 
         /* device-specific boilerplate */
 
-            // IE < 11
+        // IE < 11
         if (navigator.userAgent.indexOf("MSIE") != -1) {
             EPUBJS.Hooks.register("beforeChapterDisplay").wgxpath = function(callback, renderer){
                 wgxpath.install(renderer.render.window);

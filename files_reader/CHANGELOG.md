@@ -10,6 +10,25 @@
  - new version bitjs archive tools, fixes compatibility problems with some CBR files
  - increased maximum supported version for OC and NC
 
+## 1.0.4 - 2017-04-09
+### Fixed
+ - #43, remove table aliases in hooks to avoid being bit by querybuilder/doctrine/MySQL incompatibility/idiosyncracy
+ - #39, #41 and #42, NOTE: if you're on MySQL or MariaDB you might need to enable 4-byte support if this has not been done yet, otherwise you'll get a '1071 Specified key was too long' error on install. More information on this issue - which also occurs when trying to use Emoji characters in a NC/OC installation on a MySQL or MariaDB database - can be found here: https://docs.nextcloud.com/server/11/admin_manual/maintenance/mysql_4byte_support.html
+
+## 1.0.3 - 2017-03-29
+### Fixed
+ - #40, detect shared file OR folder and (try to) get fileId for such when applicable
+
+## 1.0.2 - 2017-03-25
+### Fixed
+ - #37, use getAppManager()->isInstalled('files_opds') instead of class_exists to avoid log spam
+
+### Changed
+ - new version bitjs unarchiver, increases compatibility with CBR files (at the cost of some speed)
+ - move function declarations in js/ready.js down one block level so browsers which do not support
+   ES6 (e.g. Palemoon) can find them. Unfortunately the above new version of bitjs uses another ES6 
+   feature (classes) which Palemoon does not support so this change may be moot...
+
 ## 1.0.1 - 2017-03-19
 ### Fixed
  - #35: Internal Server Error: fixed path resolution so app works when NC/OC hosted in subdirectory

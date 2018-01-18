@@ -13,7 +13,7 @@
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
   $title = htmlentities(basename($dllink));
-  $revision = '0046';
+  $revision = '0047';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
   /* Mobile safari, the new IE6 */
