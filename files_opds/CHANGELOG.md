@@ -1,3 +1,7 @@
+## 0.8.3 - 2018-01-18
+### Changed
+ - increased maximum version for OC and NC
+
 ## 0.8.2 - 2017-01-19
 ### Fixed
  - Support login tokens ('app passwords', NC/OC) and 2FA (NC)

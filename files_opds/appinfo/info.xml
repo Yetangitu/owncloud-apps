@@ -11,7 +11,7 @@
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
         <licence>AGPL</licence>
-	<version>0.8.2</version>
+	<version>0.8.3</version>
         <author>Frank de Lange</author>
 	<category>tools</category>
 	<category>files</category>
@@ -28,8 +28,8 @@
             <database>pgsql</database>
             <database>sqlite</database>
             <database>mysql</database>
-            <owncloud min-version="8.1" max-version="9.2" />
-            <nextcloud min-version="8.1" max-version="12" />
+            <owncloud min-version="8.1" max-version="10" />
+            <nextcloud min-version="8.1" max-version="13" />
         </dependencies>
 	<settings>
 		<admin>OCA\Files_Opds\Settings\Admin</admin>
