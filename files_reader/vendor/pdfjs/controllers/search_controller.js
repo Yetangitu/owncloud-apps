@@ -464,6 +464,7 @@ PDFJS.reader.SearchController = function () {
             var root = document.getElementById("searchResults"),
                 item,
                 match,
+                matchlist,
                 i;
 
             item = root.getElementsByClassName("selected");
@@ -472,12 +473,13 @@ PDFJS.reader.SearchController = function () {
 
             match = document.getElementById("match:" + selected.pageIdx + ":" + selected.matchIdx);
             match.classList.add("selected");
-            match = document.getElementsByClassName("match:" + selected.pageIdx + ":" + selected.matchIdx);
-            for (i = 0; i < match.length; i++)
-                match[i].classList.add("selected_again");
-            
 
             updateMatchCounter(match.dataset.index);
+
+            //matchlist = document.getElementsByClassName("match:" + selected.pageIdx + ":" + selected.matchIdx);
+            //for (i = 0; i < matchlist.length; i++)
+            //    matchlist[i].classList.add("selected_again");
+
             if (!reader.isVisible(match))
                 match.scrollIntoView();
 

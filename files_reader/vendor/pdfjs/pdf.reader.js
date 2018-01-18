@@ -41,6 +41,8 @@ PDFJS.Reader = function(bookPath, _options) {
         canvasLimit: 0,
         cssZoomOnly: false, // true || false, only zoom using CSS, render document at 100% size
         textSelect: true,   // true || false, add selectable text layer
+        annotationLayer: true,  // true || false. show PDF annotations
+        mergeAnnotations: true,// true || false, merge PDF annotations into bookmarks/annotations
         doubleBuffer: true, // true || false, draw to off-screen canvas
         cacheNext: true,    // true || false, pre-render next page (by creathing thumbnail))
         numPages: 0,
@@ -86,8 +88,25 @@ PDFJS.Reader = function(bookPath, _options) {
         annotations: {},
         customStyles: {},
         activeStyles: {},
-        session: {}
+        session: {
+            getCursor: function() {},
+            setCursor: function(value) {},
+            getBookmark: function(name, type) {},
+            setBookmark: function(name, value, type, content) {},
+            getDefault: function(name) {},
+            setDefault: function(name, value) {},
+            getPreference: function(name) {},
+            setPreference: function(name, value) {}
+        }
     });
+
+    // event bus service
+    var eventBus = new PDFJS.Reader.EventBus();
+    this.eventBus = eventBus;
+
+    // link service
+    var linkService = new PDFJS.Reader.LinkService( { eventBus: this.eventBus }, reader);
+    this.linkService  = linkService;
 
     // used for annotations and bookmarks
     this.Annotation = function (type, anchor, body, id) {
@@ -112,7 +131,9 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("left"),
             ctx: document.getElementById("left").getContext('2d'),
             textdiv: document.getElementById("text_left"),
+            annotationdiv: document.getElementById("annotations_left"),
             textLayer: null,
+            annotationLayer: null,
             renderTask: null,
             oscanvas: null,
             osctx: null,
@@ -122,7 +143,9 @@ PDFJS.Reader = function(bookPath, _options) {
             canvas: document.getElementById("right"),
             ctx: document.getElementById("right").getContext('2d'),
             textdiv: document.getElementById("text_right"),
+            annotationdiv: document.getElementById("annotations_right"),
             textLayer: null,
+            annotationLayer: null,
             renderTask: null,
             oscanvas: null,
             osctx: null,
@@ -194,74 +217,127 @@ PDFJS.Reader = function(bookPath, _options) {
         reader.ProgressController.setProgress(progress);
     };
 
-    loadingTask.then(
+	loadingTask.then(
 
-        function(_book) {
-            reader.book = book = _book;
-            //console.log(book);
-            reader.settings.numPages = reader.book.numPages;
-            document.getElementById('total_pages').textContent = reader.settings.numPages;
-            if(!$.isEmptyObject(reader.settings.session.cursor)) {
-                console.log("setting cursor:", reader.settings.session.cursor);
-                reader.settings.currentPage = parseInt(reader.settings.session.cursor.anchor);
+		function(_book) {
+			reader.book = book = _book;
+			//console.log(book);
+			reader.settings.numPages = reader.book.numPages;
+			document.getElementById('total_pages').textContent = reader.settings.numPages;
+            console.log(reader.settings);
+            console.log("numPages",reader.settings.numPages);
+            console.log("cursor",reader.settings.session.cursor);
+			if(!$.isEmptyObject(reader.settings.session.cursor)
+                && (reader.settings.session.cursor.value !== null)
+                && (reader.settings.session.cursor.value < reader.settings.numPages)) {
+				console.log("setting cursor:", reader.settings.session.cursor);
+				reader.settings.currentPage = parseInt(reader.settings.session.cursor.value);
+			}
+
+			var firstPagePromise = book.getPage(1);
+			reader.firstPagePromise = firstPagePromise;
+
+			reader.linkService.setDocument(book, location.href.split('#')[0]);
+
+			// set labels
+			reader.book.getPageLabels().then(function (labels) {
+				if (labels) {
+					for (var i = 0; i < labels.length; i++) {
+						if (labels[i] !== (i + 1).toString()) {
+							reader.pageLabels[i + 1] = labels[i];
+						}
+					}
+				}
+			});
+
+			reader.ReaderController = PDFJS.reader.ReaderController.call(reader, book);
+			reader.SettingsController = PDFJS.reader.SettingsController.call(reader, book);
+			reader.ControlsController = PDFJS.reader.ControlsController.call(reader, book);
+			reader.SidebarController = PDFJS.reader.SidebarController.call(reader, book);
+
+			reader.queuePage(reader.settings.currentPage);
+			reader.ReaderController.hideLoader();
+			reader.ProgressController.hide();
+
+			reader.book.getOutline().then(function (outline) {
+				reader.OutlineController = PDFJS.reader.OutlineController.call(reader, outline);
+			}); 
+			reader.book.getMetadata().then(function (metadata) {
+				console.log("metadata", metadata);
+				reader.settings.pdfMetadata = metadata;
+			});
+			reader.book.getAttachments().then(function (attachments) {
+				console.log("attachments", attachments);
+			});
+
+			reader.book.getStats().then(function (stats) {
+				console.log("stats", stats);
+			});
+
+			// BookmarksController depends on NotesController so load NotesController first
+			reader.NotesController = PDFJS.reader.NotesController.call(reader, book);
+			reader.BookmarksController = PDFJS.reader.BookmarksController.call(reader, book);
+
+            if (reader.settings.mergeAnnotations) {
+                reader.firstPagePromise.then(function() {
+                    var numPages = reader.settings.numPages;
+
+                    function extractAnnotations(pageIndex) {
+                        reader.book.getPage(pageIndex).then(function(page) {
+                            page.getAnnotations().then(function(annotations) {
+                                if (annotations.length > 0) {
+                                    for (var annotation in annotations) {
+                                        if (annotations.hasOwnProperty(annotation) && !annotations[annotation].parentId) {
+                                            var ann = annotations[annotation],
+                                                type = (ann.contents && ann.contents !== "") ? "annotation" : "bookmark",
+                                                item;
+
+                                            item = new reader.Annotation(
+                                                type,
+                                                pageIndex,
+                                                ann.contents,
+                                                ann.id || PDFJS.core.uuid()
+                                            );
+                                            console.log(ann);
+
+                                            if (type === "annotation") {
+                                                reader.NotesController.addItem(item);
+                                            } else {
+                                                reader.BookmarksController.addItem(item);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                            if ((pageIndex + 1) <= reader.settings.numPages) {
+                                extractAnnotations(pageIndex + 1);
+                            }
+                        });
+                    }
+                    extractAnnotations(1);
+                });
             }
 
-            var firstPagePromise = book.getPage(1);
-            reader.firstPagePromise = firstPagePromise;
+		reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
+		//reader.MetaController = PDFJS.reader.MetaController.call(reader, meta);
+		reader.TocController = PDFJS.reader.TocController.call(reader, book);
+	},
+		function getDocumentError(exception) {
+			var message = exception && exception.message;
+			var errormsg = "An error occurred while loading the PDF";
+			if (exception instanceof PDFJS.InvalidPDFException) {
+				errormsg = "Invalid or corrupted PDF file";
+			} else if (exception instanceof PDFJS.MissingPDFException) {
+				errormsg = "Missing PDF file";
+			} else if (exception instanceof PDFJS.UnexpectedResponseException) {
+				errormsg = "Unexpected server response";
+			}
 
-            // set labels
-            reader.book.getPageLabels().then(function (labels) {
-                if (labels) {
-                    for (var i = 0; i < labels.length; i++) {
-                        if (labels[i] !== (i + 1).toString()) {
-                            reader.pageLabels[i + 1] = labels[i];
-                        }
-                    }
-                }
-            });
-
-            reader.ReaderController = PDFJS.reader.ReaderController.call(reader, book);
-            reader.SettingsController = PDFJS.reader.SettingsController.call(reader, book);
-            reader.ControlsController = PDFJS.reader.ControlsController.call(reader, book);
-            reader.SidebarController = PDFJS.reader.SidebarController.call(reader, book);
-
-            reader.queuePage(reader.settings.currentPage);
-            reader.ReaderController.hideLoader();
-            reader.ProgressController.hide();
-
-            reader.book.getOutline().then(function (outline) {
-                reader.OutlineController = PDFJS.reader.OutlineController.call(reader, outline);
-            }); 
-            reader.book.getMetadata().then(function (metadata) {
-                console.log("metadata", metadata);
-                reader.settings.pdfMetadata = metadata;
-            });
-            reader.book.getAttachments().then(function (attachments) {
-                console.log("attachments", attachments);
-            });
-
-            // BookmarksController depends on NotesController so load NotesController first
-            //reader.NotesController = PDFJS.reader.NotesController.call(reader, book);
-            //reader.BookmarksController = PDFJS.reader.BookmarksController.call(reader, book);
-            reader.SearchController = PDFJS.reader.SearchController.call(reader, book);
-            //reader.MetaController = PDFJS.reader.MetaController.call(reader, meta);
-            reader.TocController = PDFJS.reader.TocController.call(reader, book);
-        },
-        function getDocumentError(exception) {
-            var message = exception && exception.message;
-            var errormsg = "An error occurred while loading the PDF";
-            if (exception instanceof PDFJS.InvalidPDFException) {
-                                errormsg = "Invalid or corrupted PDF file";
-                            } else if (exception instanceof PDFJS.MissingPDFException) {
-                                errormsg = "Missing PDF file";
-                            } else if (exception instanceof PDFJS.UnexpectedResponseException) {
-                                errormsg = "Unexpected server response";
-                            }
-
-            console.log("Reader: ", errormsg);
-            reader.ProgressController.setMessage(errormsg, "download", "error");
-        }
-    );
+			console.log("Reader: ", errormsg);
+			reader.ProgressController.setMessage(errormsg, "download", "error");
+		}
+);
 
 	return this;
 };
@@ -395,6 +471,10 @@ PDFJS.Reader.prototype.cancelRender = function (index) {
         resourcelst.textLayer.cancel();
         resourcelst.textLayer = null;
     }
+
+    if (resourcelst.annotationLayer) {
+        resourcelst.annotationLayer = null;
+    }
 };
 
 PDFJS.Reader.prototype.renderPage = function(pageNum) {
@@ -408,6 +488,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
         oscanvas,   // off-screen canvas
         osctx,      // off-screen context
         textdiv,
+        annotationdiv,
         textLayer,
 		outputscale,
         max_view_width,
@@ -431,15 +512,17 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
         resourcelst,
         swap_orientation,
         double_buffer,
-        cache_next;
+        cache_next,
+        pageShift;
 
     max_view_width = window.innerWidth;
     max_view_height = window.innerHeight;
 
     if (this.settings.zoomLevel === "spread") {
 
-        // show second canvas
+        // show second canvas and textlayer
         reader.resourcelst[1].canvas.style.display = "block";
+        reader.resourcelst[1].textdiv.style.display = "block";
         max_view_width /= 2;
         // select canvas and ctx based on pageNum, pageShift and oddPageRight
         pageShift = 2;
@@ -449,10 +532,15 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
     } else {
 
         index = 0;
+        pageShift = 1;
         // hide second canvas
         reader.resourcelst[1].canvas.style.display = "none";
+        // hide second text layer
+        reader.resourcelst[1].textdiv.style.display = "none";
         // clear text layer
         reader.resourcelst[1].textdiv.innerHTML = "";
+        // clear annotation layer
+        reader.resourcelst[1].annotationdiv.innerHTML = "";
         // clear page number
         reader.resourcelst[1].pageNum = null;
 
@@ -468,12 +556,14 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
     canvas = resourcelst.canvas;
     ctx = resourcelst.ctx;
     textdiv = resourcelst.textdiv;
+    annotationdiv = resourcelst.annotationdiv;
     outputscale = reader.getOutputScale(resourcelst.ctx);
     fraction = reader.approximateFraction(outputscale);
     double_buffer = reader.settings.doubleBuffer;
     cache_next = reader.settings.cacheNext;
 
     textdiv.innerHTML = "";
+    annotationdiv.innerHTML = "";
 
     if (pageNum <= this.settings.numPages && pageNum >= 1) {
 
@@ -487,12 +577,20 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             resourcelst.textLayer = null;
         }
 
+        if (resourcelst.annotationLayer) {
+            //resourcelst.annotationLayer.hide();
+            resourcelst.annotationLayer = null;
+        }
+
         resourcelst.pageNum = pageNum;
 
         if (reader.cancelPage[pageNum])
             delete reader.cancelPage[pageNum];
 
         this.book.getPage(pageNum).then(function(page) {
+            page.getAnnotations().then(function (annotations) {
+                console.log("annotations", annotations);
+            });
             //console.log(page);
             page_rotation = page.rotate;
             rotation = (page_rotation + reader.settings.rotation) % 360;
@@ -576,9 +674,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
                 }
             }
 
-            //console.log("outputscale: " + outputscale);
-            //console.log("canvas w x h: " + canvas.width + " x " + canvas.height);
-
             transform = (outputscale === 1)
                 ? null
                 : [outputscale, 0, 0, outputscale, 0, 0];
@@ -595,7 +690,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             /* textlayer */
             if (reader.settings.textSelect) {
                 textdiv.style.width = reader.roundToDivide(viewport.width, fraction[1]) + 'px';
-                textdiv.style.height = reader.roundToDivide(viewport.height, fraction[1]) + 'px';
+                textdiv.style.height = 0;
                 offset = $(canvas).offset();
                 $(textdiv).offset({
                     top: offset.top,
@@ -613,8 +708,28 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             } else {
                 resourcelst.textLayer = textLayer = null;
             }
-
             /* /textLayer */
+
+            /* annotationLayer */
+            if (reader.settings.annotationLayer) {
+                annotationdiv.style.width = reader.roundToDivide(viewport.width, fraction[1]) + 'px';
+                //annotationdiv.style.height = reader.roundToDivide(viewport.height, fraction[1]) + 'px';
+                annotationdiv.style.height = 0;
+                offset = $(canvas).offset();
+                $(annotationdiv).offset({
+                    top: offset.top,
+                    left: offset.left
+                });
+                resourcelst.annotationLayer = new PDFJS.Reader.AnnotationLayerController({
+                    annotationDiv: annotationdiv,
+                    pdfPage: page,
+                    renderInteractiveForms: false,
+                    linkService: reader.linkService,
+                    downloadManager: null
+                }, reader);
+                resourcelst.annotationLayer.render(viewport, 'display');
+            }
+            /* /annotationLayer */
 
             if (double_buffer) {
                 resourcelst.oscanvas = oscanvas = document.createElement("canvas");
@@ -688,6 +803,7 @@ PDFJS.Reader.prototype.queuePage = function(page) {
     reader.settings.currentPage = page;
 
     reader.ControlsController.setCurrentPage(page);
+    reader.settings.session.setCursor(page);
 
     if (typeof reader.renderQueue === 'number') {
         window.clearTimeout(reader.renderQueue);
@@ -843,104 +959,6 @@ PDFJS.Reader.prototype.getPageLabel = function (page) {
     }
 };
 
-PDFJS.Reader.prototype.navigateTo = function (destination) {
-
-    var reader = this,
-        destString = "",
-        destinationPromise,
-        goToDestination;
-
-    goToDestination = function (destRef) {
-
-        var pageNumber;
-
-        if (destRef instanceof Object) {
-
-            pageNumber = reader.cachedPageNum(destRef);
-        } else if ((destRef | 0) === destRef) { // Integer
-            pageNumber = destRef + 1;
-        } else {
-            console.error('PDFJS.Reader.navigateTo: "' + destRef
-                + '" is not a valid destination reference.');
-
-            return;
-        }
-
-        if (pageNumber) {
-
-            if (pageNumber < 1 || pageNumber > reader.settings.numPages) {
-                console.error('PDFJS.Reader.navigateTo: "' + pageNumber
-                    + '" is a non-existent page number.');
-
-                return;
-            }
-
-            reader.queuePage(pageNumber);
-
-        } else {
-            
-            reader.book.getPageIndex(destRef).then(function (pageIndex) {
-
-                reader.cachePageRef(pageIndex + 1, destRef);
-                goToDestination(destRef);
-            }).catch(function () {
-                console.error('PDFJS.Reader.navigateTo: "' + destRef
-                    + '" is not a valid page reference.');
-
-                return;
-            });
-        }
-    };
-
-    if (typeof destination === 'string') {
-
-        destString = destination;
-        destinationPromise = reader.book.getDestination(destination);
-
-    } else {
-
-        destinationPromise = Promise.resolve(destination);
-
-    }
-
-    destinationPromise.then(function (_destination) {
-
-        destination = _destination;
-
-        if (!(destination instanceof Array)) {
-
-            console.error('PDFJS.Reader.navigateTo: "' + destination
-                + '" is not a valid destination array.');
-
-            return;
-        }
-
-        goToDestination(destination[0]);
-
-    });
-};
-
-PDFJS.Reader.prototype.pageRefStr = function (pageRef) {
-
-    return pageRef.num + ' ' + pageRef.gen + ' R';
-};
-
-PDFJS.Reader.prototype.cachePageRef = function (pageNum, pageRef) {
-
-    var reader = this,
-        refStr;
-
-    reader.pageRefs[reader.pageRefStr(pageRef)] = pageNum;
-};
-
-PDFJS.Reader.prototype.cachedPageNum = function (pageRef) {
-
-    var reader = this;
-
-    return (reader.pageRefs[reader.pageRefStr(pageRef)])
-        || null;
-};
-
 PDFJS.Reader.prototype.getPageTextContent = function (pageIndex) {
 
     var reader = this,
@@ -951,28 +969,6 @@ PDFJS.Reader.prototype.getPageTextContent = function (pageIndex) {
             normalizeWhitespace: true,
         });
     });
-};
-
-PDFJS.Reader.prototype.getDestinationHash = function (destination) {
-
-	var url = location.href.split('#')[0],
-		str;
-
-	if (typeof destination === 'string') {
-
-		url += "#"
-			+ (parseInt(destination) === destination)
-			? "nameddest="
-			: ""
-			+ escape(destination);
-
-	} else if (destination instanceof Array) {
-
-		url += "#"
-			+ escape(JSON.stringify(destination));
-	}
-
-	return url;
 };
 
 PDFJS.Reader.prototype.setStyles = function (element, item) {
@@ -996,6 +992,7 @@ PDFJS.Reader.prototype.setStyles = function (element, item) {
 PDFJS.Reader.prototype.bindLink = function (element, item) {
 
 	var reader = this,
+        linkService = this.linkService,
 		destination = item.dest;
 
 	if (item.url) {
@@ -1010,10 +1007,12 @@ PDFJS.Reader.prototype.bindLink = function (element, item) {
 		return;
 	} else {
 
-		element.href = reader.getDestinationHash(destination);
+		//element.href = reader.getDestinationHash(destination);
+		element.href = linkService.getDestinationHash(destination);
 		element.onclick = function () {
 			if (destination) {
-				reader.navigateTo(destination);
+				//reader._navigateTo(destination);
+				linkService.navigateTo(destination);
 			}
 
 			return false;

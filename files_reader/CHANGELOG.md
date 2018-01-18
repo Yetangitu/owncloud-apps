@@ -1,4 +1,4 @@
-## UNRELEASED
+## 1.1 - 2018-01-18
 ### Added
  - Reader now supports PDF
  - PDF double page spreads are supported
@@ -8,6 +8,7 @@
 ### Changed
  - #38: moved declarations in js/ready.js one level lower to work around a bug in the Palemoon browser
  - new version bitjs archive tools, fixes compatibility problems with some CBR files
+ - increased maximum supported version for OC and NC
 
 ## 1.0.1 - 2017-03-19
 ### Fixed

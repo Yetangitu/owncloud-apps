@@ -25,6 +25,8 @@ document.onreadystatechange = function () {
         options.session.basePath = $session.data('basepath');
         options.session.downloadLink = $session.data('downloadlink');
 
+        console.log(options.session.basePath);
+
 
         /* functions return jquery promises */
         options.session.getPreference = function(name) {
@@ -142,6 +144,7 @@ document.onreadystatechange = function () {
     // start pdf.js renderer
     function renderPdf(file, options) {
         PDFJS.filePath = "vendor/pdfjs/";
+        PDFJS.imageResourcesPath = "vendor/pdfjs/css/images/";
         PDFJS.workerSrc = options.session.basePath + 'vendor/pdfjs/lib/pdf.worker.js';
 
         var reader = pdfReader(file, options);

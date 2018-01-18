@@ -1,6 +1,7 @@
 PDFJS.reader.BookmarksController = function() {
 
 	var reader = this,
+        eventBus = this.eventBus,
 	    book = this.book,
         annotations = reader.settings.annotations;
 
@@ -18,38 +19,68 @@ PDFJS.reader.BookmarksController = function() {
 
     var addBookmarkItem = function (bookmark) {
         $list.append(reader.NotesController.createItem(bookmark));
+        reader.settings.session.setBookmark(bookmark.id, bookmark.anchor, bookmark.type, bookmark);
+    };
+
+    var addBookmark = function (pageNum) {
+        var bookmark = new reader.Annotation(
+            "bookmark",
+            pageNum,
+            null,
+            pageToId(pageNum)
+        );
+
+        addBookmarkItem(bookmark);
+    };
+
+    var removeBookmark = function (pageNum) {
+        var id = pageToId(pageNum);
+        console.log("ID", id);
+
+        if (isBookmarked(id)) {
+            delete reader.settings.annotations[id];
+            reader.settings.session.deleteBookmark(id);
+            if (id === pageToId(reader.settings.currentPage)) {
+                $bookmark
+                    .removeClass("icon-turned_in")
+                    .addClass("icon-turned_in_not");
+            }
+        }
+    };
+
+    eventBus.on('bookmarkremoved', function removeBookmark1(e) {
+        var id = e.id,
+            $item = $("#"+id);
+
+        $item.remove();
+
+        if (id === pageToId(reader.settings.currentPage)) {
+            $bookmark
+                .removeClass("icon-turned_in")
+                .addClass("icon-turned_in_not");
+        }
+    });
+
+    var pageToId = function (pageNum) {
+        return "page_" + pageNum;
+    };
+
+    var isBookmarked = function (pageNum) {
+        return (reader.settings.annotations[pageToId(pageNum)] !== undefined);
     };
 
     for (var bookmark in annotations) {
         if (annotations.hasOwnProperty(bookmark) && (annotations[bookmark].type === "bookmark"))
             addBookmarkItem(annotations[bookmark]);
 	};
-	
-	this.on("reader:bookmarkcreated", function (bookmark) {
-        addBookmarkItem(bookmark);
-	});
-	
-	this.on("reader:bookmarkremoved", function (id) {
-		var $item = $("#"+id),
-            cfi = reader.book.getCurrentLocationCfi(),
-            cfi_id = reader.cfiToId(cfi);
-
-		$item.remove();
-
-        if(cfi_id === id) {
-            $bookmark
-                .removeClass("icon-turned_in")
-                .addClass("icon-turned_in_not");
-        }
-	});
-
-    this.on("reader:gotobookmark", function (bookmark) {
-        if (bookmark && bookmark.value)
-            book.gotoCfi(bookmark.value);
-    });
 
 	return {
 		"show" : show,
-		"hide" : hide
+		"hide" : hide,
+        "addItem" : addBookmarkItem,
+        "addBookmark" : addBookmark,
+        "removeBookmark" : removeBookmark,
+        "pageToId" : pageToId,
+        "isBookmarked" : isBookmarked
 	};
 };

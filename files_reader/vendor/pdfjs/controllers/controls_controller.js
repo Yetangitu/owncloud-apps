@@ -121,15 +121,16 @@ PDFJS.reader.ControlsController = function(book) {
     });
 
     $bookmark.on("click", function() {
-        var cfi = reader.book.getCurrentLocationCfi();
+        var currentPage = reader.settings.currentPage,
+            bmc = reader.BookmarksController;
 
-        if(!(reader.isBookmarked(cfi))) { //-- Add bookmark
-            reader.addBookmark(cfi);
+        if(!bmc.isBookmarked(currentPage)) { //-- Add bookmark
+            bmc.addBookmark(currentPage);
             $bookmark
                 .addClass("icon-turned_in")
                 .removeClass("icon-turned_in_not");
         } else { //-- Remove Bookmark
-            reader.removeBookmark(cfi);
+            bmc.removeBookmark(currentPage);
             $bookmark
                 .removeClass("icon-turned_in")
                 .addClass("icon-turned_in_not");

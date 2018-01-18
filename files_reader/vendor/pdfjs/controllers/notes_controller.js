@@ -1,4 +1,4 @@
-PDFJS.reader.NotesController = function() {
+PDFJS.reader.NotesController = function(book) {
 
     var book = this.book,
         reader = this,
@@ -9,10 +9,10 @@ PDFJS.reader.NotesController = function() {
         $next = $("#next"),
         $prev = $("#prev"),
         $touch_nav = $("#touch_nav"),
+        $viewer = $("#viewer"),
         annotations = reader.settings.annotations,
         renderer = book.renderer,
-        popups = [],
-        epubcfi = new PDFJS.EpubCFI();
+        popups = [];
 
     var show = function() {
         $notesView.addClass('open');
@@ -31,8 +31,8 @@ PDFJS.reader.NotesController = function() {
         var range,
             textNode,
             offset,
-            doc = book.renderer.doc,
-            cfi,
+            doc = document,
+            loc,
             annotation;
 
         // standard
@@ -46,6 +46,9 @@ PDFJS.reader.NotesController = function() {
             textNode = range.startContainer;
             offset = range.startOffset;
         }
+
+        console.log("textNode", textNode, "offset", offset);
+        console.log(e);
 
         if (textNode.nodeType !== 3) {
             for (var i=0; i < textNode.childNodes.length; i++) {
@@ -64,9 +67,9 @@ PDFJS.reader.NotesController = function() {
             offset += 1; // After the period
         }
 
-        cfi = epubcfi.generateCfiFromTextNode(textNode, offset, book.renderer.currentChapter.cfiBase);
+        loc = "";
 
-        annotation = new reader.Annotation('annotation', cfi, $text.val());
+        annotation = new reader.Annotation('annotation', loc, $text.val());
 
         // save...
         reader.addAnnotation(annotation);
@@ -87,6 +90,16 @@ PDFJS.reader.NotesController = function() {
 
     var addAnnotationItem = function(annotation) {
         $notes.append(createItem(annotation));
+        reader.settings.session.setBookmark(annotation.id, annotation.anchor, annotation.type, annotation);
+    };
+
+    var removeAnnotation = function (id) {
+
+        if (annotations[id] !== undefined) {
+            deleteAnnotationItem(id);
+            delete annotations[id];
+            reader.settings.session.deleteBookmark(id);
+        }
     };
 
     var deleteAnnotationItem = function (id) {
@@ -133,24 +146,14 @@ PDFJS.reader.NotesController = function() {
             link.href = "#"+annotation.anchor;
 
             link.onclick = function(){
-                book.gotoCfi(annotation.anchor);
+                reader.queuePage(annotation.anchor);
                 return false;
             };
 
             del.onclick = function() {
                 var id = this.parentNode.parentNode.getAttribute("id");
-                //var marker = book.renderer.doc.getElementById("note-" + id);
-                // remove note from collection...
-                //reader.removeAnnotation(id);
-                // ... and remove the marker...
-                //if (marker) {
-                    //    marker.remove();
-                    //    renumberMarkers();
-                    //}
-                // ...and finally remove the HTML representation
-                //this.parentNode.parentNode.remove();
-                //renumberMarkers();
-                reader.removeAnnotation(id);
+                console.log("ID", id);
+                removeAnnotation(id);
             };
 
             save.onclick = function() {
@@ -241,7 +244,7 @@ PDFJS.reader.NotesController = function() {
         mark.innerHTML = findIndex(annotation.id) + "[Reader]";
 
         marker.appendChild(mark);
-        epubcfi.addMarker(annotation.anchor, doc, marker);
+        // epubcfi.addMarker(annotation.anchor, doc, marker);
 
         markerEvents(marker, annotation.body);
         renumberMarkers();
@@ -251,17 +254,17 @@ PDFJS.reader.NotesController = function() {
         for (var note in annotations) {
             if (annotations.hasOwnProperty(note)) {
                 var chapter = renderer.currentChapter;
-                var cfi = epubcfi.parse(annotations[note].anchor);
-                if(cfi.spinePos === chapter.spinePos) {
-                    try {
-                        var marker = book.renderer.doc.getElementById("note-" + annotations[note].id);
-                        if (marker !== undefined) {
-                            marker.innerHTML = findIndex(annotations[note].id) + "[Reader]";
-                        }
-                    } catch(e) {
-                        console.log("renumbering of markers failed", annotations[note].anchor);
-                    }
-                }
+//                var cfi = epubcfi.parse(annotations[note].anchor);
+//                if(cfi.spinePos === chapter.spinePos) {
+//                    try {
+//                        var marker = book.renderer.doc.getElementById("note-" + annotations[note].id);
+//                        if (marker !== undefined) {
+//                            marker.innerHTML = findIndex(annotations[note].id) + "[Reader]";
+//                        }
+//                    } catch(e) {
+//                        console.log("renumbering of markers failed", annotations[note].anchor);
+//                    }
+//                }
             }
         };
     };
@@ -406,7 +409,7 @@ PDFJS.reader.NotesController = function() {
                 $prev.addClass("restore_touch_nav");
             }
             // listen for selection
-            book.on("renderer:click", insertAtPoint);
+            $viewer.on("click", insertAtPoint);
         } else {
             $text.prop("disabled", false);
             $anchor.removeClass("icon-location_off");
@@ -416,7 +419,8 @@ PDFJS.reader.NotesController = function() {
                 $prev.addClass("touch_nav");
                 $next.addClass("touch_nav");
             }
-            book.off("renderer:click", insertAtPoint);
+
+            $viewer.off("click", insertAtPoint);
         }
     });
 
@@ -425,36 +429,11 @@ PDFJS.reader.NotesController = function() {
             addAnnotationItem(annotations[note]);
     };
 
-    this.on("reader:annotationcreated", function (note) {
-        addAnnotationItem(note);
-    });
-
-    this.on("reader:annotationremoved", function (id) {
-        deleteAnnotationItem(id);
-    });
-
-    // replace markers for annotations
-    renderer.registerHook("beforeChapterDisplay", function(callback, renderer){
-        var chapter = renderer.currentChapter;
-        for (var note in annotations) {
-            if (annotations.hasOwnProperty(note) && (annotations[note].type === "annotation")) {
-                var cfi = epubcfi.parse(annotations[note].anchor);
-                if(cfi.spinePos === chapter.spinePos) {
-                    try {
-                        placeMarker(annotations[note]);
-                    } catch(e) {
-                        console.log("anchoring failed", annotations[note].anchor);
-                    }
-                }
-            }
-        };
-        callback();
-    }, true);
-
-
     return {
         "show" : show,
         "hide" : hide,
-        "createItem": createItem
+        "createItem": createItem,
+        "addItem" : addAnnotationItem,
+        "removeAnnotation" : removeAnnotation
     };
 };
