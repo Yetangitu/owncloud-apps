@@ -51,8 +51,8 @@ See [README] for more exhaustive information on features and potential misfeatur
         <filesystem/>
     </types>
     <dependencies>
-        <owncloud min-version="8.1" max-version="10" />
-        <nextcloud min-version="8.1" max-version="13"/>
+        <owncloud min-version="8.2" max-version="10.0" />
+        <nextcloud min-version="8.1" max-version="13.0"/>
 		<database>pgsql</database>
 		<database>sqlite</database>
 		<database>mysql</database>
