@@ -10,9 +10,9 @@
 
 		The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 	</description>
-        <licence>AGPL</licence>
-	<version>0.8.3</version>
-        <author>Frank de Lange</author>
+    <licence>AGPL</licence>
+	<version>0.8.4</version>
+    <author>Frank de Lange</author>
 	<category>tools</category>
 	<category>files</category>
 	<category>organization</category>

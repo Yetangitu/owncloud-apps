@@ -1,3 +1,7 @@
+## 0.8.4 - 2018-01-19
+### Changed
+ - signed package for publication in Owncloud marketplace
+
 ## 0.8.3 - 2018-01-18
 ### Changed
  - increased maximum version for OC and NC
