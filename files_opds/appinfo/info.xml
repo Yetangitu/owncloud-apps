@@ -5,20 +5,22 @@
 	<summary>An OPDS catalog generator; publishes a sub-tree of the filesystem as an OPDS feed</summary>
     <description>
     <![CDATA[
-		[OPDS] is a syndication format for electronic publications based on Atom and HTTP which makes it possible to access those publications (which are not limited to electronic books) on any OPDS client device. Examples of the latter are phones and tablets running OPDS-compatible book readers, eg FBReader/CoolReader/Aldiko on Android or Marvin/KyBook/Stanza on iOS.
+# OPDS Catalog
 
-		The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents. v0.5 introduced ISBN-based metadata retrieval, while Calibre-generated metadata.opf files are parsed since v0.6. FictionBook2 (.fb2) metadata retrieval is supported from v0.8.0.
+[OPDS] is a syndication format for electronic publications based on Atom and HTTP which makes it possible to access those publications (which are not limited to electronic books) on any OPDS client device. Examples of the latter are phones and tablets running OPDS-compatible book readers, eg FBReader/CoolReader/Aldiko on Android or Marvin/KyBook/Stanza on iOS.
 
-        The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
+The OPDS catalog app enables Owncloud users to publish a sub-tree of their personal filesystem as an OPDS feed. As of v0.3 OPDS catalog can extract all relevant metadata from EPUB documents. v0.5 introduced ISBN-based metadata retrieval, while Calibre-generated metadata.opf files are parsed since v0.6. FictionBook2 (.fb2) metadata retrieval is supported from v0.8.0.
 
-        See [README] for more information on (mis)features of this app.
+The feed is in compliance with the OPDS 1.1 specification according to the online OPDS validator (http://opds-validator.appspot.com/).
 
-        [OPDS]: http://opds-spec.org/about/
-        [README]: https://github.com/Yetangitu/owncloud-apps/blob/master/files_opds/README.md
-        ]]>
+See [README] for more information on (mis)features of this app.
+
+    [OPDS]: http://opds-spec.org/about/
+    [README]: https://github.com/Yetangitu/owncloud-apps/blob/master/files_opds/README.md
+    ]]>
 	</description>
     <licence>AGPL</licence>
-	<version>0.8.5</version>
+	<version>0.8.6</version>
     <author>Frank de Lange</author>
 	<category>tools</category>
 	<category>files</category>
