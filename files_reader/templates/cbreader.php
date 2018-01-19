@@ -12,7 +12,7 @@
   $preferences = $_['preferences'];
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
-  $title = htmlentities(basename($dllink));
+  $title = htmlentities(basename($downloadLink));
   $revision = '0047';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
@@ -34,7 +34,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
         <title>
-            <?php p($_['title']);?>
+            <?php p($title);?>
         </title>
         <link rel="shortcut icon" href="img/book.png">
         <link rel="stylesheet" href="vendor/icomoon/style.css?v=<?php p($version) ?>">

@@ -34,7 +34,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
         <title>
-            <?php p($_['title']);?>
+            <?php p($title);?>
         </title>
         <link rel="shortcut icon" href="img/book.png">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/icomoon/style.css')) ?>?v=<?php p($version) ?>">
