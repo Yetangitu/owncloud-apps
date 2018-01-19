@@ -109,6 +109,7 @@ The same Android device showing a zoomed-in part of a page|![The same Android de
    [Epub]: http://idpf.org/epub
    [CBR and CBZ]: https://wiki.mobileread.com/wiki/CBR_and_CBZ
    [balaclark]: https://github.com/balaclark/HTML5-Comic-Book-Reader
+   [PDF]: https://en.wikipedia.org/wiki/Portable_Document_Format
    [pdf.js]: https://github.com/mozilla/pdf.js
    [SS01]: https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-1.png "Reader showing day/nighyt mode"
    [SS02]: https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-3.png "Single page full screen on a small-screen device"

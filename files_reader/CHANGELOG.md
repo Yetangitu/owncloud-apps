@@ -1,3 +1,10 @@
+## 1.1.1 - 2018-01-19
+### Added
+ - signed package for publication in Owncloud marketplace
+
+### Changed
+ - updated bitjs unrar.js and rarvm.js
+
 ## 1.1.0 - 2018-01-18
 ### Added
  - Reader now supports PDF
