@@ -50,9 +50,13 @@ switch ($_['type']) {
 		foreach ($_['bookshelf'] as $file) {
 			print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
 		}
-		break;
+        break;
 
-	/* intentional fall-through for 'directory' */
+
+	/* intentional fall-through */
+    case 'author':
+    case 'title':
+    case 'genre':
 	case 'directory':
 	default:
 		foreach ($_['files'] as $file) {
