@@ -30,14 +30,14 @@ See [README] for more exhaustive information on features and potential misfeatur
    [README]: https://github.com/Yetangitu/owncloud-apps/blob/master/files_reader/README.md
 	]]>
     </description>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
         <user>https://github.com/Yetangitu/owncloud-apps/blob/master/files_reader/README.md</user>
     </documentation>
     <bugs>https://github.com/Yetangitu/owncloud-apps/issues</bugs>
-    <website>https://github.com/Yetangitu/owncloud-apps/files_reader</website>
+    <website>https://github.com/Yetangitu/owncloud-apps/tree/master/files_reader</website>
     <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-1.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader-3.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_reader_PDF_005.png</screenshot>
