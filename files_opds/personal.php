@@ -14,7 +14,7 @@ use OCP\Util;
 
 $l = \OC::$server->getL10N('files_opds');
 
-\OCP\Util::addScript('files_opds', 'personal');
+#\OCP\Util::addScript('files_opds', 'personal');
 
 $tmpl = new \OCP\Template('files_opds', 'personal');
 $opdsEnable = Config::get('enable', false);

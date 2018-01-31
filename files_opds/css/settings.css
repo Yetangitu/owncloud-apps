@@ -5,3 +5,7 @@
 #opds .double-indent {
 	padding-left: 2em;
 }
+
+.nav-icon-opds {
+    background-image: url('../img/app.svg?v=1');
+}

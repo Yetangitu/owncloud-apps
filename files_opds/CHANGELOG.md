@@ -1,3 +1,11 @@
+## 0.8.8 - 2018-01-31
+### Changed
+ - some minor changes to the preference sections
+
+## 0.8.5 - 0.8.7
+### Changed
+ - debugging NC and OC package signing collision
+
 ## 0.8.4 - 2018-01-19
 ### Changed
  - signed package for publication in Owncloud marketplace

@@ -10,6 +10,9 @@
  * later.
  */
 
+script('files_opds', 'personal');
+style('files_opds', 'settings');
+
 ?>
 
 <div class="section" id="opds-personal">
@@ -19,7 +22,7 @@
         </tr>
         </table>
         <div>
-		<input id="opds-enable" name="opds-enable" value="<?php p($_['opdsEnable-value']) ?>" <?php p($_['opdsEnable-checked']) ?> type="checkbox">
+		<input id="opds-enable" name="opds-enable" value="<?php p($_['opdsEnable-value']) ?>" <?php p($_['opdsEnable-checked']) ?> type="checkbox" class="checkbox">
                 <label for="opds-enable"><?php p($l->t('enable OPDS catalog')) ?></label>
 	</div>
 	<br>

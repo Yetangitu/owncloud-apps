@@ -14,7 +14,7 @@ $l = \OC::$server->getL10N('files_opds');
 
 function checkBox($format) {
 	foreach($format as $name => $enabled) {
-		echo '<input type="checkbox" id="opds-preview-' . $name . '" name="opds-preview-' . $name . '" ' . ($enabled == 1 ? 'checked >' : '>');
+		echo '<input type="checkbox" class="checkbox" id="opds-preview-' . $name . '" name="opds-preview-' . $name . '" ' . ($enabled == 1 ? 'checked >' : '>');
 		echo '<label for="opds-preview-' . $name . '">' . $name . '</label>';
 	}
 } 

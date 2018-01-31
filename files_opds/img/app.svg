@@ -5,134 +5,108 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg5261"
    version="1.1"
-   id="svg4096"
    viewBox="0 0 32 32"
-   height="32"
    width="32"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="app.svg">
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="798"
-     inkscape:window-height="1186"
-     id="namedview7"
-     showgrid="false"
-     inkscape:zoom="20.5625"
-     inkscape:cx="16"
-     inkscape:cy="16"
-     inkscape:window-x="0"
-     inkscape:window-y="12"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg4096" />
-  <defs
-     id="defs4098" />
+   height="32">
   <metadata
-     id="metadata4101">
+     id="metadata5267">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <defs
+     id="defs5265" />
   <g
-     transform="translate(0,-1020.3622)"
+     style="fill:#060000;fill-opacity:1"
      id="layer1"
-     style="fill:#ffffff">
+     transform="translate(1.4457782,-1020.2752)">
     <path
-       style="fill:#ffffff"
+       d="m 11.168042,1021.5246 c -2.2036689,-1.0138 -6.5467059,0.9451 -7.7942059,2.6697 -0.555819,0.7717 -0.516525,1.3278 -0.516525,1.6433 v 16.8796 l 16.2867569,8.8577 3.062736,-1.4617 v -16.4387 l -16.7222168,-8.3914 c 0.897356,-0.9871 2.9155749,-2.1908 4.4288007,-1.7074 l 14.8949581,6.9633 v 18.3129 l 3.070508,-1.4642 v -18.3122 z"
        id="path2989"
-       d="m 11.168042,1021.5246 c -2.2036689,-1.0138 -6.5467059,0.9451 -7.7942059,2.6697 -0.555819,0.7717 -0.516525,1.3278 -0.516525,1.6433 l 0,16.8796 16.2867569,8.8577 3.062736,-1.4617 0,-16.4387 -16.7222168,-8.3914 c 0.897356,-0.9871 2.9155749,-2.1908 4.4288007,-1.7074 l 14.8949581,6.9633 0,18.3129 3.070508,-1.4642 0,-18.3122 z" />
+       style="fill:#060000;fill-opacity:1" />
   </g>
   <text
-     xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     x="4.7659574"
-     y="11.6231"
      id="text3335"
-     sodipodi:linespacing="125%"><tspan
-       sodipodi:role="line"
-       id="tspan3337"
-       x="4.7659574"
-       y="11.6231"></tspan></text>
+     y="11.710122"
+     x="6.2117367"
+     style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     xml:space="preserve"><tspan
+       style="font-size:40px;line-height:1.25"
+       y="11.710122"
+       x="6.2117367"
+       id="tspan3337"> </tspan></text>
   <g
-     transform="matrix(0.01369405,0.00618385,0,0.01584184,3.8326644,6.6347791)"
+     style="fill:#fcfcfc;fill-opacity:1"
      id="g3673"
-     style="fill:#000000">
+     transform="matrix(0.01369405,0.00618385,0,0.01584184,5.2784422,6.7218015)">
     <g
-       id="g3675"
-       style="fill:#000000">
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3675">
       <g
-         id="g3677"
-         style="fill:#000000">
+         style="fill:#fcfcfc;fill-opacity:1"
+         id="g3677">
         <g
-           id="g3679"
-           style="fill:#000000">
+           style="fill:#fcfcfc;fill-opacity:1"
+           id="g3679">
           <path
-             inkscape:connector-curvature="0"
-             d="m 829.2,664.9 c -36.4,0 -69.8,12.2 -96.8,32.6 l -401.2,-193.9 0.4,-7.3 400.8,-193.7 c 26.9,20.4 60.3,32.6 96.8,32.6 88.9,0 160.9,-72 160.9,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 -88.9,0 -160.9,72 -160.9,160.9 l 0,0.1 -397.4,192 C 243.5,344.5 208.7,331.2 170.9,331.2 82,331.3 10,403.3 10,492.2 10,581 82,653 170.9,653 c 32.1,0 62,-9.5 87.1,-25.7 l 410.3,198.3 0,0.2 c 0,88.8 72,160.9 160.9,160.9 88.9,0 160.8,-72 160.8,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 z"
+             style="fill:#fcfcfc;fill-opacity:1"
              id="path3681"
-             style="fill:#000000" />
+             d="m 829.2,664.9 c -36.4,0 -69.8,12.2 -96.8,32.6 l -401.2,-193.9 0.4,-7.3 400.8,-193.7 c 26.9,20.4 60.3,32.6 96.8,32.6 88.9,0 160.9,-72 160.9,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 -88.9,0 -160.9,72 -160.9,160.9 v 0.1 L 271,366.4 C 243.5,344.5 208.7,331.2 170.9,331.2 82,331.3 10,403.3 10,492.2 10,581 82,653 170.9,653 c 32.1,0 62,-9.5 87.1,-25.7 l 410.3,198.3 v 0.2 c 0,88.8 72,160.9 160.9,160.9 88.9,0 160.8,-72 160.8,-160.9 0,-88.9 -72,-160.9 -160.8,-160.9 z" />
         </g>
       </g>
     </g>
     <g
-       id="g3683"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3683" />
     <g
-       id="g3685"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3685" />
     <g
-       id="g3687"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3687" />
     <g
-       id="g3689"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3689" />
     <g
-       id="g3691"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3691" />
     <g
-       id="g3693"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3693" />
     <g
-       id="g3695"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3695" />
     <g
-       id="g3697"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3697" />
     <g
-       id="g3699"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3699" />
     <g
-       id="g3701"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3701" />
     <g
-       id="g3703"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3703" />
     <g
-       id="g3705"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3705" />
     <g
-       id="g3707"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3707" />
     <g
-       id="g3709"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3709" />
     <g
-       id="g3711"
-       style="fill:#000000" />
+       style="fill:#fcfcfc;fill-opacity:1"
+       id="g3711" />
   </g>
 </svg>
