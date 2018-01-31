@@ -34,7 +34,7 @@ PDFJS.reader.TocController = function() {
 			if (isVisible(elements[i])) {
 				pagenum = elements[i].getAttribute("data-pagenum");
 				elements[i].removeAttribute("data-pagenum");
-				reader.getThumb(pagenum, true);
+				reader.getThumb(parseInt(pagenum), true);
                 count++;
 			}
 		}

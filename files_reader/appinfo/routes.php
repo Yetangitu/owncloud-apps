@@ -10,6 +10,8 @@
  * later.
  */
 
+$this->create('reader_personal_settings', 'ajax/personal.php')->actionInclude('files_reader/ajax/personal.php');
+
 return ['routes' => [
     // Page
     ['name' => 'page#showReader', 'url' => '/', 'verb' => 'GET'],

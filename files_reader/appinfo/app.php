@@ -15,6 +15,8 @@ namespace OCA\Files_Reader\AppInfo;
 use OCP\AppFramework\App;
 use OCP\Util;
 
+$l = \OC::$server->getL10N('files_reader');
+
 \OCA\Files_Reader\Hooks::register();
 Util::addscript('files_reader', 'plugin');
-
+\OCP\App::registerPersonal('files_reader', 'personal');

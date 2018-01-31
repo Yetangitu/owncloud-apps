@@ -13,7 +13,7 @@
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
   $title = htmlentities(basename($downloadLink));
-  $revision = '0047';
+  $revision = '0048';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
   /* Mobile safari, the new IE6 */
@@ -32,7 +32,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
+        <!-- <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>"> -->
         <title>
             <?php p($title);?>
         </title>

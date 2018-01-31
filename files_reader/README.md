@@ -21,7 +21,7 @@ Reader remembers the last-visited page in a book and returns to that page when t
   - seamless full-screen mode supported on browsers which allow full user-control, ie. not on Apple)
   - single- and double-page viewing mode
   - user-configurable font and colour settings
-  - night mode, toggled by clicking the book title/author on top of the viewer (not yet implemented for PDF)
+  - night mode, toggled by clicking the book title/author on top of the viewer or the night mode button (PDF) 
   - full-text search with keyword highlighting
   - bookmarks (with automatic snippet generation)
   - annotations (not yet implemented for PDF)
@@ -88,7 +88,6 @@ Reader showing PDF Reference document in spread mode (pages side by side)|![Read
 Search through a document, showing all results in the sidebar|![Search through a document, showing all results in the sidebar][SS19]
 Dropdown showing page format options - spread, single page, page width and zoom options|![Dropdown showing page format options - spread, single page, page width and zoom options][SS21]
 Reader showing PDF in spread mode, thumbnails in the sidebar|![Reader showing PDF in spread mode, thumbnails in the sidebar][SS22]
-
 
 ### CBR/CBZ
 |   |   |

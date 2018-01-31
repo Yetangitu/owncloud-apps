@@ -11,6 +11,7 @@ PDFJS.reader.SettingsController = function() {
         $prev = $("#prev"),
         $close = $("#close"),
         $sidebarReflow = $('#sidebarReflow'),
+        $scrollToTop = $('#scrollToTop'),
         $touch_nav = $("#touch_nav"),
         $page_turn_arrows = $("#page_turn_arrows"),
         $prev_arrow = $("#prev :first-child"),
@@ -23,6 +24,17 @@ PDFJS.reader.SettingsController = function() {
 	var hide = function() {
         $settings.removeClass('open');
 	};
+
+    if (settings.scrollToTop) {
+        $scrollToTop.prop('checked', true);
+    } else {
+        $scrollToTop.prop('checked', false);
+    }
+
+    $scrollToTop.off('click').on('click', function() {
+        settings.scrollToTop = !settings.scrollToTop;
+        settings.session.setDefault("scrollToTop", settings.scrollToTop);
+    });
 
     if (settings.sidebarReflow) {
         $sidebarReflow.prop('checked', true);

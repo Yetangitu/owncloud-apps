@@ -42,9 +42,10 @@ PDFJS.Reader = function(bookPath, _options) {
         cssZoomOnly: false, // true || false, only zoom using CSS, render document at 100% size
         textSelect: true,   // true || false, add selectable text layer
         annotationLayer: true,  // true || false. show PDF annotations
-        mergeAnnotations: true,// true || false, merge PDF annotations into bookmarks/annotations
+        mergeAnnotations: false,// true || false, merge PDF annotations into bookmarks/annotations
         doubleBuffer: true, // true || false, draw to off-screen canvas
         cacheNext: true,    // true || false, pre-render next page (by creathing thumbnail))
+        scrollToTop: false, // true || false, scroll to top of page on page turn
         numPages: 0,
         currentPage: 1,
         scale: DEFAULT_SCALE,
@@ -73,17 +74,15 @@ PDFJS.Reader = function(bookPath, _options) {
             83: 'toggleSidebar',// s
             84: 'toggleTitlebar',   // t
             68: 'toggleDay',    // d
-            //78: 'toggleNight',  // n
+            78: 'toggleNight',  // n
             55: 'search',       // '/'
             80: 'previousMatch',  // p
-            78: 'nextMatch',    // n
             70: 'toggleFullscreen', // f
             27: 'closeSidebar', // esc
            114: 'nextMatch'     // F3 
         },
         nightMode: false,
         dayMode: false,
-        maxWidth: 72,
         pageArrows: false,
         annotations: {},
         customStyles: {},
@@ -113,6 +112,7 @@ PDFJS.Reader = function(bookPath, _options) {
         this.id = id || PDFJS.core.uuid();
         this.type = type;
         this.date = Date.now();
+        this.readonly = true;
         this.edited = this.date;
         this.anchor = anchor;
         this.body = body;
@@ -126,6 +126,7 @@ PDFJS.Reader = function(bookPath, _options) {
         this.extra = extra || null;
     };
 
+    // resource list for single-page and 2-page display
     this.resourcelst = [
         {
             canvas: document.getElementById("left"),
@@ -153,6 +154,7 @@ PDFJS.Reader = function(bookPath, _options) {
         }
     ];
 
+    // list of pages in the render queue which should be discarded
     this.cancelPage = {};
 
     this.renderQueue = false;
@@ -194,9 +196,9 @@ PDFJS.Reader = function(bookPath, _options) {
     }
 
 
-    //this.restoreDefaults(this.settings.session.defaults);
-    //this.restorePreferences(this.settings.session.preferences);
-    //this.restoreAnnotations(this.settings.session.annotations);
+    this.restoreDefaults(this.settings.session.defaults);
+    this.restorePreferences(this.settings.session.preferences);
+    this.restoreAnnotations(this.settings.session.annotations);
     this.sideBarOpen = false;
     this.viewerResized = false;
 	this.pageNumPending = null;
@@ -221,16 +223,12 @@ PDFJS.Reader = function(bookPath, _options) {
 
 		function(_book) {
 			reader.book = book = _book;
-			//console.log(book);
 			reader.settings.numPages = reader.book.numPages;
 			document.getElementById('total_pages').textContent = reader.settings.numPages;
-            console.log(reader.settings);
-            console.log("numPages",reader.settings.numPages);
-            console.log("cursor",reader.settings.session.cursor);
 			if(!$.isEmptyObject(reader.settings.session.cursor)
                 && (reader.settings.session.cursor.value !== null)
-                && (reader.settings.session.cursor.value < reader.settings.numPages)) {
-				console.log("setting cursor:", reader.settings.session.cursor);
+                && (reader.settings.session.cursor.value > 0)
+                && (reader.settings.session.cursor.value <= reader.settings.numPages)) {
 				reader.settings.currentPage = parseInt(reader.settings.session.cursor.value);
 			}
 
@@ -254,6 +252,7 @@ PDFJS.Reader = function(bookPath, _options) {
 			reader.SettingsController = PDFJS.reader.SettingsController.call(reader, book);
 			reader.ControlsController = PDFJS.reader.ControlsController.call(reader, book);
 			reader.SidebarController = PDFJS.reader.SidebarController.call(reader, book);
+			reader.StyleController = PDFJS.reader.StylesController.call(reader, book);
 
 			reader.queuePage(reader.settings.currentPage);
 			reader.ReaderController.hideLoader();
@@ -263,15 +262,14 @@ PDFJS.Reader = function(bookPath, _options) {
 				reader.OutlineController = PDFJS.reader.OutlineController.call(reader, outline);
 			}); 
 			reader.book.getMetadata().then(function (metadata) {
-				console.log("metadata", metadata);
 				reader.settings.pdfMetadata = metadata;
 			});
 			reader.book.getAttachments().then(function (attachments) {
-				console.log("attachments", attachments);
+				// console.log("attachments", attachments);
 			});
 
 			reader.book.getStats().then(function (stats) {
-				console.log("stats", stats);
+				// console.log("stats", stats);
 			});
 
 			// BookmarksController depends on NotesController so load NotesController first
@@ -289,7 +287,8 @@ PDFJS.Reader = function(bookPath, _options) {
                                     for (var annotation in annotations) {
                                         if (annotations.hasOwnProperty(annotation) && !annotations[annotation].parentId) {
                                             var ann = annotations[annotation],
-                                                type = (ann.contents && ann.contents !== "") ? "annotation" : "bookmark",
+                                                //type = (ann.contents && ann.contents !== "") ? "annotation" : "bookmark",
+                                                type = "annotation",
                                                 item;
 
                                             item = new reader.Annotation(
@@ -298,13 +297,10 @@ PDFJS.Reader = function(bookPath, _options) {
                                                 ann.contents,
                                                 ann.id || PDFJS.core.uuid()
                                             );
-                                            console.log(ann);
 
-                                            if (type === "annotation") {
-                                                reader.NotesController.addItem(item);
-                                            } else {
-                                                reader.BookmarksController.addItem(item);
-                                            }
+											item.body = ann.subtype.toString() + ":" + ann.id.toString();
+
+                                            reader.NotesController.addItem(item);
                                         }
                                     }
                                 }
@@ -341,6 +337,108 @@ PDFJS.Reader = function(bookPath, _options) {
 
 	return this;
 };
+
+
+// Annotations - bookmarks and PDF annotations
+PDFJS.Reader.prototype.pageToId = function (pageNum) {
+    return "page_" + pageNum;
+};
+
+PDFJS.Reader.prototype.addAnnotation = function (note) {
+    this.settings.annotations[note.id] = note;
+    this.settings.session.setBookmark(note.id, note.anchor, note.type, note);
+};
+
+PDFJS.Reader.prototype.removeAnnotation = function (id) {
+    if (this.settings.annotations[id] !== undefined) {
+        var type = this.settings.annotations[id].type;
+        this.eventBus.dispatch(type + "removed", {
+            source: this,
+            id: id
+        });
+        this.settings.session.deleteBookmark(id);
+        delete this.settings.annotations[id];
+    }
+};
+
+PDFJS.Reader.prototype.updateAnnotation = function (note) {
+    note.edited = Date.now();
+    this.settings.annotations[note.id] = note;
+    this.settings.session.setBookmark(note.id, note.anchor, note.type, note);
+};
+
+PDFJS.Reader.prototype.clearAnnotations = function(type) {
+    if (type) {
+        for (var id in this.settings.annotations) {
+            if (this.settings.annotations.hasOwnProperty(id) && this.settings.annotations[id].type === type)
+                this.removeAnnotation(id);
+        }
+    }
+};
+
+PDFJS.Reader.prototype.isBookmarked = function (id) {
+    return (this.settings.annotations[id] !== undefined);
+};
+
+PDFJS.Reader.prototype.addBookmark = function(pageNum) {
+    var id = this.pageToId(pageNum);
+
+    var text = " ",
+        bookmark;
+
+    // TODO: get text content around bookmark location, needed for annotation editor (not yet implemented)
+    for (var i = 0; i <= 1; i++) {
+        if (this.resourcelst[i].pageNum == pageNum
+            && this.resourcelst[i].textdiv.textContent !== null) {
+                text = this.ellipsize(this.resourcelst[i].textdiv.textContent);
+            }
+    }
+
+    if (this.isBookmarked(id)) {
+        bookmark = this.getAnnotation(id);
+        this.updateAnnotation(bookmark);
+    } else {
+        bookmark = new this.Annotation("bookmark", pageNum, text, id);
+        bookmark.readonly = false;
+        this.addAnnotation(bookmark);
+    }
+
+    this.eventBus.dispatch("bookmarkcreated", {
+        source: this,
+        id: id
+    });
+
+    return bookmark;
+};
+
+PDFJS.Reader.prototype.updateBookmark = function (bookmark) {
+    this.updateAnnotation(bookmark);
+};
+
+PDFJS.Reader.prototype.removeBookmark = function (pageNum) {
+    var id = this.pageToId(pageNum);
+    this.removeAnnotation(id);
+};
+
+PDFJS.Reader.prototype.clearBookmarks = function () {
+    this.clearAnnotations("bookmark");
+};
+
+PDFJS.Reader.prototype.getAnnotation = function (id) {
+    return this.settings.annotations[id];
+};
+
+PDFJS.Reader.prototype.restoreAnnotations = function (annotations) {
+    if (annotations !== {}) {
+        for (var note in this.settings.session.annotations) {
+            if (annotations.hasOwnProperty(note) && annotations[note].content !== null) {
+                this.settings.annotations[annotations[note].name] = annotations[note].content;
+            }
+        }
+    }
+};
+
+// Render thumbnail, page, etc.
 
 PDFJS.Reader.prototype.getThumb = function (pageNum, insert) {
 
@@ -513,6 +611,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
         swap_orientation,
         double_buffer,
         cache_next,
+        scroll_to_top,
         pageShift;
 
     max_view_width = window.innerWidth;
@@ -561,6 +660,7 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
     fraction = reader.approximateFraction(outputscale);
     double_buffer = reader.settings.doubleBuffer;
     cache_next = reader.settings.cacheNext;
+    scroll_to_top = reader.settings.scrollToTop;
 
     textdiv.innerHTML = "";
     annotationdiv.innerHTML = "";
@@ -591,7 +691,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             page.getAnnotations().then(function (annotations) {
                 console.log("annotations", annotations);
             });
-            //console.log(page);
             page_rotation = page.rotate;
             rotation = (page_rotation + reader.settings.rotation) % 360;
             initial_viewport = page.getViewport(1, rotation);
@@ -713,7 +812,6 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             /* annotationLayer */
             if (reader.settings.annotationLayer) {
                 annotationdiv.style.width = reader.roundToDivide(viewport.width, fraction[1]) + 'px';
-                //annotationdiv.style.height = reader.roundToDivide(viewport.height, fraction[1]) + 'px';
                 annotationdiv.style.height = 0;
                 offset = $(canvas).offset();
                 $(annotationdiv).offset({
@@ -752,12 +850,18 @@ PDFJS.Reader.prototype.renderPage = function(pageNum) {
             renderTask.promise.then(
                 function pdfPageRenderCallback (something) {
                     if (reader.cancelPage[pageNum] === undefined) { 
+                        if (scroll_to_top)
+                            document.getElementById('viewer').scrollTo(0,0);
                         if (double_buffer)
                             ctx.drawImage(oscanvas, 0, 0);
                         if (textLayer)
                             textLayer.render(reader.settings.textRenderDelay);
                         if (cache_next)
                             reader.getThumb(parseInt(pageNum + pageShift), true);
+                        reader.eventBus.dispatch("renderer:pagechanged", {
+                            source: this,
+                            pageNum: pageNum
+                        });
                     } 
                 },
                 function pdfPageRenderError(error) {
@@ -787,6 +891,11 @@ PDFJS.Reader.prototype.queuePage = function(page) {
         zoom = reader.settings.zoomLevel,
         oddPageRight = reader.settings.oddPageRight,
         pageShift;
+
+    if (page < 1)
+        page = 1;
+    if (page > this.settings.numPages)
+        page = this.settings.numPages;
 
     if (zoom === "spread") {
         pageShift = 2;
@@ -859,6 +968,20 @@ PDFJS.Reader.prototype.defaults = function (obj) {
     }
   }
   return obj;
+};
+
+// Defaults and Preferences
+// Preferences are per-book settings and can override defaults
+PDFJS.Reader.prototype.restoreDefaults = function (defaults) {
+    for (var i=0; i < defaults.length; i++) {
+        this.settings[defaults[i].name] = defaults[i].value;
+    }
+};
+
+PDFJS.Reader.prototype.restorePreferences = function (preferences) {
+    for (var i=0; i < preferences.length; i++) {
+        this.settings[preferences[i].name] = preferences[i].value;
+    }
 };
 
 PDFJS.Reader.prototype.setScale = function (scale) {
@@ -1007,11 +1130,9 @@ PDFJS.Reader.prototype.bindLink = function (element, item) {
 		return;
 	} else {
 
-		//element.href = reader.getDestinationHash(destination);
 		element.href = linkService.getDestinationHash(destination);
 		element.onclick = function () {
 			if (destination) {
-				//reader._navigateTo(destination);
 				linkService.navigateTo(destination);
 			}
 
@@ -1081,4 +1202,96 @@ PDFJS.Reader.prototype.isVisible = function (element) {
 
 	return visible;
 };
+
+PDFJS.Reader.prototype.addStyleSheet = function (_id, _parentNode) {
+    var id = _id,
+        parentNode = _parentNode || document.head,
+        style = document.createElement("style");
+    // WebKit hack
+    style.appendChild(document.createTextNode(""));
+    style.setAttribute("id", id);
+    parentNode.appendChild(style);
+    return style.sheet;
+};
+
+PDFJS.Reader.prototype.getStyleSheet = function (id, _parentNode) {
+    if (id !== undefined) {
+        var parentNode = _parentNode || document.head;
+        var style = $(parentNode).find("style#" + id);
+        if (style.length) return style[0];
+    }
+};
+
+PDFJS.Reader.prototype.addCSSRule = function (sheet, selector, rules, index) {
+    if (index === undefined) index = 0;
+    if("insertRule" in sheet) {
+        sheet.insertRule(selector + "{" + rules + "}", index);
+    } else if ("addRule" in sheet) {
+        sheet.addRule(selector, rules, index);
+    }
+};
+
+PDFJS.Reader.prototype.addStyle = function (name, selector, rules, extra) {
+    if (undefined === this.settings.customStyles[name]) {
+        this.settings.customStyles[name] = new this.Style(name, selector, rules, extra);
+        this.settings.session.setDefault("customStyles",this.settings.customStyles)
+    }
+};
+
+PDFJS.Reader.prototype.enableStyle = function (style) {
+    var currentMain = this.getStyleSheet(style.name);
+    if (currentMain) $(currentMain).remove();
+    var rules = "",
+        sheetMain = this.addStyleSheet(style.name);
+    for (var clause in style.rules) {
+        rules += clause + ":" + style.rules[clause] + "!important;";
+    }
+    this.addCSSRule(sheetMain, (style.selector === "*") ? "#main" : style.selector, rules, 0);
+    this.settings.activeStyles[style.name] = true;
+
+    this.settings.session.setDefault("activeStyles", this.settings.activeStyles);
+};
+
+PDFJS.Reader.prototype.disableStyle = function (style) {
+    var currentMain = this.getStyleSheet(style.name, document.head);
+    if (currentMain) $(currentMain).remove();
+    if (this.settings.activeStyles[style.name]) {
+        delete this.settings.activeStyles[style.name];
+        this.settings.session.setDefault("activeStyles", this.settings.activeStyles);
+    }
+};
+
+PDFJS.Reader.prototype.updateStyle = function (style) {
+    this.settings.session.setDefault("customStyles",this.settings.customStyles)
+    var current = this.getStyleSheet(style.name);
+    if (current) this.enableStyle(style);
+};
+
+PDFJS.Reader.prototype.deleteStyle = function (style) {
+    this.disableStyle(style);
+    delete this.customStyles[style.name];
+    this.settings.session.setDefault("customStyles",this.settings.customStyles);
+};
+
+PDFJS.Reader.prototype.refreshStyles = function (callback) {
+    var activeStyles = this.settings.activeStyles,
+        customStyles = this.settings.customStyles;
+
+    for (var style in activeStyles) {
+        if (!activeStyles.hasOwnProperty(style)) continue;
+
+        var rules = "",
+            sheet = this.addStyleSheet(style);
+
+        for (var clause in customStyles[style].rules) {
+            if (!customStyles[style].rules.hasOwnProperty(clause)) continue;
+            rules += clause + ":" + customStyles[style].rules[clause] + "!important;";
+        }
+
+        this.addCSSRule(sheet, customStyles[style].selector, rules, 0);
+    }
+
+    if (callback) callback();
+};
+
 

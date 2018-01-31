@@ -2,6 +2,7 @@ PDFJS.reader.NotesController = function(book) {
 
     var book = this.book,
         reader = this,
+        eventBus = this.eventBus,
         $notesView = $("#notesView"),
         $notes = $("#notes"),
         $text = $("#note-text"),
@@ -90,12 +91,17 @@ PDFJS.reader.NotesController = function(book) {
 
     var addAnnotationItem = function(annotation) {
         $notes.append(createItem(annotation));
-        reader.settings.session.setBookmark(annotation.id, annotation.anchor, annotation.type, annotation);
+        //reader.settings.session.setBookmark(annotation.id, annotation.anchor, annotation.type, annotation);
     };
 
     var removeAnnotation = function (id) {
 
         if (annotations[id] !== undefined) {
+            if (annotations[id].type == "bookmark")
+                eventBus.dispatch("bookmarkremoved", {
+                    source: this,
+                    id: id
+                });
             deleteAnnotationItem(id);
             delete annotations[id];
             reader.settings.session.deleteBookmark(id);
@@ -103,16 +109,10 @@ PDFJS.reader.NotesController = function(book) {
     };
 
     var deleteAnnotationItem = function (id) {
-        var marker = book.renderer.doc.getElementById("note-" + id);
         var item = document.getElementById(id);
 
         if (item)
             item.remove();
-
-        if (marker) {
-            marker.remove();
-            renumberMarkers();
-        }
     };
 
     /* items are HTML-representations of annotations */
@@ -132,7 +132,8 @@ PDFJS.reader.NotesController = function(book) {
             item.classList.add("note");
             del.classList.add("item-delete", "item-control", "icon-delete");
             edit.classList.add("item-edit", "item-control", "icon-rate_review");
-            link.classList.add("note-link", "icon-link2");
+            link.classList.add("note-link");
+            //link.classList.add("note-link", "icon-link2");
             date.classList.add("item-date");
             del.setAttribute("title",  "delete");
             edit.setAttribute("title", "edit");
@@ -144,49 +145,55 @@ PDFJS.reader.NotesController = function(book) {
             cancel.setAttribute("display", "none");
 
             link.href = "#"+annotation.anchor;
+            link.textContent = "Page " + annotation.anchor;
 
             link.onclick = function(){
                 reader.queuePage(annotation.anchor);
                 return false;
             };
 
-            del.onclick = function() {
-                var id = this.parentNode.parentNode.getAttribute("id");
-                console.log("ID", id);
-                removeAnnotation(id);
-            };
 
-            save.onclick = function() {
-                var id = this.parentNode.parentNode.getAttribute("id");
-                var annotation = annotations[id];
-                var text = this.parentNode.parentNode.firstChild;
-                try {
-                    annotation.body = text.textContent;
-                    reader.updateAnnotation(annotation);
-                } catch (e) {
-                    console.log("Updating annotation failed: " + e);
-                }
-                closeEditor(id);
-            };
+            if (!annotation.readonly) {
+                del.onclick = function() {
+                    var id = this.parentNode.parentNode.getAttribute("id");
+                    deleteAnnotationItem(id);
+                    reader.removeAnnotation(id);
+                };
 
-            cancel.onclick = function () {
-                var id = this.parentNode.parentNode.getAttribute("id");
-                var text = this.parentNode.parentNode.firstChild;
-                text.textContent = annotations[id].body;
-                closeEditor(id);
-            };
+                save.onclick = function() {
+                    var id = this.parentNode.parentNode.getAttribute("id");
+                    var annotation = annotations[id];
+                    var text = this.parentNode.parentNode.firstChild;
+                    try {
+                        annotation.body = text.textContent;
+                        reader.updateAnnotation(annotation);
+                    } catch (e) {
+                        console.log("Updating annotation failed: " + e);
+                    }
+                    closeEditor(id);
+                };
 
-            edit.onclick = function() {
-                openEditor(this.parentNode.parentNode.getAttribute("id"));
-            };
+                cancel.onclick = function () {
+                    var id = this.parentNode.parentNode.getAttribute("id");
+                    var text = this.parentNode.parentNode.firstChild;
+                    text.textContent = annotations[id].body;
+                    closeEditor(id);
+                };
 
-            div.appendChild(cancel);
-            div.appendChild(save);
-            div.appendChild(del);
-            div.appendChild(edit);
+                edit.onclick = function() {
+                    openEditor(this.parentNode.parentNode.getAttribute("id"));
+                };
+
+                div.appendChild(cancel);
+                div.appendChild(save);
+                div.appendChild(del);
+                div.appendChild(edit);
+            }
+
             div.appendChild(link);
             item.appendChild(text);
-            item.appendChild(date);
+            if (!annotation.readonly)
+                item.appendChild(date);
             item.appendChild(div);
             return item;
         };
@@ -249,25 +256,6 @@ PDFJS.reader.NotesController = function(book) {
         markerEvents(marker, annotation.body);
         renumberMarkers();
     }
-
-    var renumberMarkers = function() {
-        for (var note in annotations) {
-            if (annotations.hasOwnProperty(note)) {
-                var chapter = renderer.currentChapter;
-//                var cfi = epubcfi.parse(annotations[note].anchor);
-//                if(cfi.spinePos === chapter.spinePos) {
-//                    try {
-//                        var marker = book.renderer.doc.getElementById("note-" + annotations[note].id);
-//                        if (marker !== undefined) {
-//                            marker.innerHTML = findIndex(annotations[note].id) + "[Reader]";
-//                        }
-//                    } catch(e) {
-//                        console.log("renumbering of markers failed", annotations[note].anchor);
-//                    }
-//                }
-            }
-        };
-    };
 
     var markerEvents = function(item, txt){
         var id = item.id;

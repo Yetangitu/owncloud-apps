@@ -13,7 +13,7 @@
   $metadata = $_['metadata'];
   $annotations = $_['annotations'];
   $title = htmlentities(basename($downloadLink));
-  $revision = '0071';
+  $revision = '0130';
   $version = \OCP\App::getAppVersion('files_reader') . '.' . $revision;
 
   /* Mobile safari, the new IE6 */
@@ -32,9 +32,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>">
+        <!-- <base href="<?php p($urlGenerator->linkTo('files_reader',''));?>"> -->
         <title>
-            <?php p($_['title']);?>
+            <?php p($title);?>
         </title>
         <link rel="shortcut icon" href="img/book.png">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/icomoon/style.css')) ?>?v=<?php p($version) ?>">
@@ -63,6 +63,7 @@
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/annotationlayer_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/notes_controller.js')) ?>?v=<?php p($version) ?>"> </script>
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/bookmarks_controller.js')) ?>?v=<?php p($version) ?>"> </script>
+		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/controllers/styles_controller.js')) ?>?v=<?php p($version) ?>"> </script>
         <?php if ($idevice): ?>
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/idevice.css')) ?>?v=<?php p($version) ?>">
 		<script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/bgrins/spectrum.js')) ?>?v=<?php p($version) ?>"> </script>
@@ -91,11 +92,11 @@
                     <div class="pull-left">
                         <button id="show-Toc" class="show_view icon-dns open" title="Table of Contents" data-view="Toc"></button>
                         <button id="show-Outline" class="show_view icon-format_list_numbered" title="Outline" data-view="Outline"></button>
+                        <!-- currently not used
+                        <button id="show-Notes" class="show_view icon-comment" title="Annotations" data-view="Notes"></button>
+                        -->
                         <button id="show-Bookmarks" class="show_view icon-turned_in" title="Bookmarks" data-view="Bookmarks"></button>
                         <button id="show-Search" class="show_view icon-search" title="Search" data-view="Search"></button>
-                        <!-- notes not implemented yet
-                        <button id="show-Notes" class="show_view icon-comment" title="Notes" data-view="Notes"></button>
-                        -->
                         <button id="show-Settings" class="show_view icon-settings" title="Settings" data-view="Settings"></button>
                     </div>
                     <div class="pull-right">
@@ -112,6 +113,19 @@
                         <ul id="outline" class="outline">
                         </ul>
                     </div>
+                    
+                    <!-- currently not used
+                    <div id="notesView" class="notes-view view">
+                        <div>
+                            <div class="notes-input">
+                                <textarea id="note-text" class="note-text" placeholder="Write note, press 'marker' button and select position in text to link note."></textarea>
+                                <button id="note-anchor" class="note-anchor icon-room pull-right"></button>
+                            </div>
+                            <ol id="notes" class="notes">
+                            </ol>
+                        </div>
+                    </div>
+                    -->
                     <div id="bookmarksView" class="bookmarks-view view">
                         <ul id="bookmarks" class="bookmarks">
                         </ul>
@@ -127,61 +141,43 @@
                             </ul>
                         </div>
                     </div>
-                    <!-- notes not implemented yet
-                    <div id="notesView" class="notes-view view">
-                        <div>
-                            <div class="notes-input">
-                                <textarea id="note-text" class="note-text" placeholder="Write note, press 'marker' button and select position in text to link note."></textarea>
-                                <button id="note-anchor" class="note-anchor icon-room pull-right"></button>
-                            </div>
-                            <ol id="notes" class="notes">
-                            </ol>
-                        </div>
-                    </div>
-                    -->
                     <div id="settingsView" class="settings-view view">
-                        <!-- font settings not implemented yet
                         <fieldset class="settings-container" name="colour-settings">
                             <legend>colors</legend>
                             <fieldset>
-                                <legend>normal</legend>
-                                <div class="control-group">
-                                    <input type="checkbox" id="use_custom_colors" name="use_custom_colors">
-                                    <label for="use_custom_colors">
-                                        Use custom colors 
-                                    </label>
-                                    <div class="center-box">
-                                    <input type="color" id="day_color" value="#0a0a0a">
-                                    on
-                                    <input type="color" id="day_background" value="#f0f0f0">
-                                    </div>
-                                    <div id="day_example" class="day font_example">
-                                        <div>
-                                            Et nos esse veri viri scire volemus
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <fieldset>
                                 <legend>night</legend>
                                 <div class="control-group">
+                                <form id="nightmode_form">
                                     <div class="center-box nightshift">
-                                    nightmode can be toggled by clicking the book title
+                                    nightmode can be toggled by clicking the nightmode button
                                     </div>
-                                    <div class="center-box">
-                                    <input type="color" id="night_color" value="#454545">
-                                    on
-                                    <input type="color" id="night_background" value="#000000">
+                                    <div class="control-group">
+                                         <label title="adjust brightness">brightness</label>
+                                         <input id="night_brightness" type="range" min="0" max="1" step="0.01" value="1">
                                     </div>
-                                    <div id="night_example" class="night font_example">
-                                        <div>
-                                            Et nos esse veri viri scire volemus
-                                        </div>
+                                    <div class="control-group">
+                                         <label title="adjust contrast">constrast</label>
+                                         <input id="night_contrast" type="range" min="0" max="2" step="0.01" value="1">
                                     </div>
+                                    <div class="control-group">
+                                         <label title="adjust sepia">sepia</label>
+                                         <input id="night_sepia" type="range" min="0" max="1" step="0.01" value="0">
+                                    </div>
+                                    <div class="control-group">
+                                         <label title="adjust hue">hue</label>
+                                         <input id="night_huerotate" type="range" min="0" max="359" step="1" value="0">
+                                    </div>
+                                    <div class="control-group">
+                                         <label title="adjust saturation">saturation</label>
+                                         <input id="night_saturate" type="range" min="0" max="5" step="0.01" value="1">
+                                    </div>
+                                    <div class="control-group">
+                                        <input type="reset" id="nightmode_reset" name="nightmode_reset">
+                                    </div>
+                                    </form>
                                 </div>
                             </fieldset>
                         </fieldset>
-                        -->
                         <fieldset class="settings-container" name="display-settings">
                             <legend>display</legend>
                             <div class="control-group">
@@ -194,6 +190,12 @@
                                 <input type="checkbox" id="page_turn_arrows" name="page_turn_arrows">
                                 <label for="page_turn_arrows">
                                     show page turn arrows
+                                </label>
+                            </div>
+                            <div class="control-group">
+                                <input type="checkbox" id="scrollToTop" name="scrollToTop">
+                                <label for="scrollToTop">
+                                    scroll to top of page on page turn
                                 </label>
                             </div>
 
@@ -218,7 +220,7 @@
                         <div id="status_message_left">
                         </div>
                     </div>
-                    <div id="metainfo" class="nightshift">
+                    <div id="metainfo">
                         <span id="book-title">
                         </span>
                         <span id="title-separator">
@@ -236,6 +238,9 @@
                         </div>
                         <div id="match_count">
                         </div>
+                        <div id="nightmode" class="icon-brightness_low2 nightshift">
+                        </div>
+                        <span class="controls-separator"> </span>
                         <!-- select works fine, except for the fact that - as usual - apple mobile acts up... -->
                         <div id="zoom_options" class="hide">
                             <div class="zoom_option icon-double_page_mode" data-value="spread" data-class="icon-double_page_mode" data-text=""></div>

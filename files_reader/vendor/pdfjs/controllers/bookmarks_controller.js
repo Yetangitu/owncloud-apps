@@ -19,55 +19,45 @@ PDFJS.reader.BookmarksController = function() {
 
     var addBookmarkItem = function (bookmark) {
         $list.append(reader.NotesController.createItem(bookmark));
-        reader.settings.session.setBookmark(bookmark.id, bookmark.anchor, bookmark.type, bookmark);
+        //reader.settings.session.setBookmark(bookmark.id, bookmark.anchor, bookmark.type, bookmark);
     };
 
-    var addBookmark = function (pageNum) {
-        var bookmark = new reader.Annotation(
-            "bookmark",
-            pageNum,
-            null,
-            pageToId(pageNum)
-        );
+    eventBus.on('bookmarkcreated', function createBookmark1(e) {
+        var id = e.id,
+            $item =  $("#"+id);
 
-        addBookmarkItem(bookmark);
-    };
+        addBookmarkItem(reader.getAnnotation(id));
 
-    var removeBookmark = function (pageNum) {
-        var id = pageToId(pageNum);
-        console.log("ID", id);
-
-        if (isBookmarked(id)) {
-            delete reader.settings.annotations[id];
-            reader.settings.session.deleteBookmark(id);
-            if (id === pageToId(reader.settings.currentPage)) {
-                $bookmark
-                    .removeClass("icon-turned_in")
-                    .addClass("icon-turned_in_not");
-            }
-        }
-    };
+        if (id === reader.pageToId(reader.settings.currentPage)) 
+            $bookmark
+                .addClass("icon-turned_in")
+                .removeClass("icon-turned_in_not");
+    });
 
     eventBus.on('bookmarkremoved', function removeBookmark1(e) {
         var id = e.id,
             $item = $("#"+id);
 
-        $item.remove();
+        console.log($item);
+        
+        console.log("event bookmarkremoved caught:",e,id);
 
-        if (id === pageToId(reader.settings.currentPage)) {
-            $bookmark
-                .removeClass("icon-turned_in")
-                .addClass("icon-turned_in_not");
+        if (reader.isBookmarked(id)) {
+            //delete reader.settings.annotations[id];
+            //reader.settings.session.deleteBookmark(id);
+            console.log("removing bookmark ", $item, reader.pageToId(reader.settings.currentPage), id);
+
+            $item.remove();
+            $item.remove();
+            $item.remove();
+            $item.remove();
+
+            if (id === reader.pageToId(reader.settings.currentPage))
+                $bookmark
+                    .removeClass("icon-turned_in")
+                    .addClass("icon-turned_in_not");
         }
     });
-
-    var pageToId = function (pageNum) {
-        return "page_" + pageNum;
-    };
-
-    var isBookmarked = function (pageNum) {
-        return (reader.settings.annotations[pageToId(pageNum)] !== undefined);
-    };
 
     for (var bookmark in annotations) {
         if (annotations.hasOwnProperty(bookmark) && (annotations[bookmark].type === "bookmark"))
@@ -78,9 +68,5 @@ PDFJS.reader.BookmarksController = function() {
 		"show" : show,
 		"hide" : hide,
         "addItem" : addBookmarkItem,
-        "addBookmark" : addBookmark,
-        "removeBookmark" : removeBookmark,
-        "pageToId" : pageToId,
-        "isBookmarked" : isBookmarked
 	};
 };

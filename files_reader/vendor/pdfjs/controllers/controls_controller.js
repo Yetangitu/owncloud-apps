@@ -1,6 +1,9 @@
 PDFJS.reader.ControlsController = function(book) {
     var reader = this,
-        settings = reader.settings;
+        eventBus = this.eventBus,
+        settings = reader.settings,
+        customStyles = reader.settings.customStyles,
+        activeStyles = reader.settings.activeStyles;
 
     var $store = $("#store"),
         $viewer = $("#viewer"),
@@ -26,7 +29,9 @@ PDFJS.reader.ControlsController = function(book) {
         $page_num = $("#page_num"),
         $total_pages = $("#total_pages"),
         $status_message_left = $("#status_message_left"),
-        $status_message_right = $("#status_message_right");
+        $status_message_right = $("#status_message_right"),
+        $nightmode = $("#nightmode"),
+        $nightshift = $(".nightshift");
 
     var STATUS_MESSAGE_LENGTH = 30,
         STATUS_MESSAGE_TIMEOUT = 3000,
@@ -83,12 +88,8 @@ PDFJS.reader.ControlsController = function(book) {
     $slider.on("click", function () {
         if(reader.sidebarOpen) {
             reader.SidebarController.hide();
-            //$slider.addClass("icon-menu");
-            //$slider.removeClass("icon-right2");
         } else {
             reader.SidebarController.show();
-            //$slider.addClass("icon-right2");
-            //$slider.removeClass("icon-menu");
         }
     });
 
@@ -122,20 +123,12 @@ PDFJS.reader.ControlsController = function(book) {
 
     $bookmark.on("click", function() {
         var currentPage = reader.settings.currentPage,
-            bmc = reader.BookmarksController;
+            id = reader.pageToId(currentPage);
 
-        if(!bmc.isBookmarked(currentPage)) { //-- Add bookmark
-            bmc.addBookmark(currentPage);
-            $bookmark
-                .addClass("icon-turned_in")
-                .removeClass("icon-turned_in_not");
-        } else { //-- Remove Bookmark
-            bmc.removeBookmark(currentPage);
-            $bookmark
-                .removeClass("icon-turned_in")
-                .addClass("icon-turned_in_not");
-        }
-
+        if (!reader.isBookmarked(id))
+            reader.addBookmark(currentPage)
+        else
+            reader.removeBookmark(currentPage);
     });
 
     /* select works fine on most browsers, but - of course - apple mobile has 'special needs' so
@@ -146,7 +139,6 @@ PDFJS.reader.ControlsController = function(book) {
     // zooooooooooooooom
     $zoom_icon.on("click", function () {
         var offset = $(this).offset();
-        console.log(offset);
         $zoom_options.css("opacity", 0);
         $zoom_options.toggleClass("hide");
         $zoom_options.css({
@@ -168,16 +160,6 @@ PDFJS.reader.ControlsController = function(book) {
     };
 
     setZoomIcon(settings.zoomLevel);
-
-    /*
-    $zoom_icon[0].className="";
-    var $current_zoom_option = $zoom_options.find("[data-value='" + settings.zoomLevel + "']");
-    if ($current_zoom_option.data("class")) {
-        $zoom_icon.addClass($current_zoom_option.data("class"));
-    } else {
-        $zoom_icon[0].textContent = $current_zoom_option.data("text");
-    }
-    */
 
     $zoom_option.on("click", function () {
         var $this = $(this);
@@ -240,6 +222,25 @@ PDFJS.reader.ControlsController = function(book) {
         $rotate_icon[0].className = "icon-rotate_" + rotation;
     });
     /* end custom select */
+    
+    var setNightmodeIcon = function (mode) {
+        if (mode) 
+            $nightmode.removeClass("icon-brightness_low2").addClass("icon-brightness_4");
+        else
+            $nightmode.removeClass("icon-brightness_4").addClass("icon-brightness_low2");
+    };
+
+    $nightshift.off('click').on('click', function () {
+        if (settings.nightMode) {
+            reader.disableStyle(customStyles.nightMode);
+            settings.nightMode = false;
+        } else {
+            reader.enableStyle(customStyles.nightMode);
+            settings.nightMode = true;
+        }
+
+        setNightmodeIcon(settings.nightMode);
+    });
 
     var enterPageNum = function(e) {
         var text = e.target,
@@ -275,6 +276,20 @@ PDFJS.reader.ControlsController = function(book) {
         $page_num.prop("contenteditable", true);
         $page_num.addClass("editable");
         $page_num[0].addEventListener("keydown", enterPageNum, false);
+    });
+
+    eventBus.on("renderer:pagechanged", function toggleControls1(e) {
+        var page = e.pageNum,
+            id = reader.pageToId(page);
+
+        if (reader.isBookmarked(id))
+            $bookmark
+                .addClass("icon-turned_in")
+                .removeClass("icon-turned_in_not");
+        else
+            $bookmark
+                .removeClass("icon-turned_in")
+                .addClass("icon-turned_in_not");
     });
 
     var setPageCount = function (_numPages) {
@@ -315,44 +330,13 @@ PDFJS.reader.ControlsController = function(book) {
         $page_num[0].textContent = text;
     };
 
-
-    /*
-    book.on('renderer:locationChanged', function(cfi){
-        var cfiFragment = "#" + cfi;
-        // save current position (cursor)
-        reader.settings.session.setCursor(cfi);
-        //-- Check if bookmarked
-        if(!(reader.isBookmarked(cfi))) { //-- Not bookmarked
-            $bookmark
-                .removeClass("icon-turned_in")
-                .addClass("icon-turned_in_not");
-        } else { //-- Bookmarked
-            $bookmark
-                .addClass("icon-turned_in")
-                .removeClass("icon-turned_in_not");
-        }
-
-        reader.currentLocationCfi = cfi;
-
-        // Update the History Location
-        if(reader.settings.history &&
-            window.location.hash != cfiFragment) {
-                // Add CFI fragment to the history
-                history.pushState({}, '', cfiFragment);
-            }
-    });
-
-    book.on('book:pageChanged', function(location){
-        console.log("page", location.page, location.percentage)
-    });
-    */
-
     return {
         "show": show,
         "hide": hide,
         "toggle": toggle,
         "setZoomIcon": setZoomIcon,
         "setRotateIcon": setRotateIcon,
+        "setNightmodeIcon": setNightmodeIcon,
         "setCurrentPage": setCurrentPage,
         "setPageCount": setPageCount,
         "setStatus": setStatus

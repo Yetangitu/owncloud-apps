@@ -13,11 +13,14 @@ namespace OCA\Files_Reader;
 use OCP\IDBConnection;
 use OCP\Files\Node;
 use OCP\IUser;
+use OCP\Util;
 use \OC\User\User as User;
 
 class Hooks {
 
     public static function register() {
+        Util::connectHook('\OCP\Config', 'js', 'OCA\Files_Reader\Hooks', 'announce_settings');
+
         \OC::$server->getRootFolder()->listen('\OC\Files', 'preDelete', function (Node $node) {
             $fileId = $node->getId();
             $connection = \OC::$server->getDatabaseConnection();
@@ -28,6 +31,14 @@ class Hooks {
             $connection = \OC::$server->getDatabaseConnection();
             self::deleteUser($connection, $userId);
         });
+    }
+
+    public static function announce_settings(array $settings) {
+        $array = json_decode($settings['array']['oc_appconfig'], true);
+        $array['filesReader']['enableEpub'] = Config::get('epub_enable', true);
+        $array['filesReader']['enablePdf'] = Config::get('pdf_enable', true);
+        $array['filesReader']['enableCbx'] = Config::get('cbx_enable', true);
+        $settings['array']['oc_appconfig'] = json_encode($array);
     }
 
     protected static function deleteFile(IDBConnection $connection, $fileId) {

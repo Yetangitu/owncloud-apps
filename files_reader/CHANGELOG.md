@@ -1,3 +1,18 @@
+## UNRELEASED
+### Added
+ - PDF: (#73) new preference 'scroll to top of page on page turn'
+ - PDF: defaults and per-document settings are now saved and restored
+ - PDF: nightmode (using CSS3 filters, only works in recent browsers), toggle with 'd', by clicking nightmode button or clicking in empty area on button bar, adjust in settings
+
+### Changed
+ - remove <base> from templates to avoid warning in console, <base> statement was ineffective anyway de to (overly restrictive) hardcoded policy in NC/OC.
+ - removed (or rather disabled) merging of PDF annotations into user bookmarks as it only served to mess up the bookmark list and slowed things down. This feature can be re-enabled once Reader gains a functional PDF annotation editor.
+
+### Fixed
+ - PDF: (#72) $title not ['title'] in pdfreader template, hopefully the last remaining bug related to template refactoring
+ - PDF: browsing the thumbnail list in single-page mode did not work as intended due to datatype mismatch in page calculation routine, fixed with explicit toString()
+ - PDF: page 0 does not exist so don't try to go there
+
 ## 1.1.1 - 2018-01-19
 ### Added
  - signed package for publication in Owncloud marketplace

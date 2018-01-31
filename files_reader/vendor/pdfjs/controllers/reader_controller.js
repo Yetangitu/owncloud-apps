@@ -12,6 +12,7 @@ PDFJS.reader.ReaderController = function() {
         $fullscreen = $("#fullscreen"),
         $bookmark = $("#bookmark"),
         $note = $("#note"),
+        $nightmode = $("#nightmode"),
         $rotate_left = $("#rotate_left"),
         $rotate_right = $("#rotate_right"),
         $clear_search = $("#clear_search");
@@ -22,22 +23,14 @@ PDFJS.reader.ReaderController = function() {
 
     var slideIn = function() {
         if (reader.viewerResized) {
-            var currentPosition = book.getCurrentLocationCfi();
+            var currentPosition = settings.currentPage;
             reader.viewerResized = false;
-            $main.removeClass('single');
-            $main.one("transitionend", function(){
-                book.gotoCfi(currentPosition);
-            });
         }
     };
 
     var slideOut = function() {
-        var currentPosition = book.getCurrentLocationCfi();
+        var currentPosition = settings.currentPage;
         reader.viewerResized = true;
-        $main.addClass('single');
-        $main.one("transitionend", function(){
-            book.gotoCfi(currentPosition);
-        });
     };
 
     var showLoader = function() {
@@ -47,11 +40,6 @@ PDFJS.reader.ReaderController = function() {
 
     var hideLoader = function() {
         $loader.hide();
-
-        //-- If the book is using spreads, show the divider
-        // if(book.settings.spreads) {
-            // 	showDivider();
-            // }
     };
 
     var showDivider = function() {
@@ -111,10 +99,7 @@ PDFJS.reader.ReaderController = function() {
                 $fullscreen.click();
                 break;
             case 'toggleNight':
-                $metainfo.click();
-                break;
-            case 'toggleDay':
-                $use_custom_colors.click();
+                $nightmode.click();
                 break;
             case 'rotateLeft':
                 $rotate_left.click();
@@ -129,7 +114,10 @@ PDFJS.reader.ReaderController = function() {
                 reader.SearchController.nextMatch(true);
                 break;
             case 'nextMatch':
-                reader.SearchController.nextMatch(false);
+                if (e.shiftKey)
+                    reader.SearchController.nextMatch(true);
+                else
+                    reader.SearchController.nextMatch(false);
                 break;
             case 'clearSearch':
                 $clear_search.click();
@@ -154,47 +142,17 @@ PDFJS.reader.ReaderController = function() {
 
     $next.on("click", function(e){
 
-        //if(book.metadata.direction === "rtl") {
-        //    reader.prevPage();
-        //} else {
-            reader.nextPage();
-        //}
-
+        reader.nextPage();
         showActive($next);
-
         e.preventDefault();
     });
 
     $prev.on("click", function(e){
 
-        //if(book.metadata.direction === "rtl") {
-        //    reader.nextPage();
-        //} else {
-            reader.prevPage();
-        //}
-
+        reader.prevPage();
         showActive($prev);
-
         e.preventDefault();
     });
-
-    /*
-    book.on("renderer:spreads", function(bool){
-        if(bool) {
-            showDivider();
-        } else {
-            hideDivider();
-        }
-    });
-    */
-
-    // book.on("book:atStart", function(){
-        // 	$prev.addClass("disabled");
-        // });
-    // 
-    // book.on("book:atEnd", function(){
-        // 	$next.addClass("disabled");	
-        // });
 
     return {
         "slideOut" : slideOut,

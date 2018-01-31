@@ -133,9 +133,12 @@
 				}
 			});
 
-			fileActions.setDefault('application/epub+zip', 'view-epub');
-			fileActions.setDefault('application/x-cbr', 'view-cbr');
-			fileActions.setDefault('application/pdf', 'view-pdf');
+            if (oc_appconfig.filesReader.enableEpub === 'true')
+                fileActions.setDefault('application/epub+zip', 'view-epub');
+            if (oc_appconfig.filesReader.enableCbr === 'true')
+                fileActions.setDefault('application/x-cbr', 'view-cbr');
+            if (oc_appconfig.filesReader.enablePdf === 'true')
+                fileActions.setDefault('application/pdf', 'view-pdf');
 		}
 	};
 
