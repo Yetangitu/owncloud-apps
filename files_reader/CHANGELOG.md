@@ -1,4 +1,8 @@
-## UNRELEASED
+## 1.2.1 - 2018-01-31
+### Changed
+ - change default settings to enabled for all supported mime types
+
+## 1.2.0 - 2018-01-31
 ### Added
  - PDF: (#73) new preference 'scroll to top of page on page turn'
  - PDF: defaults and per-document settings are now saved and restored

@@ -35,9 +35,9 @@ class Hooks {
 
     public static function announce_settings(array $settings) {
         $array = json_decode($settings['array']['oc_appconfig'], true);
-        $array['filesReader']['enableEpub'] = Config::get('epub_enable', true);
-        $array['filesReader']['enablePdf'] = Config::get('pdf_enable', true);
-        $array['filesReader']['enableCbx'] = Config::get('cbx_enable', true);
+        $array['filesReader']['enableEpub'] = Config::get('epub_enable', 'true');
+        $array['filesReader']['enablePdf'] = Config::get('pdf_enable', 'true');
+        $array['filesReader']['enableCbx'] = Config::get('cbx_enable', 'true');
         $settings['array']['oc_appconfig'] = json_encode($array);
     }
 
