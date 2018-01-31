@@ -1,7 +1,7 @@
 owncloud-apps
 =============
 
-This repo contains a few apps I made for Owncloud, mostly related to reading/publishing books and other digital publications.
+This repo contains a few apps I made for Nextcloud and Owncloud, mostly related to reading/publishing books and other digital publications.
 
 Install
 -------
