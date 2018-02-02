@@ -15,9 +15,9 @@ use OCP\Util;
 #$l = \OC::$server->getL10N('files_reader');
 
 $tmpl = new \OCP\Template('files_reader', 'settings-personal');
-$EpubEnable = Config::get('epub_enable', true);
-$PdfEnable = Config::get('pdf_enable', true);
-$CbxEnable = Config::get('cbx_enable', true);
+$EpubEnable = Config::get('epub_enable', 'true');
+$PdfEnable = Config::get('pdf_enable', 'true');
+$CbxEnable = Config::get('cbx_enable', 'true');
 $tmpl->assign('EpubEnable', $EpubEnable);
 $tmpl->assign('PdfEnable', $PdfEnable);
 $tmpl->assign('CbxEnable', $CbxEnable);

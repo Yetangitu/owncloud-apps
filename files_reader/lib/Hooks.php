@@ -34,11 +34,14 @@ class Hooks {
     }
 
     public static function announce_settings(array $settings) {
-        $array = json_decode($settings['array']['oc_appconfig'], true);
+        // Nextcloud encodes this as JSON, Owncloud does not (yet) (#75)
+        // TODO: rmeove this when Owncloud starts encoding oc_appconfig as JSON just like it already encodes most other properties
+        $isJson = self::isJson($settings['array']['oc_appconfig']);
+        $array = ($isJson) ? json_decode($settings['array']['oc_appconfig'], true) : $settings['array']['oc_appconfig'];
         $array['filesReader']['enableEpub'] = Config::get('epub_enable', 'true');
         $array['filesReader']['enablePdf'] = Config::get('pdf_enable', 'true');
         $array['filesReader']['enableCbx'] = Config::get('cbx_enable', 'true');
-        $settings['array']['oc_appconfig'] = json_encode($array);
+        $settings['array']['oc_appconfig'] = ($isJson) ? json_encode($array) : $array;
     }
 
     protected static function deleteFile(IDBConnection $connection, $fileId) {
@@ -61,4 +64,7 @@ class Hooks {
         $queryBuilder->execute();
     }
 
+    private static function isJson($string) {
+        return is_string($string) && is_array(json_decode($string, true)) && (json_last_error() == JSON_ERROR_NONE) ? true : false;
+    }
 }
