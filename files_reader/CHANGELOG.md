@@ -1,3 +1,7 @@
+## 1.2.2 - 2018-02-02
+### Fixed
+ - (#75) NC and OC are diverging, NC encodes everything on $settings as JSON, OC does not yet.
+
 ## 1.2.1 - 2018-01-31
 ### Changed
  - change default settings to enabled for all supported mime types
