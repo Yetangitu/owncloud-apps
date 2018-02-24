@@ -135,7 +135,7 @@
 
             if (oc_appconfig.filesReader.enableEpub === 'true')
                 fileActions.setDefault('application/epub+zip', 'view-epub');
-            if (oc_appconfig.filesReader.enableCbr === 'true')
+            if (oc_appconfig.filesReader.enableCbx === 'true')
                 fileActions.setDefault('application/x-cbr', 'view-cbr');
             if (oc_appconfig.filesReader.enablePdf === 'true')
                 fileActions.setDefault('application/pdf', 'view-pdf');
@@ -148,7 +148,11 @@ OC.Plugins.register('OCA.Files.FileList', OCA.Files_Reader.Plugin);
 
 // FIXME: Hack for single public file view since it is not attached to the fileslist
 $(document).ready(function(){
-	if ($('#isPublic').val() && ($('#mimetype').val() === 'application/epub+zip'|| $('#mimetype').val() === 'application/x-cbr)')) {
+    if ($('#isPublic').val()
+        && ($('#mimetype').val() === 'application/epub+zip'
+            || $('#mimetype').val() === 'application/pdf'
+            || $('#mimetype').val() === 'application/x-cbr')
+    ) {
 		var sharingToken = $('#sharingToken').val();
 		var downloadUrl = OC.generateUrl('/s/{token}/download', {token: sharingToken});
 		var viewer = OCA.Files_Reader.Plugin;

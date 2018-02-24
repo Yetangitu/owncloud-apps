@@ -1,3 +1,9 @@
+## 1.2.3 - 2018-02-24
+### Fixed
+ - (#76) typo plus some missing code kept Reader from being used to preview shared files
+ - (#79) typo kept Reader from being used by default for CBx
+ - (#82) missing setDefault kept actual style settings from being saved
+
 ## 1.2.2 - 2018-02-02
 ### Fixed
  - (#75) NC and OC are diverging, NC encodes everything on $settings as JSON, OC does not yet.

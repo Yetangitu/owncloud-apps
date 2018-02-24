@@ -115,6 +115,7 @@ class PageController extends Controller {
 		$policy->addAllowedChildSrcDomain('\'self\'');
 		$policy->addAllowedFontDomain('\'self\'');
 		$policy->addAllowedFontDomain('data:');
+		$policy->addAllowedFontDomain('blob:');
 		$policy->addAllowedImageDomain('blob:');
 
         $response = new TemplateResponse($this->appName, $template, $params, 'blank');
@@ -135,7 +136,7 @@ class PageController extends Controller {
      */ 
     private function getFileInfo($path) {
         $count = 0;
-        $shareToken = preg_replace("/(?:\/index\.php)?\/s\/([A-Za-z0-9]{15})\/download.*/", "$1", $path, 1,$count);
+        $shareToken = preg_replace("/(?:\/index\.php)?\/s\/([A-Za-z0-9]{15,32})\/download.*/", "$1", $path, 1,$count);
 
         if ($count === 1) {
 
