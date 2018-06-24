@@ -116,7 +116,13 @@ body:not(.mobile) .navigate:hover {
 
 #cbr-loading-overlay {
 	z-index: 100;
-	background: #000 url("img/loading.gif") no-repeat center;
+	padding: 0;
+	width: 20px;
+	height: 20px;
+}
+
+#cbr-loading-overlay > img {
+	width: 100%;
 }
 
 .overlay {
