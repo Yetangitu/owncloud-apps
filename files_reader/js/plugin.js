@@ -65,6 +65,8 @@
 				$('.directDownload').show();
 			}
 			$('iframe').remove();
+			$('body').off('focus.filesreader');
+			$(window).off('popstate.filesreader');
 		},
 
 		/**
@@ -74,6 +76,8 @@
 		show: function(downloadUrl, mimeType, isFileList) {
 			var self = this;
 			var $iframe;
+			var iframeElem;
+
             		var viewer = OC.generateUrl('/apps/files_reader/?file={file}&type={type}', {file: downloadUrl, type: mimeType});
 			// launch in new window on mobile and touch devices...
 			if (isMobile || hasTouch) {
@@ -92,10 +96,40 @@
 					$('.directLink').addClass('hidden');
 					$('.directDownload').addClass('hidden');
 					$('#controls').addClass('hidden');
+					iframeElem = $('#preview > iframe');
 				} else {
 					$('#app-content').append($iframe);
 					self.hideControls();
+					iframeElem = $('#app-content > iframe');
 				}
+
+				iframeElem.focus();
+				$('body').on('focus.filesreader', function(){
+					iframeElem.focus();
+				});
+
+				$(window).on('popstate.filesreader', function(){
+					var closed = false;
+
+					function checkClose(){
+						if (closed) {
+							return;
+						}
+
+						if (
+							!$('#filestable').hasClass('hidden') ||
+							$('#app-content-files > .icon-loading').length
+						) {
+							closed = true;
+							self.hide();
+						}
+					}
+
+					checkClose();
+					setTimeout(checkClose, 0);
+					setTimeout(checkClose, 100);
+					setTimeout(checkClose, 200);
+				})
 			}
 		},
 
