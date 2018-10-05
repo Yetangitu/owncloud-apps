@@ -64,7 +64,7 @@ class Meta
 	protected static function load($id) {
                 $sql = 'SELECT * FROM `*PREFIX*opds_metadata` WHERE id = ?';
                 $args = array($id);
-                $query = \OCP\DB::prepare($sql);
+                $query = \OC_DB::prepare($sql);
                 $result = $query->execute($args);
 
 		return ($row = $result->fetchRow()) ? $row : false;
@@ -79,7 +79,7 @@ class Meta
 	protected static function save($meta) {
 		$sql = "SELECT `id` FROM *PREFIX*opds_metadata WHERE `id`=?";
 		$args = array($meta['id']);
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 		$result = $query->execute($args);
 		$data = $result->fetchRow();
 		if (isset($data['id'])) {
@@ -118,7 +118,7 @@ class Meta
 				$meta['rescan']
 				);
 		}
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 
 		return $query->execute($args);
 	}
@@ -150,7 +150,7 @@ class Meta
 	public static function remove($id) {
 		$sql = "DELETE FROM *PREFIX*opds_metadata WHERE `id`=?";
 		$args = array($id);
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 
 		return $query->execute($args);
 	}
@@ -162,7 +162,7 @@ class Meta
 	public static function rescan() {
                 $sql = "UPDATE *PREFIX*opds_metadata SET `rescan`=?";
                 $args = array(date("Y-m-d H:i:s"));
-                $query = \OCP\DB::prepare($sql);
+                $query = \OC_DB::prepare($sql);
                 $result = $query->execute($args);
 	}
 

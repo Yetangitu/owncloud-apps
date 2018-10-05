@@ -25,7 +25,7 @@ class Config
 	 * @return string retrieved value or default
 	 */
 	public static function get($key, $default) {
-		return \OCP\Config::getUserValue(\OCP\User::getUser(), 'files_opds', $key, $default);
+		return \OC::$server->getConfig()->getUserValue(\OC::$server->getUserSession()->getUser()->getUID(), 'files_opds', $key, $default);
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Config
 	 * @return bool success
 	 */
 	public static function set($key, $value) {
-		return \OCP\Config::setUserValue(\OCP\User::getUser(), 'files_opds', $key, $value);
+		return \OC::$server->getConfig()->setUserValue(\OC::$server->getUserSession()->getUser()->getUID(), 'files_opds', $key, $value);
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Config
 	 * @return string retrieved value or default
 	 */
 	public static function getApp($key, $default) {
-		return \OCP\Config::getAppValue('files_opds', $key, $default);
+		return \OC::$server->getConfig()->getAppValue('files_opds', $key, $default);
 	}
 
 	/**
@@ -58,17 +58,17 @@ class Config
 	 * @return bool success
 	 */
 	public static function setApp($key, $value) {
-		return \OCP\Config::setAppValue('files_opds', $key, $value);
+		return \OC::$server->getConfig()->setAppValue('files_opds', $key, $value);
 	}
-	
+
 	/**
 	 * @brief get preview status
-	 * 
+	 *
 	 * @param string format
 	 * @return bool (true = enabled, false = disabled)
 	 */
 	public static function getPreview($format) {
-		$enablePreviewProviders = \OCP\Config::getSystemValue('enabledPreviewProviders', null);
+		$enablePreviewProviders = \OC::$server->getConfig()->getSystemValue('enabledPreviewProviders', null);
 		if (!($enablePreviewProviders === null)) {
 			return in_array($format, $enablePreviewProviders);
 		}
@@ -83,7 +83,7 @@ class Config
 	 * @return bool
 	 */
 	public static function setPreview($format, $enable = 'false') {
-		$enablePreviewProviders = \OCP\Config::getSystemValue('enabledPreviewProviders', null);
+		$enablePreviewProviders = \OC::$server->getConfig()->getSystemValue('enabledPreviewProviders', null);
 		if ($enable == 'true') {
 			if ($enablePreviewProviders === null) {
 				// set up default providers
@@ -103,7 +103,7 @@ class Config
 			}
 		}
 
-		if (!(\OCP\Config::setSystemValue('enabledPreviewProviders', $enablePreviewProviders))) {
+		if (!(\OC::$server->getConfig()->setSystemValue('enabledPreviewProviders', $enablePreviewProviders))) {
 			logWarn("Failed to enable " . $format . " preview provider (config.php readonly?)");
 			return true;
 		}

@@ -24,7 +24,7 @@ class Feed
          * @return string feed id
          */
         public static function getFeedId() {
-                return Config::get('id', '');
+		return Config::get('id', '');
         }
 
         /**
@@ -66,8 +66,8 @@ class Feed
                 $tmpl->assign('id', $id);
                 $tmpl->assign('type', $type);
                 $tmpl->assign('dir', $dir);
-                $tmpl->assign('user', \OCP\User::getDisplayName());
-                $tmpl->assign('feed_title', Config::get('feed_title',\OCP\User::getDisplayName() . "'s Library"));
+                $tmpl->assign('user', \OC_User::getDisplayName());
+                $tmpl->assign('feed_title', Config::get('feed_title',\OC_User::getDisplayName() . "'s Library"));
                 $tmpl->assign('feed_subtitle', Config::getApp('feed_subtitle', $defaults->getName() . " OPDS catalog"));
                 $tmpl->assign('feed_updated', time());
                 $tmpl->printPage();
