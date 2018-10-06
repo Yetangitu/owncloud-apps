@@ -48,7 +48,9 @@ switch ($_['type']) {
 
 	case 'bookshelf':
 		foreach ($_['bookshelf'] as $file) {
-			print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
+                        foreach( $file as $key => $value ) 
+                                $newfile["file_".$key] = $value;
+			print_unescaped($this->inc('part.feed.acquisition', $newfile ));
 		}
         break;
 
@@ -60,10 +62,13 @@ switch ($_['type']) {
 	case 'directory':
 	default:
 		foreach ($_['files'] as $file) {
+			foreach( $file as $key => $value )
+				$newfile["file_".$key] = $value;
+
 			if ($file['type'] == 'dir') {
-				print_unescaped($this->inc('part.feed.navigation', [ 'file' => $file ]));
+				print_unescaped($this->inc('part.feed.navigation', $newfile ));
 			} else {
-				print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
+				print_unescaped($this->inc('part.feed.acquisition', $newfile ));
 			}
 		}
 		break;
