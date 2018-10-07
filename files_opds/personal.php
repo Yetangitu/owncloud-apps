@@ -18,6 +18,7 @@ $l = \OC::$server->getL10N('files_opds');
 
 $tmpl = new \OCP\Template('files_opds', 'personal');
 $opdsEnable = Config::get('enable', false);
+$opdsoldMime = Config::get('old_mime', false);
 $tmpl->assign('opdsEnable-checked', ($opdsEnable === 'true') ? 'checked="checked"' : '');
 $tmpl->assign('opdsEnable-value', ($opdsEnable === 'true') ? '1' : '0');
 $tmpl->assign('rootPath', Config::get('root_path', '/Library'));
@@ -26,6 +27,8 @@ $tmpl->assign('skipList', Config::get('skip_list', 'metadata.opf,cover.jpg'));
 $tmpl->assign('feedTitle', Config::get('feed_title', $l->t("%s's Library", \OC_User::getDisplayName())));
 $tmpl->assign('bookshelf-count', Bookshelf::count());
 $tmpl->assign('feedUrl', Util::linkToAbsolute('','index.php') . '/apps/files_opds/');
+$tmpl->assign('opdsoldMime-checked', ($opdsoldMime === 'true') ? 'checked="checked"' : '');
+$tmpl->assign('opdsoldMime-value', ($opdsoldMime === 'true') ? '1' : '0');
 
 return $tmpl->fetchPage();
 

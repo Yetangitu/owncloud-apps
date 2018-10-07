@@ -39,8 +39,10 @@ $(document).ready(function(){
         var opdsSettings = {
                 save : function() {
 			var opdsEnable = document.getElementById('opds-enable').checked ? 'true' : 'false';
+			var opdsoldMime = document.getElementById('opds-oldmime').checked ? 'true' : 'false';
                         var data = {
                                 opdsEnable : opdsEnable,
+                                opdsoldMime : opdsoldMime,
                                 rootPath : $('#opds-root-path').val(),
                                 fileTypes : $('#opds-file-types').val(),
                                 skipList : $('#opds-skip-list').val(),
@@ -61,5 +63,6 @@ $(document).ready(function(){
                                                 }
         });
         $('#opds-enable').on("change", opdsSettings.save);
+        $('#opds-oldmime').on("change", opdsSettings.save);
 });
 

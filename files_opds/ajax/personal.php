@@ -22,6 +22,7 @@ $rootPath = isset($_POST['rootPath']) ? $_POST['rootPath'] : '/Library';
 $fileTypes = isset($_POST['fileTypes']) ? $_POST['fileTypes'] : '';
 $skipList = isset($_POST['skipList']) ? $_POST['skipList'] : 'metadata.opf,cover.jpg';
 $feedTitle = isset($_POST['feedTitle']) ? $_POST['feedTitle'] : $l->t("%s's Library", \OC_User::getDisplayName());
+$opdsoldMime = isset($_POST['opdsoldMime']) ? $_POST['opdsoldMime'] : '';
 
 if (!strlen($rootPath) ||
     \OC\Files\Filesystem::isValidPath($rootPath) === false ||
@@ -37,6 +38,7 @@ if (!strlen($rootPath) ||
 	Config::set('file_types', $fileTypes);
 	Config::set('skip_list', $skipList);
 	Config::set('feed_title', $feedTitle);
+	Config::set('old_mime', $opdsoldMime);
 	Config::set('id', Util::genUuid());
 
        	\OC_JSON::success(
