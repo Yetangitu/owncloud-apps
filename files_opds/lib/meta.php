@@ -11,6 +11,7 @@
  */
 
 namespace OCA\Files_Opds;
+use OCP\ILogger;
 
 /**
  * Meta (data) class for OPDS
@@ -61,13 +62,13 @@ class Meta
 	 *
 	 * @return array or false
 	 */
-	protected static function load($id) {
+	protected static function xload($id) {
                 $sql = 'SELECT * FROM `*PREFIX*opds_metadata` WHERE id = ?';
                 $args = array($id);
-                $query = \OCP\DB::prepare($sql);
+                $query = \OC_DB::prepare($sql);
                 $result = $query->execute($args);
 
-		return ($row = $result->fetchRow()) ? $row : false;
+		return ($row = $result->fetch()) ? $row : false;
 	}
 
 	/**
@@ -79,9 +80,9 @@ class Meta
 	protected static function save($meta) {
 		$sql = "SELECT `id` FROM *PREFIX*opds_metadata WHERE `id`=?";
 		$args = array($meta['id']);
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 		$result = $query->execute($args);
-		$data = $result->fetchRow();
+		$data = $result->fetch();
 		if (isset($data['id'])) {
 			$sql = "UPDATE *PREFIX*opds_metadata SET `updated`=?, `date`=?, `author`=?, `title`=?, `language`=?, `publisher`=?, `isbn`=?, `copyright`=?, `description`=?, `subjects`=?, `cover`=?, `rescan`=? WHERE id=?";
 			$args = array(
@@ -99,7 +100,6 @@ class Meta
 				$meta['rescan'],
 				$meta['id']
 				);
-
 		} else {
 			$sql = "INSERT INTO *PREFIX*opds_metadata (`id`, `updated`, `date`, `author`, `title`, `language`, `publisher`, `isbn`, `copyright`, `description`, `subjects`, `cover`, `rescan`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$args = array(
@@ -117,8 +117,9 @@ class Meta
 				$meta['cover'],
 				$meta['rescan']
 				);
+
 		}
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 
 		return $query->execute($args);
 	}
@@ -132,7 +133,7 @@ class Meta
          * @return array of metadata
          */
         public static function get($id) {
-		if (!($meta = self::load($id)) || (isset($meta['rescan']) && time() > strtotime($meta['rescan']))) {
+		if (!($meta = self::xload($id)) || (isset($meta['rescan']) && time() > strtotime($meta['rescan']))) {
 			if(isset($meta['rescan'])) {
 				$meta['rescan'] = null;
 			}
@@ -150,7 +151,7 @@ class Meta
 	public static function remove($id) {
 		$sql = "DELETE FROM *PREFIX*opds_metadata WHERE `id`=?";
 		$args = array($id);
-		$query = \OCP\DB::prepare($sql);
+		$query = \OC_DB::prepare($sql);
 
 		return $query->execute($args);
 	}
@@ -162,7 +163,7 @@ class Meta
 	public static function rescan() {
                 $sql = "UPDATE *PREFIX*opds_metadata SET `rescan`=?";
                 $args = array(date("Y-m-d H:i:s"));
-                $query = \OCP\DB::prepare($sql);
+                $query = \OC_DB::prepare($sql);
                 $result = $query->execute($args);
 	}
 
@@ -229,7 +230,7 @@ class Meta
 				$meta['subjects'] = json_encode($epub->Subjects());
 			}
 		} catch (\Exception $e) {
-			\OCP\Util::writeLog(get_class(), $e->getMessage(), \OCP\Util::ERROR);
+			\OCP\Util::writeLog(get_class(), $e->getMessage(), ILogger::ERROR);
 		}
 	}
 
@@ -257,7 +258,7 @@ class Meta
 				$meta['subjects'] = json_encode($fb2->Subjects());
 			}
 		} catch (\Exception $e) {
-			\OCP\Util::writeLog(get_class(), $e->getMessage(), \OCP\Util::ERROR);
+			\OCP\Util::writeLog(get_class(), $e->getMessage(), ILogger::ERROR);
 		}
 	}
 

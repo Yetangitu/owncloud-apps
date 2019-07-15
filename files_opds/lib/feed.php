@@ -34,7 +34,7 @@ class Feed
          * @param int $id file id
          */
         public static function serveFile($path, $id) {
-                \OCP\User::checkLoggedIn();
+                \OC_JSON::checkLoggedIn();
                 \OC::$server->getSession()->close();
                 Bookshelf::add($id);
                 $dirName = dirname($path);
@@ -66,8 +66,8 @@ class Feed
                 $tmpl->assign('id', $id);
                 $tmpl->assign('type', $type);
                 $tmpl->assign('dir', $dir);
-                $tmpl->assign('user', \OCP\User::getDisplayName());
-                $tmpl->assign('feed_title', Config::get('feed_title',\OCP\User::getDisplayName() . "'s Library"));
+                $tmpl->assign('user', \OC_User::getDisplayName());
+                $tmpl->assign('feed_title', Config::get('feed_title',\OC_User::getDisplayName() . "'s Library"));
                 $tmpl->assign('feed_subtitle', Config::getApp('feed_subtitle', $defaults->getName() . " OPDS catalog"));
                 $tmpl->assign('feed_updated', time());
                 $tmpl->printPage();
@@ -82,7 +82,7 @@ class Feed
          * @param string type type of preview requested
          */
         public static function servePreview($path, $type) {
-                \OCP\User::checkLoggedIn();
+                \OC_Join::checkLoggedIn();
                 \OC::$server->getSession()->close();
 		$i = \OC\Files\Filesystem::getFileInfo($path,false);
 
