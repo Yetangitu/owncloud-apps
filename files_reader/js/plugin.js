@@ -73,30 +73,9 @@
 		 */
 		show: function(downloadUrl, mimeType, isFileList) {
 			var self = this;
-			var $iframe;
             		var viewer = OC.generateUrl('/apps/files_reader/?file={file}&type={type}', {file: downloadUrl, type: mimeType});
 			// launch in new window on mobile and touch devices...
-			if (isMobile || hasTouch) {
-				window.open(viewer, downloadUrl);
-            		} else {
-				$iframe = '<iframe style="width:100%;height:100%;display:block;position:absolute;top:0;" src="' + viewer + '" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  sandbox="allow-scripts allow-same-origin"/>';
-				if (isFileList === true) {
-					FileList.setViewerMode(true);
-				}
-				if ($('#isPublic').val()) {
-					// force the preview to adjust its height
-					$('#preview').append($iframe).css({ height: '100%' });
-					$('body').css({ height: '100%' });
-					$('footer').addClass('hidden');
-					$('#imgframe').addClass('hidden');
-					$('.directLink').addClass('hidden');
-					$('.directDownload').addClass('hidden');
-					$('#controls').addClass('hidden');
-				} else {
-					$('#app-content').append($iframe);
-					self.hideControls();
-				}
-			}
+			window.open(viewer, downloadUrl);
 		},
 
 		/**
