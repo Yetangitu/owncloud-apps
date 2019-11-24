@@ -23,7 +23,8 @@ style('files_opds', 'settings');
         </table>
         <div>
 		<input id="opds-enable" name="opds-enable" value="<?php p($_['opdsEnable-value']) ?>" <?php p($_['opdsEnable-checked']) ?> type="checkbox" class="checkbox">
-                <label for="opds-enable"><?php p($l->t('enable OPDS catalog')) ?></label>
+		<label for="opds-enable"><?php p($l->t('enable OPDS catalog')) ?></label>
+
 	</div>
 	<br>
 	<table>
@@ -43,6 +44,10 @@ style('files_opds', 'settings');
                 <td><label for="opds-skip-list"><?php p($l->t('Skip these filenames:')) ?></label></td>
                 <td><input type="text" id="opds-skip-list" title="<?php p($l->t("Enter list of comma-separated file names which should be skipped. Leave blank to use the default skip list.")); ?>" value="<?php p($_['skipList']) ?>" /></td>
         </tr>
+        <tr>
+                <td><label for="opds-oldmime"><?php p($l->t('Use alternative Mimetypes for Comicbook:')) ?></label></td>
+		<td><input id="opds-oldmime" name="opds-oldmime" value="<?php p($_['opdsoldMime-value']) ?>" <?php p($_['opdsoldMime-checked']) ?> type="checkbox" title="For example use application/x-cbr instead of application/comicbook+rar"/></td>
+	</tr>
 	</table>
 	<br>
 	<div>
