@@ -14,8 +14,8 @@ namespace OCA\Files_Opds;
 
 $l = \OC::$server->getL10N('files_opds');
 
-\OCP\JSON::checkLoggedIn();
-\OCP\JSON::callCheck();
+\OC_JSON::checkLoggedIn();
+\OC_JSON::callCheck();
 
 Bookshelf::clear();
-\OCP\JSON::success(array( "data" => array( "message" => $l->t("Bookshelf cleared")))); 
+\OC_JSON::success(array( "data" => array( "message" => $l->t("Bookshelf cleared")))); 

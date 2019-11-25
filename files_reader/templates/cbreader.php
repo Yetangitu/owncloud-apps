@@ -36,9 +36,9 @@
         <title>
             <?php p($title);?>
         </title>
-        <link rel="shortcut icon" href="img/book.png">
-        <link rel="stylesheet" href="vendor/icomoon/style.css?v=<?php p($version) ?>">
-        <link rel="stylesheet" href="vendor/cbrjs/css/cbr.css?v=<?php p($version) ?>">
+        <link rel="shortcut icon" href="<?php p($urlGenerator->linkTo('files_reader', 'img/book.png')) ?>">
+        <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/icomoon/style.css')) ?>?v=<?php p($version) ?>">
+        <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/cbrjs/css/cbr.css')) ?>?v=<?php p($version) ?>">
         <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'js/lib/Blob.js')) ?>?v=<?php p($version) ?>"> </script>
         <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/libs/jquery.min.js')) ?>?v=<?php p($version) ?>"> </script>
         <script type="text/javascript" nonce="<?php p($nonce) ?>" src="<?php p($urlGenerator->linkTo('files_reader', 'vendor/sindresorhus/screenfull.js')) ?>?v=<?php p($version) ?>"> </script>
@@ -109,7 +109,9 @@
         <!-- /toolbar -->
 
         <!-- loading overlay -->
-        <div id="cbr-loading-overlay" class="cbr-control control overlay" name="loadingOverlay" style="display:none"></div>
+        <div id="cbr-loading-overlay" class="cbr-control control overlay" name="loadingOverlay" style="display:none">
+            <img src="<?php p($urlGenerator->linkTo('files_reader', 'img/loading.gif')) ?>">
+        </div>
         <!-- /loading overlay -->
 
         <!-- busy overlay -->

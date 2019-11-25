@@ -21,9 +21,9 @@ $EpubEnable = isset($_POST['EpubEnable']) ? $_POST['EpubEnable'] : 'false';
 $PdfEnable = isset($_POST['PdfEnable']) ? $_POST['PdfEnable'] : 'false';
 $CbxEnable = isset($_POST['CbxEnable']) ? $_POST['CbxEnable'] : 'false';
 
-\OC::$server->getAppConfig()->setValue('files_reader', 'epub_enable', $EpubEnable);
-\OC::$server->getAppConfig()->setValue('files_reader', 'pdf_enable', $PdfEnable);
-\OC::$server->getAppConfig()->setValue('files_reader', 'cbx_enable', $CbxEnable);
+Config::set('epub_enable', $EpubEnable);
+Config::set('pdf_enable', $PdfEnable);
+Config::set('cbx_enable', $CbxEnable);
 
 \OC_JSON::success(
     array(

@@ -30,7 +30,7 @@ See [README] for more exhaustive information on features and potential misfeatur
    [README]: https://github.com/Yetangitu/owncloud-apps/blob/master/files_reader/README.md
 	]]>
     </description>
-    <version>1.2.3</version>
+    <version>1.3.0</version>
     <licence>AGPL</licence>
     <author>Frank de Lange</author>
     <documentation>
@@ -47,15 +47,7 @@ See [README] for more exhaustive information on features and potential misfeatur
     <category>files</category>
     <category>multimedia</category>
     <category>office</category>
-    <types>
-        <filesystem/>
-    </types>
     <dependencies>
-        <owncloud min-version="8.2" max-version="10.0" />
-        <nextcloud min-version="8.1" max-version="14.0"/>
-		<database>pgsql</database>
-		<database>sqlite</database>
-		<database>mysql</database>
+        <nextcloud min-version="14" max-version="17"/>
     </dependencies>
-    <ocsid>167127</ocsid>
 </info>

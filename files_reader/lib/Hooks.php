@@ -19,7 +19,7 @@ use \OC\User\User as User;
 class Hooks {
 
     public static function register() {
-        Util::connectHook('js', 'OCA\Files_Reader\Hooks', 'announce_settings');
+        Util::connectHook('\OCP\Config', 'js', 'OCA\Files_Reader\Hooks', 'announce_settings');
 
         \OC::$server->getRootFolder()->listen('\OC\Files', 'preDelete', function (Node $node) {
             $fileId = $node->getId();
@@ -38,9 +38,9 @@ class Hooks {
         // TODO: rmeove this when Owncloud starts encoding oc_appconfig as JSON just like it already encodes most other properties
         $isJson = self::isJson($settings['array']['oc_appconfig']);
         $array = ($isJson) ? json_decode($settings['array']['oc_appconfig'], true) : $settings['array']['oc_appconfig'];
-        $array['filesReader']['enableEpub'] = \OC::$server->getConfig()->getAppValue('epub_enable', 'true');
-        $array['filesReader']['enablePdf'] = \OC::$server->getConfig()->getAppValue('pdf_enable', 'true');
-        $array['filesReader']['enableCbx'] = \OC::$server->getConfig()->getAppValue('cbx_enable', 'true');
+        $array['filesReader']['enableEpub'] = Config::get('epub_enable', 'true');
+        $array['filesReader']['enablePdf'] = Config::get('pdf_enable', 'true');
+        $array['filesReader']['enableCbx'] = Config::get('cbx_enable', 'true');
         $settings['array']['oc_appconfig'] = ($isJson) ? json_encode($array) : $array;
     }
 
