@@ -65,6 +65,8 @@
 				$('.directDownload').show();
 			}
 			$('iframe').remove();
+			$('body').off('focus.filesreader');
+			$(window).off('popstate.filesreader');
 		},
 
 		/**
@@ -73,31 +75,10 @@
 		 */
 		show: function(downloadUrl, mimeType, isFileList) {
 			var self = this;
-			var $iframe;
-            		var viewer = OC.generateUrl('/apps/files_reader/?file={file}&type={type}', {file: downloadUrl, type: mimeType});
-			// launch in new window on mobile and touch devices...
-			if (isMobile || hasTouch) {
-				window.open(viewer, downloadUrl);
-            		} else {
-				$iframe = '<iframe style="width:100%;height:100%;display:block;position:absolute;top:0;" src="' + viewer + '" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  sandbox="allow-scripts allow-same-origin"/>';
-				if (isFileList === true) {
-					FileList.setViewerMode(true);
-				}
-				if ($('#isPublic').val()) {
-					// force the preview to adjust its height
-					$('#preview').append($iframe).css({ height: '100%' });
-					$('body').css({ height: '100%' });
-					$('footer').addClass('hidden');
-					$('#imgframe').addClass('hidden');
-					$('.directLink').addClass('hidden');
-					$('.directDownload').addClass('hidden');
-					$('#controls').addClass('hidden');
-				} else {
-					$('#app-content').append($iframe);
-					self.hideControls();
-				}
-			}
-		},
+      var viewer = OC.generateUrl('/apps/files_reader/?file={file}&type={type}', {file: downloadUrl, type: mimeType});
+			// launch in new window on all devices
+			window.open(viewer, downloadUrl);
+    },
 
 		/**
 		 * @param fileActions
@@ -105,6 +86,16 @@
 		 */
 		_extendFileActions: function(fileActions) {
 			var self = this;
+			var cbxMime = [
+				'application/x-cbr',
+				'application/comicbook+7z',
+				'application/comicbook+ace',
+				'application/comicbook+rar',
+				'application/comicbook+tar',
+				'application/comicbook+truecrypt',
+				'application/comicbook+zip'
+			];
+
 			fileActions.registerAction({
 				name: 'view-epub',
 				displayName: 'View',
@@ -114,15 +105,22 @@
 					return actionHandler(fileName, 'application/epub+zip', context);
 				}
 			});
-			fileActions.registerAction({
-				name: 'view-cbr',
-				displayName: 'View',
-				mime: 'application/x-cbr',
-				permissions: OC.PERMISSION_READ,
-				actionHandler: function(fileName, context) {
-					return actionHandler(fileName, 'application/x-cbr', context);
-				}
+
+			cbxMime.forEach(function(mime, i){
+				fileActions.registerAction({
+					name: 'view-cbr-' + i,
+					displayName: 'View',
+					mime: mime,
+					permissions: OC.PERMISSION_READ,
+					actionHandler: function (fileName, context) {
+						return actionHandler(fileName, 'application/x-cbr', context);
+					}
+				});
+
+				if (oc_appconfig.filesReader.enableCbx === 'true')
+					fileActions.setDefault(mime, 'view-cbr-' + i);
 			});
+
 			fileActions.registerAction({
 				name: 'view-pdf',
 				displayName: 'View',
@@ -135,8 +133,6 @@
 
             if (oc_appconfig.filesReader.enableEpub === 'true')
                 fileActions.setDefault('application/epub+zip', 'view-epub');
-            if (oc_appconfig.filesReader.enableCbx === 'true')
-                fileActions.setDefault('application/x-cbr', 'view-cbr');
             if (oc_appconfig.filesReader.enablePdf === 'true')
                 fileActions.setDefault('application/pdf', 'view-pdf');
 		}

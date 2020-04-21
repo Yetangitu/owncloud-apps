@@ -12,8 +12,8 @@
 
 namespace OCA\Files_Reader;
 
-\OCP\JSON::callCheck();
-\OCP\JSON::checkLoggedIn();
+\OC_JSON::callCheck();
+\OC_JSON::checkLoggedIn();
 
 $l = \OC::$server->getL10N('files_reader');
 
@@ -25,7 +25,7 @@ Config::set('epub_enable', $EpubEnable);
 Config::set('pdf_enable', $PdfEnable);
 Config::set('cbx_enable', $CbxEnable);
 
-\OCP\JSON::success(
+\OC_JSON::success(
     array(
 		'data' => array('message'=> $l->t('Settings updated successfully.'))
     )

@@ -113,7 +113,7 @@ class Util
 	 */
 	public static function genUuid() {
 		$defaults = new \OC_Defaults();
-		$hash = md5(\OCP\User::getDisplayName() . $defaults->getBaseUrl());
+		$hash = md5(\OC_User::getDisplayName() . $defaults->getBaseUrl());
 		$hash = substr($hash, 0, 8 ) .'-'.
 			substr($hash, 8, 4) .'-3'.
 			substr($hash, 13, 3) .'-9'.

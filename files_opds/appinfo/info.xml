@@ -19,7 +19,7 @@ See [README] for more information on (mis)features of this app.
     ]]>
     </description>
     <licence>AGPL</licence>
-	<version>0.8.8</version>
+	<version>0.9</version>
     <author>Frank de Lange</author>
 	<category>tools</category>
 	<category>files</category>
@@ -32,16 +32,9 @@ See [README] for more information on (mis)features of this app.
 	</documentation>
 	<screenshot>https://raw.githubusercontent.com/Yetangitu/owncloud-apps/master/screenshots/files_opds-1.png</screenshot>
         <dependencies>
-            <php min-version="5.4" />
-            <database>pgsql</database>
-            <database>sqlite</database>
-            <database>mysql</database>
-            <owncloud min-version="8.2" max-version="10.0" />
-            <nextcloud min-version="8.1" max-version="13.0" />
+            <nextcloud min-version="14" max-version="17" />
         </dependencies>
 	<settings>
 		<admin>OCA\Files_Opds\Settings\Admin</admin>
 	</settings>
-	<ocsid>168132</ocsid>
 </info>
-

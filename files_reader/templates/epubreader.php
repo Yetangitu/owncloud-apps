@@ -36,7 +36,7 @@
         <title>
             <?php p($title);?>
         </title>
-        <link rel="shortcut icon" href="img/book.png">
+        <link rel="shortcut icon" href="<?php p($urlGenerator->linkTo('files_reader', 'img/book.png')) ?>">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/icomoon/style.css')) ?>?v=<?php p($version) ?>">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/css/main.css')) ?>?v=<?php p($version) ?>">
 		<link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/epubjs/css/sidebar.css')) ?>?v=<?php p($version) ?>">
@@ -155,7 +155,7 @@
                                 <div class="control-group">
                                     <input type="checkbox" id="use_custom_colors" name="use_custom_colors">
                                     <label for="use_custom_colors">
-                                        Use custom colors 
+                                        Use custom colors
                                     </label>
                                     <div class="center-box">
                                     <input type="color" id="day_color" value="#0a0a0a">
@@ -209,7 +209,7 @@
                             <div class="control-group">
                                 <input type="checkbox" id="touch_nav" name="touch_nav">
                                 <label for="touch_nav">
-                                    disable extra-wide page turn areas 
+                                    disable extra-wide page turn areas
                                 </label>
                             </div>
                             <div class="control-group">
@@ -283,7 +283,7 @@
                     </div>
                 </div>
                 <div id="loader">
-                    <img src="img/loading.gif">
+                    <img src="<?php p($urlGenerator->linkTo('files_reader', 'img/loading.gif')) ?>">
                 </div>
 
                 <!-- /navigation + viewer -->
