@@ -1,7 +1,9 @@
+# This repository is read-only and kept only for documentation purposes. The development of the epubreader app is done in this repository: https://github.com/e-alfred/epubreader
+
 owncloud-apps
 =============
 
-This repo contains a few apps I made for Nextcloud and Owncloud, mostly related to reading/publishing books and other digital publications.
+This repo contains a few apps made for Nextcloud and Owncloud, mostly related to reading/publishing books and other digital publications.
 
 Install
 -------
