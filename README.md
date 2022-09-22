@@ -1,3 +1,5 @@
+DEPRECATED - individual apps will be moved to their own repositories
+
 owncloud-apps
 =============
 
