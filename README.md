@@ -1,5 +1,7 @@
 # _DEPRECATED - individual apps will be moved to their own repositories_
 
+## Reader (files_reader) has moved: https://github.com/Yetangitu/files_reader
+
 owncloud-apps
 =============
 
