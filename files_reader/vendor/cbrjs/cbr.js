@@ -50,7 +50,7 @@ CBRJS.Reader = function(bookPath, _options) {
 		}
 
 		xhr.open('GET',url, true);
-         
+
 		options.start(filename);
 
 		xhr.responseType = "arraybuffer";
@@ -70,10 +70,10 @@ CBRJS.Reader = function(bookPath, _options) {
             reader.options.session.size = e.total;
 		};
 
-		xhr.onload = function () { 
+		xhr.onload = function () {
 			if ((this.status === 200) && this.response) {
 				var done = false;
-				var ua = new bitjs.archive[archive_class](this.response, 'vendor/bitjs/');
+				var ua = new bitjs.archive[archive_class](this.response, document.head.dataset.basepath + 'vendor/bitjs/');
 
 				ua.addEventListener(bitjs.archive.UnarchiveEvent.Type.START, function (e) {
 					$progressbar.css('width', '0%');
@@ -120,9 +120,9 @@ CBRJS.Reader = function(bookPath, _options) {
 					$('.icon-unarchive').removeClass('active');
 					$('.icon-unarchive').addClass('error');
 					$('#message').text('Failed to extract images from archive, file corrupted?');
-					
+
 				});
-			} 
+			}
 
 			ua.start();
 		};
@@ -261,7 +261,7 @@ ComicBook = (function ($) {
             thumbnails: true, // true / false (use thumbnails in index)
             thumbnailWidth: 200, // width of thumbnail
             sidebarWide: false, // use wide sidbar
-            currentPage: 0, // current page 
+            currentPage: 0, // current page
             keyboard: {
                 32: 'next', // space
                 34: 'next', // page-down
@@ -276,7 +276,7 @@ ComicBook = (function ($) {
                 70: 'toggleFullscreen', // f
                 27: 'closeSidebar' // esc
             },
-            vendorPath: 'vendor/',
+            vendorPath: document.head.dataset.basepath + 'vendor/',
             forward_buffer: 3,
             session: {
                 getCursor: function() {},
@@ -442,7 +442,7 @@ ComicBook = (function ($) {
                             break;
                         default:
                             console.log("unknown enhancement: " + JSON.stringify(prop));
-                    } 
+                    }
                 }
             };
 
@@ -570,7 +570,7 @@ ComicBook = (function ($) {
         };
 
         /**
-         * Insert thumbnail into TOC 
+         * Insert thumbnail into TOC
          */
         ComicBook.prototype.tocInsert = function (image, page, replace) {
             var placeholder = toc.children[page].firstChild;
@@ -578,7 +578,7 @@ ComicBook = (function ($) {
                 placeholder.parentNode.replaceChild(
                     self.getThumb(image),
                     placeholder
-                ); 
+                );
             }
 
             toc.children[page].addEventListener('click', function (e) {
@@ -1407,7 +1407,7 @@ ComicBook = (function ($) {
                 page = options.currentPage;
             }
 
-            document.getElementById('toc').parentNode.scrollTop = 
+            document.getElementById('toc').parentNode.scrollTop =
                 document.getElementById('page-' + String(page + 1)).offsetTop
                 - Math.floor($('.panels').height() * 1.5);
         };
@@ -1474,5 +1474,3 @@ ComicBook = (function ($) {
         }
 
 })(window, jQuery);
-
-

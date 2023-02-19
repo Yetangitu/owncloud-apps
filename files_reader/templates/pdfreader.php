@@ -36,7 +36,7 @@
         <title>
             <?php p($title);?>
         </title>
-        <link rel="shortcut icon" href="img/book.png">
+        <link rel="shortcut icon" href="<?php p($urlGenerator->linkTo('files_reader', 'img/book.png')) ?>">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/icomoon/style.css')) ?>?v=<?php p($version) ?>">
         <link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/main.css')) ?>?v=<?php p($version) ?>">
 		<link rel="stylesheet" href="<?php p($urlGenerator->linkTo('files_reader', 'vendor/pdfjs/css/sidebar.css')) ?>?v=<?php p($version) ?>">
@@ -113,7 +113,7 @@
                         <ul id="outline" class="outline">
                         </ul>
                     </div>
-                    
+
                     <!-- currently not used
                     <div id="notesView" class="notes-view view">
                         <div>
@@ -183,7 +183,7 @@
                             <div class="control-group">
                                 <input type="checkbox" id="touch_nav" name="touch_nav">
                                 <label for="touch_nav">
-                                    disable extra-wide page turn areas 
+                                    disable extra-wide page turn areas
                                 </label>
                             </div>
                             <div class="control-group">
@@ -310,7 +310,7 @@
                     </div>
                 </div>
                 <div id="loader">
-                    <img src="img/loading.gif">
+                    <img src="<?php p($urlGenerator->linkTo('files_reader', 'img/loading.gif')) ?>">
                 </div>
 
                 <!-- /navigation + viewer -->
