@@ -14,6 +14,7 @@ namespace OCA\Files_Opds;
 
 use OC\Authentication\Exceptions\PasswordLoginForbiddenException;
 use OC\User\LoginException;
+use OCP\ILogger;
 
 /**
  * Utility class for OPDS
@@ -113,7 +114,7 @@ class Util
 	 */
 	public static function genUuid() {
 		$defaults = new \OC_Defaults();
-		$hash = md5(\OCP\User::getDisplayName() . $defaults->getBaseUrl());
+		$hash = md5(\OC_User::getDisplayName() . $defaults->getBaseUrl());
 		$hash = substr($hash, 0, 8 ) .'-'.
 			substr($hash, 8, 4) .'-3'.
 			substr($hash, 13, 3) .'-9'.
@@ -127,6 +128,6 @@ class Util
 	 * @param string message to write to log
 	 */
 	public static function logWarn($msg) {
-		\OCP\Util::writeLog('files_opds', $msg, \OCP\Util::WARN);
+		\OCP\Util::writeLog('files_opds', $msg, ILogger::WARN);
 	}
 }

@@ -48,7 +48,7 @@ switch ($_['type']) {
 
 	case 'bookshelf':
 		foreach ($_['bookshelf'] as $file) {
-			print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
+			print_unescaped($this->inc('part.feed.acquisition', [ 'xfile' => $file ]));
 		}
         break;
 
@@ -61,9 +61,9 @@ switch ($_['type']) {
 	default:
 		foreach ($_['files'] as $file) {
 			if ($file['type'] == 'dir') {
-				print_unescaped($this->inc('part.feed.navigation', [ 'file' => $file ]));
+				print_unescaped($this->inc('part.feed.navigation', [ 'xfile' => $file ]));
 			} else {
-				print_unescaped($this->inc('part.feed.acquisition', [ 'file' => $file ]));
+				print_unescaped($this->inc('part.feed.acquisition', [ 'xfile' => $file ]));
 			}
 		}
 		break;

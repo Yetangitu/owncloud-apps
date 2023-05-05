@@ -12,8 +12,8 @@
 
 namespace OCA\Files_Opds;
 
-\OCP\JSON::callCheck();
-\OCP\JSON::checkLoggedIn();
+\OC_JSON::callCheck();
+\OC_JSON::checkLoggedIn();
 $defaults = new \OC_Defaults();
 
 $l = \OC::$server->getL10N('files_opds');
@@ -53,7 +53,7 @@ if (isset($_POST['opdsCoverX'])) {
 	Config::setPreview('OC\Preview\MSOffice2007',$opdsPreviewMsOffice);
 }
 
-\OCP\JSON::success(
+\OC_JSON::success(
 array(
 	'data' => array('message'=> $l->t('Settings updated successfully.'))
 	)
